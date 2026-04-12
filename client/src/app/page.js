@@ -33,7 +33,7 @@ export default function Home() {
 </div>
 
   {/* RIGHT SIDE */}
-  <div className="flex-auto flex items-center justify-end px-2">
+  <div className="flex-auto flex items-center justify-end px-12 ">
     <img
       className="h-70 w-auto object-contain rounded-lg "
       src="/assets/images/logo.jpg"
