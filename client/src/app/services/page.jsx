@@ -34,7 +34,8 @@ export default function services() {
                     <h2 className="text-xl font-bold text-white mb-4"><i className="bi bi-globe"> </i>Web Application</h2>
                     <p className="text-white mt-4">
                      
-                     Full-stack web applications with complex features and seamless user experiences.
+                     Full-stack web applications with complex features and seamless user experiences and responsive designs.
+                     Mobile and desktop-friendly interfaces that adapt to any screen size. Fully responsive layout. 
                     </p>
                     </div>
 
