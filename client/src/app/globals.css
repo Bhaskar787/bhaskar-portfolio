@@ -1,3 +1,64 @@
 @import "tailwindcss";
 
 
+:root {
+  /* Light Mode */
+  --background: #f8fafc;        /* soft gray (not pure white) */
+  --foreground: #0f172a;        /* slate-900 */
+  --primary: #7c3aed;           /* purple-600 */
+  --secondary: #06b6d4;         /* cyan-500 */
+  --card: #ffffff;
+  --border: #e2e8f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-card: var(--card);
+  --color-border: var(--border);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #020617;      /* deep dark (better than #0a0a0a) */
+    --foreground: #e2e8f0;      /* slate-200 */
+    --primary: #a78bfa;         /* purple-400 */
+    --secondary: #22d3ee;       /* cyan-400 */
+    --card: #0f172a;            /* slate-900 */
+    --border: #1e293b;
+  }
+}
+
+/* Base styles */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Optional nice defaults */
+section {
+  color: var(--foreground);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* Links */
+a {
+  color: var(--primary);
+  transition: 0.3s;
+}
+
+a:hover {
+  color: var(--secondary);
+}
