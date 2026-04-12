@@ -25,7 +25,7 @@ export default function About() {
         <div className="flex justify-end">
           <img
             className="h-auto max-w-full md:max-w-md object-contain rounded-lg border-4 border-slate-500"
-            src="/assets/images/bhaskar1.png"
+            src="/assets/images/bhaskar.png"
             alt="profile"
           />
         </div>
