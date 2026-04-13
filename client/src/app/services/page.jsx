@@ -5,10 +5,11 @@ export default function services() {
                 My Services
             </h1>
 
-            <div className="grid grid-cols-3 md:grid-cols-3 gap-8">
-                <div className="bg-slate-800 p-6 rounded-lg">
+ {/* for mobile responsive grid-cols-1 md:grid-cols-2 lg:grid-cols-3 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="bg-slate-800 p-6 rounded-lg flex flex-col">
                     <h2 className="text-xl font-bold text-white mb-4"><i className="bi bi-laptop"> </i>Web Development</h2>
-                    <p className="text-white mt-4">
+                    <p className="text-white mt-4 flex-1">
                         I offer full-stack web development services using modern technologies like React, Node.js, Express.js, and MongoDB. I can create responsive and user-friendly websites tailored to your needs.
                     </p>
                     </div>

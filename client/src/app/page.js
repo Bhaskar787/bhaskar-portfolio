@@ -17,31 +17,44 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
-      {/* hero section */}
-  <div className="flex mb-8">
-  
-  {/* LEFT SIDE */}
-  <div className="flex-auto space-y-4 max-w-lg">
-  <h1 className="text-4xl font-bold text-slate-500 leading-snug">
-    Hey I am Bhaskar Budha &
-    I am a Full stack developer.
-  </h1>
+  {/* Hero Section */}
+  {/* flex-col stacks them and md:flex-row puts them side-by-side on the large screen */}
+  <div className="flex flex-col md:flex-row items-center justify-between gap-10 mb-8">
+    
+    {/* LEFT SIDE: Text Content */}
+    {/* order-2 md:order-1 ensures text stays on top when stacked if desired */}
+    <div className="flex-1 space-y-6 max-w-lg text-center md:text-left order-2 md:order-1">
+      <h1 className="text-3xl md:text-5xl font-bold text-slate-500 leading-tight">
+        Hey, I am <span className="text-white">Bhaskar Budha</span> & 
+        I am a Full stack developer.
+      </h1>
 
-  <p className="text-white text-2xl leading-relaxed">
-    I am a passionate full stack developer with experience in building web applications using modern technologies.
-  </p>
-</div>
+      <p className="text-slate-300 text-lg md:text-xl leading-relaxed">
+        I am a passionate full stack developer with experience in building web applications using modern technologies.
+      </p>
+      
+      
+      <a href="/projects" className="px-6 py-2 border border-purple-500 text-purple-500 rounded-full hover:bg-purple-500 hover:text-white transition-all">
+        View My Work
+      </a>
 
-  {/* RIGHT SIDE */}
-  <div className="flex-auto flex items-center justify-end px-12 ">
-    <img
-      className="h-70 w-auto object-contain rounded-lg "
-      src="/assets/images/logo.jpg"
-      alt="Logo"
-    />
+      
+    </div>
+
+    {/* RIGHT SIDE: Image */}
+    <div className="flex-1 flex justify-center md:justify-end order-1 md:order-2">
+      <div className="relative w-48 h-48 md:w-80 md:h-80">
+        <img
+          className="w-full h-full object-cover rounded-2xl shadow-2xl border-4 border-slate-800"
+          src="/assets/images/logo.jpg"
+          alt="Bhaskar Budha"
+        />
+      </div>
+    </div>
+    
   </div>
 
-</div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
         {/* About Section  link with the about page*/}
@@ -52,7 +65,7 @@ export default function Home() {
          
 
           <h1 className="text-xl font-bold text-slate-400 mb-4">Education</h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-col-3 gap-6 ">
             {faculty.map((exp, index) => (
               <article key={index} className="bg-slate-900 p-6 rounded-xl border border-slate-800 hover:border-purple-500 transition-all duration-300 ">
                 <div className="text-lg font-bold mb-1">
@@ -135,8 +148,8 @@ export default function Home() {
                     </div>
                 </div>
         </div>
-          <div className="space-x-4">
-            <a href="/projects" className="px-6 py-2 border border-purple-500 text-purple-500 rounded-full hover:bg-purple-500 hover:text-white transition-all">View Projects</a>
+          <div className="flex justify-center mt-6">
+           
             <a href="/contact" className="px-6 py-2 border border-purple-500 text-purple-500 rounded-full hover:bg-purple-500 hover:text-white transition-all">Start a Project</a>
           </div>
         </div>

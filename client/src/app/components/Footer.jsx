@@ -4,7 +4,7 @@ import { MdEmail } from "react-icons/md";
 export default function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-400 py-6 mt-12"> 
-    <div className="max-w-7xl mx-auto flex items-start justify-between px-4 mt-2">
+    <div className="max-w-7xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto flex items-start justify-between px-4 mt-2">
         <div className="max-w-7xl  text-start ">
           <h2 className="text-2xl font-semibold">Bhaskar PortFolio</h2>
         &copy; 2024 Bhaskar Budha. All rights reserved.
