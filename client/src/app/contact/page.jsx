@@ -61,8 +61,8 @@ export default function Contact(){
         </span>
         <span>|</span>
         <span>
-          <a href="tel:+9779841234567" className="text-purple-500 hover:text-purple-700">
-            +977 9841234567
+          <a href="tel:+9779825630086" className="text-purple-500 hover:text-purple-700">
+            +977 9825630086
           </a>
         </span>
         <span>|</span>
