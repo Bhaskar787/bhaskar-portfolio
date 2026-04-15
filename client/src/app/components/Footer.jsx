@@ -39,21 +39,11 @@ export default function Footer() {
         <div className="flex flex-col items-center lg:items-end text-center lg:text-right">
           <h2 className="text-xl font-semibold mb-4 text-white">Connect</h2>
           <div className="flex items-center space-x-5">
-            <a href="https://github.com/Bhaskar787"  className="hover:text-purple-400 transition-colors text-2xl" target="_blank"  rel="noopener noreferrer"
-              
-            >
-              <FiGithub />
-            </a>
-            <a 
-              href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" className="hover:text-purple-400 transition-colors text-2xl" target="_blank" rel="noopener noreferrer"
-             
-            >
-              <FiLinkedin />
-            </a>
-            <a href="mailto:budhabhaskar11@gmail.com?subject=Hello Bhaskar&body=I want to contact you." className="hover:text-purple-400 transition-colors text-2xl"
-            >
-              <MdEmail />
-            </a>
+            <a href="https://github.com/Bhaskar787"  className="hover:text-purple-400 transition-colors text-2xl" target="_blank"  rel="noopener noreferrer"><FiGithub /></a>
+           
+            <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" className="hover:text-purple-400 transition-colors text-2xl" target="_blank" rel="noopener noreferrer"><FiLinkedin /></a>
+
+            <a href="mailto:budhabhaskar11@gmail.com?subject=Hello Bhaskar&body=I want to contact you." className="hover:text-purple-400 transition-colors text-2xl"><MdEmail /></a>
           </div>
         </div>
 

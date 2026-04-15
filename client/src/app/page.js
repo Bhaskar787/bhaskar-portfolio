@@ -1,7 +1,30 @@
+"use client"
+import { useEffect, useState } from "react";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { MdEmail } from "react-icons/md";
 
 export default function Home() {
+
+    const [projects, setProjects]= useState([])
+    const [loading, setLoading ]= useState(true)
+  
+
+  
+useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch("/api/project"); 
+        const data = await res.json();
+        setProjects(data);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
   const experiences = [
     { title: "React Developer", date: "2022–2023", desc: "Built semantic and accessible websites for small businesses.", img: "/assets/images/react.png" },
     { title: "Backend Developer", date: "2022–2023", desc: "Server-side apps, RESTful APIs and basic DevOps.", img: "/assets/images/nodejs.png" },
@@ -117,37 +140,58 @@ export default function Home() {
               <hr className="my-12 border-slate-800" />
 
 
-         {/* Projects Section */}
-      <div className="flex flex-col items-center justify-center px-4 mt-12">
-        <div className="p-2 max-w-2xl text-center">
-          <h2 className="text-2xl font-semibold mb-4">Projects</h2>
-          <p className="text-white mb-4">Ready to build something extraordinary? Let's collaborate.</p>
+        
+      {/*  Projects Section */}
+        <div className="flex flex-col items-center justify-center px-4 mt-12">
+          <div className="p-2 max-w-7xl text-center">
+            <h2 className="text-2xl font-semibold mb-4 text-white">Featured Projects</h2>
+            <p className="text-gray-400 mb-8">Ready to build something extraordinary? Let's collaborate.</p>
 
-          <div className="max-w-7xl mx-auto px-4 py-12">
-           
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="p-6 rounded-lg shadow-md bg-slate-800">
-                        <h2 className="text-2xl font-semibold mb-4">E-commerce Website</h2>
-                        <a href="https://github.com/Bhaskar787/next-ecommerce" className="text-purple-500 hover:text-purple-700 transition-colors duration-300">
-                        <img src="/assets/images/ecommerce.png" alt="ecommerce" className="mb-4 rounded-lg" />
-                        </a>
-                        <p className="text-white mb-4 text-start">
-                            Developed a full-stack e-commerce website using the MERN stack.
-                        </p>
-                        <a href="https://github.com/Bhaskar787/next-ecommerce" className="text-purple-500 hover:text-purple-700 transition-colors duration-300"><FiGithub /></a>
+            {loading ? (
+              <div className="text-purple-500 animate-pulse">Loading Projects...</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Slicing to show only 2 latest projects */}
+                {projects.slice(0, 2).map((project) => (
+                  <div
+                    key={project._id}
+                    className="p-6 rounded-lg shadow-md bg-slate-800 border border-slate-800 hover:border-purple-500 transition-all duration-300 flex flex-col text-start"
+                  >
+                    <h2 className="text-2xl font-semibold mb-4 text-white">
+                      {project.title}
+                    </h2>
+
+                    <a
+                      href={project.githubLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="overflow-hidden rounded-lg mb-4 block"
+                    >
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-48 object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                    </a>
+
+                    <p className="text-slate-300 mb-4 flex-grow">
+                      {project.description}
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                      <a
+                        href={project.githubLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-purple-500 hover:text-purple-400 text-2xl transition-colors"
+                      >
+                        <FiGithub />
+                      </a>
                     </div>
-                    <div className="p-6 rounded-lg shadow-md bg-slate-800">
-                        <h2 className="text-2xl font-semibold mb-4">Chat Application</h2>
-                        <a href="https://github.com/Bhaskar787/Chat-app" className="text-purple-500 hover:text-purple-700 transition-colors duration-300">
-                        <img src="/assets/images/chatapp.png" alt="Chat App" className="mb-4 rounded-lg" />
-                        </a>
-                        <p className="text-white mb-4 text-start">
-                            Created a chat application with real-time chat functionality using socket.io and websockets.
-                            </p>
-                            <a href="https://github.com/Bhaskar787/Chat-app" className="text-purple-500 hover:text-purple-700 transition-colors duration-300"><FiGithub /></a>
-                    </div>
-                </div>
-        </div>
+                  </div>
+                ))}
+              </div>
+            )}
           <div className="flex justify-center mt-6">
            
             <a href="/contact" className="px-6 py-2 border border-purple-500 text-purple-500 rounded-full hover:bg-purple-500 hover:text-white transition-all">Start a Project</a>
