@@ -26,7 +26,7 @@ export async function DELETE(request, { params }) {
     await connectDB();
     
    
-    const { id } = await params;
+    const { id } = params;
 
     const project = await Project.findById(id);
     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
@@ -54,7 +54,7 @@ export async function PUT(request, { params }) {
     await connectDB();
     
   
-    const { id } = await params;
+    const { id } = params;
     
     const formData = await request.formData();
     const title = formData.get("title");

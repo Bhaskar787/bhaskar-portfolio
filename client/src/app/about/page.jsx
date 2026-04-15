@@ -1,32 +1,68 @@
-import { FiGithub, FiLinkedin } from "react-icons/fi";
+"use client";
+import { useEffect, useState } from "react";
+import { FiGithub, FiLinkedin, FiLoader } from "react-icons/fi";
 import { MdEmail } from "react-icons/md";
 
 export default function About() {
-  const faculty = [
-    {
-      title: "ISMT College",
-      date: "2022–2025",
-      desc: "Bachelor of Computer System Engineering (BSc.(hons) Computer System Engineering)",
-    },
-  ];
+  const [data, setData] = useState({
+    about: null,
+    education: [],
+    skills: [],
+    experience: [],
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAboutData = async () => {
+      try {
+        const [aboutRes, eduRes, skillRes, expRes] = await Promise.all([
+          fetch("/api/about"),
+          fetch("/api/education"),
+          fetch("/api/skills"),
+          fetch("/api/experience"),
+        ]);
+
+        setData({
+          about: await aboutRes.json(),
+          education: await eduRes.json(),
+          skills: await skillRes.json(),
+          experience: await expRes.json(),
+        });
+      } catch (error) {
+        console.error("Error fetching about page data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAboutData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center text-white">
+        <FiLoader className="animate-spin text-4xl text-purple-500" />
+      </div>
+    );
+  }
+
+  // Group skills by category for the right column
+  const categories = ["Frontend", "Backend", "Tools", "Other"];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 text-white">
       {/* Header */}
-      <h1 className="text-4xl font-bold text-slate-500 mb-12">About me</h1>
+      <h1 className="text-4xl font-bold text-slate-500 mb-12 uppercase tracking-tighter">About me</h1>
 
-      {/* Intro Section */}
+      {/* Intro Section - Now Dynamic */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
-        <p className="text-2xl leading-relaxed">
-          I am Bhaskar Budha, a passionate full-stack developer with experience
-          in building web applications using modern technologies. I enjoy
-          creating efficient and scalable solutions to complex problems.
+        <p className="text-2xl leading-relaxed text-slate-200">
+          {data.about?.description || "Loading biography..."}
         </p>
-        <div className="flex justify-end">
+        <div className="flex justify-center md:justify-end">
           <img
-            className="h-auto max-w-full md:max-w-md object-contain rounded-lg border-4 border-slate-500"
-            src="/assets/images/budha.png"
-            alt="profile"
+            className="h-auto max-w-full md:max-w-sm object-cover rounded-2xl border-4 border-slate-700 shadow-2xl"
+            src={data.about?.image || "/assets/images/budha.png"}
+            alt="Bhaskar Budha"
           />
         </div>
       </div>
@@ -34,93 +70,90 @@ export default function About() {
       {/* Main Content Grid: 12 Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         
-        {/* Left Column: Education  */}
+        {/* Left Column: Education (5 Cols) */}
         <div className="lg:col-span-5">
-          
+          <h2 className="text-3xl font-bold text-slate-400 mb-8">Education</h2>
           <div className="space-y-6">
-            
-            {faculty.map((exp, index) => (
+            {data.education.map((edu) => (
               <article
-                key={index}
+                key={edu._id}
                 className="bg-slate-900 p-6 rounded-xl border border-slate-800 hover:border-purple-500 transition-all duration-300"
               >
-                <h2 className="text-3xl font-bold text-slate-400 mb-8">Education</h2>
                 <div className="text-lg font-bold mb-1">
-                  {exp.title} <br />
-                  <small className="text-slate-500 font-normal">
-                    {exp.date}
+                  {edu.institution} <br />
+                  <small className="text-purple-500 font-medium">
+                    {edu.duration}
                   </small>
                 </div>
-                <p className="text-slate-400 text-lg mt-2">{exp.desc}</p>
+                <p className="text-slate-300 text-lg mt-2 font-semibold">{edu.degree}</p>
+                <p className="text-slate-500 text-sm mt-1">{edu.description}</p>
               </article>
             ))}
           </div>
 
-                     <div className="flex items-center space-x-4 mt-8">
-            <a href="https://github.com/Bhaskar787" className="hover:text-purple-400 text-2xl"><FiGithub /></a>
-            <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" className="hover:text-purple-400 text-2xl"><FiLinkedin /></a>
-            <a href="mailto:budhabhaskar11@gmail.com" className="hover:text-purple-400 text-2xl"><MdEmail /></a>
+          {/* Social Links */}
+          <div className="flex items-center space-x-6 mt-12">
+            <a href="https://github.com/Bhaskar787" target="_blank" className="hover:text-purple-400 text-2xl transition-colors"><FiGithub /></a>
+            <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" target="_blank" className="hover:text-purple-400 text-2xl transition-colors"><FiLinkedin /></a>
+            <a href="mailto:budhabhaskar11@gmail.com" className="hover:text-purple-400 text-2xl transition-colors"><MdEmail /></a>
           </div>
-          
-
-
-          
         </div>
 
-        {/* Right Column: Skills & Timeline */}
+        {/* Right Column: Skills & Timeline (7 Cols) */}
         <div className="lg:col-span-7 flex flex-col gap-8">
           
-          {/* Skills Section */}
-          <section className="bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-700">
-            <h2 className="text-3xl font-bold mb-6 text-slate-400">
+          {/* Skills Section - Mapped by Category */}
+          <section className="bg-slate-900/50 p-8 rounded-xl shadow-lg border border-slate-800">
+            <h2 className="text-3xl font-bold mb-8 text-slate-400">
               Skills & Tools
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-bold text-xl text-purple-600">Frontend</h3>
-                <p className="text-slate-300">HTML, CSS, JavaScript, React</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-xl text-purple-600">Backend</h3>
-                <p className="text-slate-300">Node.js, Express, REST APIs</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-xl text-purple-600">Design</h3>
-                <p className="text-slate-300">Figma, Prototyping</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-xl text-purple-600">Other</h3>
-                <p className="text-slate-300">Git, GitHub, CI/CD, Testing</p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              {categories.map((cat) => (
+                <div key={cat}>
+                  <h3 className="font-bold text-xl text-purple-500 mb-2">{cat}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {data.skills
+                      .filter((s) => s.category === cat)
+                      .map((skill, idx, arr) => (
+                        <span key={skill._id} className="text-slate-300">
+                          {skill.name}{idx < arr.length - 1 ? "," : ""}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 
-          {/* Timeline Section */}
-          <section className="bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-700">
-            <h2 className="text-3xl font-bold mb-6 text-slate-400">
+          {/* Career Timeline Section - From Experience API */}
+          <section className="bg-slate-900/50 p-8 rounded-xl shadow-lg border border-slate-800">
+            <h2 className="text-3xl font-bold mb-8 text-slate-400">
               Career Timeline
             </h2>
             <ul className="space-y-6">
-              {[
-                { date: "2022–2023", role: "React Developer" },
-                { date: "2022–2023", role: "Node.js Developer" },
-                { date: "2023–2024", role: "Backend Developer" },
-                { date: "2024–Present", role: "Full-Stack projects" },
-              ].map((item, i) => (
-                <li key={i} className="border-l-4 border-slate-600 pl-4 hover:border-purple-500 transition-colors">
-                  <span className="block font-bold text-white">{item.date}</span>
-                  <span className="text-slate-300">{item.role}</span>
+              {data.experience.map((item) => (
+                <li key={item._id} className="border-l-4 border-slate-700 pl-6 hover:border-purple-500 transition-all group">
+                  <span className="block font-bold text-purple-400 text-sm mb-1">{item.duration}</span>
+                  <span className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
+                    {item.title}
+                  </span>
+                  <p className="text-slate-400 text-sm mt-1">{item.description}</p>
                 </li>
               ))}
             </ul>
           </section>
         </div>
-
       </div>
-      <div className="space-x-4 justify-center mt-12 flex">
-           
-            <a href="/contact" className="px-6 py-2 border border-purple-500 text-purple-500 rounded-full hover:bg-purple-500 hover:text-white transition-all">Start a Project</a>
-          </div>
+
+      {/* CTA Section */}
+      <div className="justify-center mt-20 flex">
+        <a 
+          href="/contact" 
+          className="px-10 py-3 border-2 border-purple-500 text-purple-500 rounded-full font-bold hover:bg-purple-500 hover:text-white transition-all shadow-lg shadow-purple-500/10"
+        >
+          Start a Project
+        </a>
+      </div>
     </div>
   );
 }

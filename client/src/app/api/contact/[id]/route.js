@@ -7,7 +7,7 @@ export async function GET(req, { params }) {
   try {
     await connectDB();
 
-    const {id}= await params;
+    const { id } = params;
 
 
     const contact = await Contact.findById(id);
@@ -27,7 +27,7 @@ export async function DELETE(req, { params }) {
   try {
     await connectDB();
 
-    const {id}= await params;
+    const { id } = params;
     const deletedContact = await Contact.findByIdAndDelete(id);
    if (!deletedContact) {
       return NextResponse.json({ message: "Contact not found" }, { status: 404 });

@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react";
-import { FiGithub } from "react-icons/fi";
+import { FiGithub, FiLoader } from "react-icons/fi";
 
 export default function AdminProjectPage() {
   const [projects, setProjects] = useState([]);
@@ -189,7 +189,7 @@ export default function AdminProjectPage() {
               disabled={loading}
               className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-10 py-3 rounded-lg transition duration-300 shadow active:scale-95 disabled:opacity-50"
             >
-              {loading ? "Saving..." : (formData._id ? "Update Project" : "Add Project")}
+              {loading ? <FiLoader className="animate-spin" /> : (formData._id ? "Update Project" : "Add Project")}
             </button>
             {formData._id && (
               <button 
