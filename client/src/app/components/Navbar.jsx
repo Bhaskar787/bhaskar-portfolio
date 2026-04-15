@@ -15,18 +15,27 @@ export default function Navbar() {
         </a>
 
         {/* Hamburger Button  */}
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden text-white focus:outline-none"
-        >
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {isOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-            )}
-          </svg>
-        </button>
+      <button
+  onClick={() => setIsOpen(!isOpen)}
+  className="md:hidden relative w-10 h-10 flex items-center justify-center focus:outline-none"
+  aria-label="Toggle Menu"
+>
+  <span
+    className={`absolute h-0.5 w-6 bg-white transform transition duration-300 ease-in-out ${
+      isOpen ? "rotate-45" : "-translate-y-2"
+    }`}
+  />
+  <span
+    className={`absolute h-0.5 w-6 bg-white transition-all duration-300 ease-in-out ${
+      isOpen ? "opacity-0" : "opacity-100"
+    }`}
+  />
+  <span
+    className={`absolute h-0.5 w-6 bg-white transform transition duration-300 ease-in-out ${
+      isOpen ? "-rotate-45" : "translate-y-2"
+    }`}
+  />
+</button>
 
         {/* Desktop Links (Hidden on Mobile) */}
         <ul className="hidden md:flex space-x-8">
