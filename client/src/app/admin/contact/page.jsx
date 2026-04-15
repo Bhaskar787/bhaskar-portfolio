@@ -1,6 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { CgProfile } from "react-icons/cg";
+import { FaPhoneAlt } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 
 
 export default function  AdminContact(){
@@ -50,16 +53,25 @@ export default function  AdminContact(){
             {/* grid container */}
 
             <div className="bg-white p-10 rounded-xl border border-gray-200 shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-                    {contacts.map((contact)=>(
-                        <div key={contact._id} className="border border-gray-200 rounded-lg p-6 bg-gray-50 flex flex-col items-center gap-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+    {contacts.map((contact) => (
+      <div
+        key={contact._id}
+        className="border border-gray-200 rounded-lg p-6 bg-gray-50 flex flex-col items-center gap-6"
+      >
+        {/* box for client info */}
+        <div className="border border-gray-300 rounded p-5 bg-white w-full text-center">
+          <p className="font-semibold text-gray-900  flex items-center justify-center gap-2"> <CgProfile />{contact.name}</p>
+          <p className="font-semibold text-gray-700 text-sm flex items-center justify-center gap-2"><MdEmail className="text-gray-600" />{contact.email}</p>
 
-                            {/* box for client info */}
-                            <div className="border border-gray-300 rounded p-5 bg-white w-full text-center">
-                <p className="font-semibold text-gray-900">{contact.name}</p>
-                <p className="text-sm text-gray-500">{contact.email}</p>
-                <p className="font-semibold text-gray-700 text-sm">📞 {contact.phone}</p>
-              </div>
+          <p className="font-semibold text-gray-700 text-sm flex items-center justify-center gap-2">
+            <FaPhoneAlt className="text-gray-600" />
+            {contact.phone}
+          </p>
+        </div>
+      
+
+
 
               {/* box for the message from the client */}
               <div className="border border-gray-300 rounded p-5 bg-white w-full">
