@@ -27,7 +27,7 @@ export async function PUT(request, { params }) {
   }
 }
 
-// 2. DELETE a specific skill (DELETE)
+//  DELETE a specific skill (DELETE)
 export async function DELETE(request, { params }) {
   try {
     await connectDB();
@@ -46,7 +46,7 @@ export async function DELETE(request, { params }) {
   }
 }
 
-// 3. GET a single skill (Optional - for edit pages)
+//  GET a single skill (Optional - for edit pages)
 export async function GET(request, { params }) {
   try {
     await connectDB();
