@@ -53,8 +53,8 @@ export default function Home() {
           <p className="text-slate-300 text-lg md:text-xl leading-relaxed">
             I am a passionate full stack developer with experience in building web applications using modern technologies.
           </p>
-          <a href="/projects" className="inline-block px-6 py-2 border border-purple-500 text-purple-500 rounded-full hover:bg-purple-500 hover:text-white transition-all">
-            View My Work
+          <a href="/about" className="inline-block px-6 py-2 border border-purple-500 text-purple-500 rounded-full hover:bg-purple-500 hover:text-white transition-all">
+            View My Story
           </a>
         </div>
 
@@ -180,7 +180,7 @@ export default function Home() {
         )}
         
         <div className="flex justify-center mt-16 gap-4">
-          <a href="/about" className="px-8 py-3 bg-slate-800 text-white rounded-full hover:bg-slate-700 transition-all font-medium">Read My Story</a>
+          <a href="/projects" className="px-8 py-3 bg-slate-800 text-white rounded-full hover:bg-slate-700 transition-all font-medium">View My Project</a>
           <a href="/contact" className="px-8 py-3 bg-purple-600 text-white rounded-full hover:bg-purple-500 shadow-lg shadow-purple-500/20 transition-all font-medium">Start a Project</a>
         </div>
       </section>

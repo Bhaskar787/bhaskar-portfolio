@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from "@/lib/db";
 import Skill from '@/models/Skill';
 
-// 1. UPDATE a specific skill (PUT)
+// UPDATE a specific skill (PUT)
 export async function PUT(request, { params }) {
   try {
     await connectDB();
