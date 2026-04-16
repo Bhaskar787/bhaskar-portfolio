@@ -5,6 +5,7 @@ import { FiBriefcase, FiMail, FiArrowRight } from "react-icons/fi";
 import Link from "next/link";
 import { FaTools } from "react-icons/fa";
 import { MdHomeWork } from "react-icons/md";
+import { FaUserLarge } from "react-icons/fa6";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ projectCount: 0, contactCount: 0,experienceCount:0, educationCount:0, skillCount:0, aboutCount:0 });
@@ -66,7 +67,7 @@ export default function AdminDashboard() {
     {
       title: "Admin About",
       value: stats.aboutCount,
-      icon: <FaTools className="text-purple-600"/>,
+      icon: <FaUserLarge className="text-purple-600"/>,
       bg: "bg-purple-50",
       link: "/admin/about",
     },

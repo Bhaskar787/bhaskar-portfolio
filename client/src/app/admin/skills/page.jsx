@@ -89,7 +89,7 @@ export default function AdminSkills() {
           <option>Backend</option>
           <option>Database</option>
           <option>Tools</option>
-          <option>Others</option>
+          <option>Other</option>
         </select>
         <input 
           type="number" 
