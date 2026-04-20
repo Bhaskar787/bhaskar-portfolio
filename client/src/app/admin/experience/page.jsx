@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FiPlus, FiTrash2, FiEdit, FiLoader, FiX } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 export default function AdminExperience() {
   const [experiences, setExperiences] = useState([]);
@@ -70,16 +71,16 @@ export default function AdminExperience() {
 
       const res = await fetch(url, {
         method: method,
-        body: data, // FormData handles the boundaries for file uploads
+        body: data, 
       });
 
       if (res.ok) {
         fetchExperiences();
         cancelEdit();
-        alert(editingId ? "Experience updated!" : "Experience added!");
+        toast.success(editingId ? "Experience updated!" : "Experience added!")
       }
     } catch (error) {
-      console.error("Submission error:", error);
+      toast.error("Submission error:", error)
     } finally {
       setSubmitting(false);
     }
@@ -90,8 +91,9 @@ export default function AdminExperience() {
     try {
       const res = await fetch(`/api/experience/${id}`, { method: "DELETE" });
       if (res.ok) fetchExperiences();
+      toast.success("Experience deleted.")
     } catch (error) {
-      console.error("Delete error:", error);
+      toast.error("Delete error:", error)
     }
   };
 

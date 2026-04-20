@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 export default function AdminLogin() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -34,12 +35,14 @@ export default function AdminLogin() {
 
         // Redirect to dashboard
         router.push("/admin");
+        toast.success('Login Successfully!')
         router.refresh(); // Forces a refresh to update layout state
       } else {
-        setError(data.message || "Login failed");
+        toast.error(data.message || "Login failed")
+        
       }
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again")
     } finally {
       setLoading(false);
     }

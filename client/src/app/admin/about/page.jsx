@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FiLoader, FiTrash2, FiEdit3, FiImage, FiX, FiPlus, FiEdit } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 export default function AdminAbout() {
   const [aboutData, setAboutData] = useState(null);
@@ -24,7 +25,7 @@ export default function AdminAbout() {
         // Don't auto-fill the form yet unless the user clicks edit
       }
     } catch (error) {
-      console.error("Fetch error", error);
+      toast.error("Fetch error", error)
     } finally {
       setLoading(false);
     }
@@ -59,16 +60,17 @@ export default function AdminAbout() {
     try {
       const res = await fetch(url, { method, body: data });
       if (res.ok) {
-        alert(editId ? "Bio updated!" : "Bio created!");
+        toast.success(editId ? "Bio updated!" : "Bio created!")
         setEditId(null);
         setFormData({ description: "", image: null });
         fetchAbout();
       } else {
         const errorRes = await res.json();
-        alert(`Failed: ${errorRes.error}`);
+        toast.error(`Failed: ${errorRes.error}`)
+
       }
     } catch (error) {
-      alert("Error saving data");
+      toast.error("Error saving data")
     } finally {
       setSubmitting(false);
     }
@@ -82,9 +84,10 @@ export default function AdminAbout() {
         setAboutData(null);
         cancelEdit();
         fetchAbout();
+        toast.success("Bio deleted Succesfully!")
       }
     } catch (error) {
-      console.error("Delete error", error);
+      toast.error("Delete error", error)
     }
   };
 

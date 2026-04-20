@@ -9,6 +9,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import { usePathname } from "next/navigation";
+import { ToastContainer } from "react-toastify";
 
 export default function RootLayout({ children }) {
 
@@ -27,6 +28,8 @@ export default function RootLayout({ children }) {
         {children}
 
         {!isAdminPage && <Footer/>}
+
+        <ToastContainer position="top-right" autoClose={3000} />
 
         
 

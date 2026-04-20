@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FiPlus, FiTrash2, FiLoader, FiBookOpen, FiEdit, FiX } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 export default function AdminEducation() {
   const [education, setEducation] = useState([]);
@@ -56,31 +57,31 @@ export default function AdminEducation() {
       const method = editingId ? "PUT" : "POST";
 
       //  Using FormData to match  backend 
-      const data = new FormData();
-      data.append("institution", formData.institution);
-      data.append("degree", formData.degree);
-      data.append("duration", formData.duration);
-      data.append("description", formData.description);
-      // If we add an image input later, we'd append it here:
-      // if (selectedFile) data.append("image", selectedFile);
-
-      const res = await fetch(url, {
-        method: method,
-        
-        body: data, 
-      });
+    const res = await fetch(url, {
+  method: method,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    institution: formData.institution,
+    degree: formData.degree,
+    duration: formData.duration,
+    description: formData.description,
+  }),
+});
       
       if (res.ok) {
         fetchEducation();
         cancelEdit();
-        alert(editingId ? "Record updated successfully!" : "Education record added!");
+        toast.success(editingId ? "Record updated successfully!" : "Education record added!")
+        
       } else {
         const err = await res.json();
-        alert(`Error: ${err.error || "Submission failed"}`);
+        toast.error(`Error: ${err.error || "Submission failed"}`)
       }
     } catch (error) {
-      console.error("Submission error:", error);
-      alert("An unexpected error occurred.");
+      toast.error("Submission error:", error)
+      toast.alert("An unexpected error occurred.")
     } finally {
       setSubmitting(false);
     }
@@ -91,8 +92,9 @@ export default function AdminEducation() {
     try {
       const res = await fetch(`/api/education/${id}`, { method: "DELETE" });
       if (res.ok) fetchEducation();
+      toast.success("Education Deleted")
     } catch (error) {
-      console.error("Delete error:", error);
+      toast.error("Delete error:", error)
     }
   };
 

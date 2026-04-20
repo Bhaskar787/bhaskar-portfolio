@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { CgProfile } from "react-icons/cg";
 import { FaPhoneAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { toast } from "react-toastify";
 
 
 export default function  AdminContact(){
@@ -31,13 +32,14 @@ export default function  AdminContact(){
 
         if(res.ok){
             setContacts(contacts.filter((c)=>c._id !== id))
+            toast.success("Contact Deleted Successfulyy!")
         }  else{
-            throw new Error("Failed to delete")
+            throw new toast.error("Failed to delete")
         }  
             
         } catch (error) {
             console.error("Error:", error)
-            alert("Error deleting message")
+            toast.error("Error deleting message")
             
         }
     }

@@ -26,7 +26,7 @@ export async function DELETE(request, { params }) {
     await connectDB();
     
    
-    const { id } = params;
+    const { id } =await params;
 
     const project = await Project.findById(id);
     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });

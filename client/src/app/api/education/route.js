@@ -21,6 +21,7 @@ export async function POST(request) {
     // Parse JSON instead of FormData
     const body = await request.json();
     const { institution, degree, duration, description } = body;
+    
 
     // Validation
     if (!institution || !degree || !duration) {

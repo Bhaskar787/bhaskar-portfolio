@@ -7,7 +7,7 @@ export default function Home() {
   const [projects, setProjects] = useState([]);
   const [experiences, setExperiences] = useState([]);
   const [education, setEducation] = useState([]);
-  const [skills, setSkills] = useState([]); // Dynamic skills state
+  const [skills, setSkills] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

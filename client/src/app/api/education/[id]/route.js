@@ -7,7 +7,7 @@ import cloudinary from "@/lib/cloudinary";
 export async function PUT(request, { params }) {
   try {
     await connectDB();
-    const { id } = await params; // Next.js 15 requires awaiting params
+    const { id } = await params; 
     const formData = await request.formData();
     
     const institution = formData.get("institution");

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react"
+import { toast } from "react-toastify";
 
 export default function AdminRegiter(){
     const [formData, setFormData]= useState({
@@ -34,13 +35,14 @@ export default function AdminRegiter(){
                 const data = await res.json()
                 if(res.ok){
                     //registration successful
-                    alert("Admin registered Successfully!")
+                    toast.success("Admin registered Successfully")
                     router.push("/admin/login")
                 }else{
-                    setError(data.message || "Registration failed")
+                    toast.error(data.message || "Registration failed")
+                    
                 }
             } catch (error) {
-                setError("Something went wrong. Please try again.")
+                toast.error("Something went wrong. Please try again.")
             }finally{
                 setLoading(false)
             }

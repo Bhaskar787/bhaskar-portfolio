@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "react-toastify"
 
 export default function Contact(){
    //creating initial state for the form fields
@@ -34,14 +35,14 @@ export default function Contact(){
       })
 
       if (res.ok){
-        setStatus("Message Sent SuccessFully")
+        toast.success("Message sent Successfulyy i will be righ back to you soon!")
         setFormData({name : "", email: "", phone: "", message: ""})
       }else{
         const data = await res.json()
         setStatus(`Error: ${data.error || "Failed to Send "}`)
       }
     } catch (error) {
-      setStatus("Somethinf went wrong. Please try again")
+      toast.error("Failed to send Message. Please try again.")
       
     }finally{
       setLoading(false)

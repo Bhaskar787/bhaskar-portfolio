@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FiLoader, FiPlus, FiTrash2, FiEdit, FiX } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 export default function AdminSkills() {
   const [skills, setSkills] = useState([]);
@@ -54,6 +55,7 @@ export default function AdminSkills() {
     if (res.ok) {
       cancelEdit();
       fetchSkills();
+      toast.success(editingId ? "Skill Updated!" : "Skill Created!")
     }
     setSubmitting(false);
   };
@@ -62,6 +64,8 @@ export default function AdminSkills() {
     if (!confirm("Delete this skill?")) return;
     await fetch(`/api/skills/${id}`, { method: "DELETE" });
     fetchSkills();
+    toast.success("Skill deleted!")
+    
   };
 
   return (

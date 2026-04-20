@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react";
 import { FiGithub, FiLoader } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 export default function AdminProjectPage() {
   const [projects, setProjects] = useState([]);
@@ -22,7 +23,7 @@ export default function AdminProjectPage() {
       const data = await res.json();
       setProjects(data);
     } catch (error) {
-      console.error("Fetch failed", error);
+      toast.error("Fetch failed", error)
     }
   };
 
@@ -66,15 +67,17 @@ export default function AdminProjectPage() {
       });
 
       if (res.ok) {
-        alert(isEditing ? "Project Updated!" : "Project Created!");
+        toast.success(isEditing ? "Project Updated!" : "Project Created!")
+
         // Reset form to Create mode
         setFormData({ _id: null, title: "", description: "", githubLink: "", image: null });
         fetchProjects();
       } else {
-        alert("Action failed. Check API.");
+        toast.error("Action failed. Check API.")
       }
     } catch (error) {
-      console.error("Error submitting", error);
+      toast.error("Error submitting", error)
+      
     } finally {
       setLoading(false);
     }
@@ -104,9 +107,10 @@ export default function AdminProjectPage() {
       const res = await fetch(`/api/project/${id}`, { method: "DELETE" });
       if (res.ok) {
         setProjects(projects.filter((p) => p._id !== id));
+        toast.success("Project deleted Successfully!")
       }
     } catch (error) {
-      console.error("Delete failed", error);
+      toast.error("Delete failed:", error)
     }
   };
 
