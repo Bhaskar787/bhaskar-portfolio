@@ -1,7 +1,20 @@
 "use client"
 import { useEffect, useState } from "react";
-import { FiGithub, FiLinkedin } from "react-icons/fi";
-import { MdEmail } from "react-icons/md";
+import { 
+  FiGithub, 
+  FiLinkedin, 
+  FiMail, 
+  FiArrowUpRight,
+  FiExternalLink 
+} from "react-icons/fi";
+import { 
+  BsCodeSlash, 
+  BsBriefcase, 
+  BsBook, 
+  BsStars,
+  BsArrowRight,
+  BsPlayFill
+} from "react-icons/bs";
 
 export default function Home() {
   const [projects, setProjects] = useState([]);
@@ -14,7 +27,6 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetching all data in parallel
         const [projRes, expRes, eduRes, skillRes] = await Promise.all([
           fetch("/api/project"),
           fetch("/api/experience"),
@@ -41,149 +53,353 @@ export default function Home() {
     fetchData();
   }, []);
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      {/* Hero Section */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-10 mb-16">
-        <div className="flex-1 space-y-6 max-w-lg text-center md:text-left order-2 md:order-1">
-          <h1 className="text-3xl md:text-5xl font-bold text-slate-500 leading-tight">
-            Hey, I am <span className="text-white">Bhaskar Budha</span> & 
-            I am a Full stack developer.
-          </h1>
-          <p className="text-slate-300 text-lg md:text-xl leading-relaxed">
-            I am a passionate full stack developer with experience in building web applications using modern technologies.
-          </p>
-          <a href="/about" className="inline-block px-6 py-2 border border-purple-500 text-purple-500 rounded-full hover:bg-purple-500 hover:text-white transition-all">
-            View My Story
-          </a>
-        </div>
+  const shimmer = `relative overflow-hidden bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent`;
 
-        <div className="flex-1 flex justify-center md:justify-end order-1 md:order-2">
-          <div className="relative w-48 h-48 md:w-80 md:h-80">
-            <img
-              className="w-full h-full object-cover rounded-2xl shadow-2xl border-4 border-slate-800"
-              src="/assets/images/logo.jpg"
-              alt="Bhaskar Budha"
-            />
-          </div>
-        </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white overflow-x-hidden">
+      {/* Animated Background Particles */}
+      <div className="fixed inset-0 opacity-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(120,119,198,0.3),transparent),radial-gradient(circle_at_80%_20%,rgba(120,119,198,0.3),transparent),radial-gradient(circle_at_40%_40%,rgba(120,119,198,0.2),transparent)]" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Education Section */}
-        <section>
-          <h2 className="text-xl font-bold text-slate-400 mb-6 uppercase tracking-wider">Education</h2>
-          <div className="space-y-4">
+      <div className="max-w-7xl mx-auto px-6 py-20 lg:px-8 relative z-10">
+        {/* Hero Section */}
+        <section className="relative mb-32">
+          {/* Floating Elements */}
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-purple-500/10 rounded-full blur-xl animate-pulse" />
+          <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 text-center lg:text-left">
+            {/* Hero Content */}
+            <div className="lg:flex-1 space-y-8 max-w-xl mx-auto lg:mx-0 order-2 lg:order-1 animate-slide-in-up">
+              <div className="inline-flex items-center gap-3 px-4 py-2 bg-purple-500/20 backdrop-blur-sm rounded-full border border-purple-500/30 animate-float">
+                <BsStars className="text-purple-400" />
+                <span className="text-sm font-medium text-purple-100">Full Stack Developer</span>
+              </div>
+              
+              <div className="space-y-4">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent leading-tight">
+                  Hey, I'm <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">Bhaskar Budha</span>
+                </h1>
+                <p className="text-xl md:text-2xl text-slate-300 leading-relaxed max-w-lg mx-auto lg:mx-0">
+                  Crafting pixel-perfect web experiences with modern technologies. 
+                  I turn ideas into reality.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <a 
+                  href="/about" 
+                  className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-2xl hover:from-purple-500 hover:to-pink-500 shadow-2xl hover:shadow-purple-500/25 transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-3"
+                >
+                  View My Story 
+                  <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </a>
+                <div className="flex items-center gap-4">
+                  <a href="https://github.com/Bhaskar787" className="w-12 h-12 bg-slate-800/50 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-2xl hover:text-purple-400 transition-all duration-300 hover:scale-110" aria-label="GitHub">
+                    <FiGithub />
+                  </a>
+                  <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" className="w-12 h-12 bg-slate-800/50 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-2xl hover:text-blue-400 transition-all duration-300 hover:scale-110" aria-label="LinkedIn">
+                    <FiLinkedin />
+                  </a>
+                  <a href="mailto:budhabhaskar11@gmail.com" className="w-12 h-12 bg-slate-800/50 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-2xl hover:text-emerald-400 transition-all duration-300 hover:scale-110" aria-label="Email">
+                    <FiMail />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Hero Image */}
+            <div className="flex-1 flex justify-center lg:justify-end order-1 lg:order-2 animate-slide-in-right">
+              <div className="relative group">
+                <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-xl -z-10 animate-spin-slow" />
+                  <img
+                    className="w-full h-full object-cover rounded-3xl shadow-2xl border-4 border-slate-800/50 group-hover:border-purple-500/75 transition-all duration-500 relative z-10 hover:scale-105 hover:rotate-3"
+                    src="/assets/images/logo.jpg"
+                    alt="Bhaskar Budha"
+                  />
+                  <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 opacity-0 group-hover:opacity-20 rounded-3xl blur-xl transition-opacity duration-500 animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-24 text-center">
+          <div className="p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-purple-500/50 transition-all duration-300 animate-float">
+            <BsCodeSlash className="text-3xl text-purple-400 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white">50+</div>
+            <div className="text-slate-400 text-sm">Projects</div>
+          </div>
+          <div className="p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-blue-500/50 transition-all duration-300 animate-float delay-200">
+            <BsBriefcase className="text-3xl text-blue-400 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white">2+</div>
+            <div className="text-slate-400 text-sm">Years Exp</div>
+          </div>
+          <div className="p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-emerald-500/50 transition-all duration-300 animate-float delay-400">
+            <BsBook className="text-3xl text-emerald-400 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white">B.Tech</div>
+            <div className="text-slate-400 text-sm">Degree</div>
+          </div>
+          <div className="p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-pink-500/50 transition-all duration-300 animate-float delay-600">
+            <BsStars className="text-3xl text-pink-400 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white">99%</div>
+            <div className="text-slate-400 text-sm">Uptime</div>
+          </div>
+        </div>
+
+        {/* Skills & Education Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 mb-24">
+          {/* Education */}
+          <section className="animate-slide-in-left">
+            <h2 className="flex items-center gap-3 text-2xl font-black text-slate-200 mb-10 uppercase tracking-wider">
+              <BsBook className="text-purple-400" />
+              Education
+            </h2>
+            <div className="space-y-6">
+              {loading ? (
+                <div className={`${shimmer} h-32 rounded-2xl`} />
+              ) : (
+                education.map((edu, idx) => (
+                  <article 
+                    key={edu._id} 
+                    className="group bg-slate-900/70 backdrop-blur-sm p-8 rounded-3xl border border-slate-800/50 hover:border-purple-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/25 relative overflow-hidden"
+                    style={{ animationDelay: `${idx * 100}ms` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-transparent" />
+                    <div className="relative z-10">
+                      <h3 className="text-2xl font-black text-white mb-2 group-hover:text-purple-400 transition-colors">{edu.degree}</h3>
+                      <p className="text-purple-400 font-semibold mb-3">{edu.institution}</p>
+                      <p className="text-slate-500 mb-4">{edu.duration}</p>
+                      <p className="text-slate-400 leading-relaxed">{edu.description}</p>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
+
+          {/* Skills */}
+          <section className="animate-slide-in-right">
+            <h2 className="flex items-center gap-3 text-2xl font-black text-slate-200 mb-10 uppercase tracking-wider">
+              <BsCodeSlash className="text-purple-400" />
+              Skills & Expertise
+            </h2>
+            <div className="space-y-8">
+              {loading ? (
+                <div className={`${shimmer} h-48 rounded-2xl`} />
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    {skills.slice(0, 8).map((skill, idx) => (
+                      <div 
+                        key={skill._id} 
+                        className="group relative p-4 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-purple-500/75 hover:bg-slate-900/80 transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+                        style={{ animationDelay: `${idx * 50}ms` }}
+                      >
+                        <span className="font-semibold text-white group-hover:text-purple-400 transition-colors">
+                          {skill.name}
+                        </span>
+                        {skill.level && (
+                          <div className="absolute -top-3 -right-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                            {skill.level}%
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Social Links */}
+                  <div className="pt-8 border-t border-slate-800/50">
+                    <div className="flex items-center gap-6">
+                      <a href="https://github.com/Bhaskar787" className="group w-14 h-14 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-purple-600 hover:to-pink-600 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-110 hover:rotate-12" aria-label="GitHub">
+                        <FiGithub className="group-hover:text-white" />
+                      </a>
+                      <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" className="group w-14 h-14 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-blue-600 hover:to-blue-500 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-blue-500/25 transition-all duration-300 hover:scale-110 hover:rotate-12" aria-label="LinkedIn">
+                        <FiLinkedin className="group-hover:text-white" />
+                      </a>
+                      <a href="mailto:budhabhaskar11@gmail.com" className="group w-14 h-14 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-emerald-600 hover:to-emerald-500 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:rotate-12" aria-label="Email">
+                        <FiMail className="group-hover:text-white" />
+                      </a>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        </div>
+
+        {/* Divider */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent my-24" />
+
+        {/* Experience Section */}
+        <section className="mb-32 animate-slide-in-up">
+          <div className="text-center mb-20">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm rounded-full border border-purple-500/30 text-purple-400 font-medium mb-4">
+              <BsBriefcase className="text-lg" />
+              Professional Journey
+            </span>
+            <h2 className="text-5xl lg:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent mb-4">
+              Work Experience
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {loading ? (
-              <div className="animate-pulse text-slate-500">Loading Education...</div>
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className={`${shimmer} h-64 rounded-3xl`} />
+              ))
             ) : (
-              education.map((edu) => (
-                <article key={edu._id} className="bg-slate-900 p-6 rounded-xl border border-slate-800 hover:border-purple-500 transition-all">
-                  <h3 className="text-lg font-bold text-white">{edu.degree}</h3>
-                  <p className="text-purple-400 text-sm font-medium">{edu.institution}</p>
-                  <p className="text-slate-500 text-xs mb-2">{edu.duration}</p>
-                  <p className="text-slate-400 text-sm">{edu.description}</p>
+              experiences.map((exp, idx) => (
+                <article 
+                  key={exp._id}
+                  className="group relative bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 p-8 hover:border-purple-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden"
+                  style={{ animationDelay: `${idx * 100}ms` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
+                  {exp.image && (
+                    <div className="relative z-10 mb-6 overflow-hidden rounded-2xl h-40">
+                      <img 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                        src={exp.image} 
+                        alt={exp.title} 
+                      />
+                    </div>
+                  )}
+                  <div className="relative z-10">
+                    <h3 className="text-2xl font-black text-white mb-3 group-hover:text-purple-400 transition-colors">{exp.title}</h3>
+                    <p className="text-slate-500 font-medium mb-4">{exp.duration}</p>
+                    <p className="text-slate-400 leading-relaxed">{exp.description}</p>
+                  </div>
                 </article>
               ))
             )}
           </div>
         </section>
 
-        {/* Skills Section (Dynamic) */}
-        <section>
-          <h2 className="text-xl font-bold text-slate-400 mb-6 uppercase tracking-wider">Skills & Expertise</h2>
-          <div className="flex flex-wrap gap-3">
-            {loading ? (
-               <div className="animate-pulse text-slate-500">Loading Skills...</div>
+        {/* Divider */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent my-24" />
+
+        {/* Projects Section */}
+        <section className="animate-slide-in-up">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl lg:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent mb-4">
+              Featured Projects
+            </h2>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+              A glimpse into the digital solutions I've engineered with cutting-edge technologies.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-20">
+                      {loading ? (
+              Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className={`${shimmer} h-96 rounded-3xl`} />
+              ))
             ) : (
-              skills.map((skill) => (
-                <div key={skill._id} className="group relative">
-                  <span className="px-4 py-2 bg-slate-900 text-slate-300 rounded-lg border border-slate-800 group-hover:border-purple-500 group-hover:text-white transition-all text-sm flex items-center gap-2">
-                    {skill.name}
-                    {skill.level && (
-                      <span className="text-[10px] bg-slate-800 px-1 rounded text-purple-400">
-                        {skill.level}%
-                      </span>
-                    )}
-                  </span>
-                </div>
+              projects.slice(0, 2).map((project, idx) => (
+                <article 
+                  key={project._id}
+                  className="group relative bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 overflow-hidden hover:border-purple-500/75 hover:bg-slate-900/90 transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/25 hover:-translate-y-6"
+                  style={{ animationDelay: `${idx * 200}ms` }}
+                >
+                  {/* Project Image */}
+                  <div className="relative overflow-hidden rounded-t-3xl h-80">
+                    <img 
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 group-hover:rotate-1"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+                      <a 
+                        href={project.githubLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-14 h-14 bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20 rounded-2xl flex items-center justify-center text-2xl hover:scale-110 transition-all duration-300 shadow-2xl"
+                      >
+                        <FiGithub />
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Project Content */}
+                  <div className="p-10">
+                    <h3 className="text-3xl font-black text-white mb-4 group-hover:text-purple-400 transition-colors line-clamp-2">
+                      {project.title}
+                    </h3>
+                    <p className="text-slate-400 mb-8 leading-relaxed line-clamp-3 flex-grow">
+                      {project.description}
+                    </p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-sm font-medium text-slate-400">
+                        <span className="flex items-center gap-2">
+                          <BsPlayFill className="text-purple-400" />
+                          Live Demo
+                        </span>
+                      </div>
+                      
+                      <a 
+                        href={project.githubLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="group/link flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-2xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105"
+                      >
+                        View Code
+                        <FiArrowUpRight className="group-hover/link:translate-x-1 transition-transform" />
+                      </a>
+                    </div>
+                  </div>
+                </article>
               ))
             )}
           </div>
-          
-          {/* Social Links Moved Here for better layout balance */}
-          <div className="flex items-center space-x-6 mt-12">
-            <a href="https://github.com/Bhaskar787" className="text-slate-400 hover:text-purple-400 text-2xl transition-colors"><FiGithub /></a>
-            <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" className="text-slate-400 hover:text-purple-400 text-2xl transition-colors"><FiLinkedin /></a>
-            <a href="mailto:budhabhaskar11@gmail.com" className="text-slate-400 hover:text-purple-400 text-2xl transition-colors"><MdEmail /></a>
-          </div>
         </section>
+
+        {/* CTA Buttons */}
+        <div className="text-center space-y-8 animate-slide-in-up">
+          <div className="max-w-2xl mx-auto">
+            <h3 className="text-3xl font-black text-white mb-6">
+              Ready to bring your vision to life?
+            </h3>
+            <p className="text-xl text-slate-400 mb-8">
+              Let's collaborate on your next big project. I'm available for exciting opportunities.
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <a 
+              href="/projects" 
+              className="group relative px-10 py-4 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white font-semibold rounded-3xl hover:from-purple-600 hover:via-pink-600 hover:to-purple-700 shadow-2xl hover:shadow-purple-500/25 transform hover:-translate-y-2 transition-all duration-500 text-lg flex items-center gap-3 w-fit mx-auto"
+            >
+              <span>View All Projects</span>
+              <BsArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
+            </a>
+            
+            <a 
+              href="/contact" 
+              className="group px-10 py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white font-semibold rounded-3xl hover:from-purple-500 hover:via-pink-500 hover:to-blue-500 shadow-2xl hover:shadow-purple-500/50 transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 text-lg flex items-center gap-3 w-fit mx-auto relative overflow-hidden"
+            >
+              <span>Start a Project</span>
+              <BsArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-3xl" />
+            </a>
+          </div>
+        </div>
+
+        {/* Scroll to Top Indicator */}
+        <div className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-2xl flex items-center justify-center text-2xl shadow-2xl hover:shadow-purple-500/50 cursor-pointer opacity-0 invisible group hover:scale-110 transition-all duration-300 z-50 animate-slide-in-bottom" 
+             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+             title="Back to top"
+        >
+          <FiArrowUpRight />
+        </div>
       </div>
 
-      <hr className="my-16 border-slate-800" />
-
-      {/* Experience Section */}
-      <section className="py-8">
-        <span className="text-purple-500 font-medium block text-center mb-2">Professional Journey</span>
-        <h2 className="text-4xl font-bold text-center mb-12 text-white">Work Experience</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {loading ? (
-             <div className="col-span-full text-center animate-pulse text-slate-500">Loading Experience...</div>
-          ) : (
-            experiences.map((exp) => (
-              <article key={exp._id} className="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-purple-500 transition-all">
-                {exp.image && <img className="h-30 w-70  object-contain" src={exp.image} alt={exp.title} />}
-                <h3 className="text-lg font-bold py-2 text-white">{exp.title}</h3>
-                <p className="text-slate-500 text-xs mb-3">{exp.duration}</p>
-                <p className="text-slate-400 text-sm leading-relaxed">{exp.description}</p>
-              </article>
-            ))
-          )}
-        </div>
-      </section>
-
-      <hr className="my-16 border-slate-800" />
-
-      {/* Projects Section */}
-      <section className="py-8">
-        <div className="text-center mb-12  ">
-          <h2 className="text-3xl font-bold text-white mb-4">Featured Projects</h2>
-          <p className="text-slate-400">A glimpse into the digital solutions I've engineered.</p>
-        </div>
-
-        {loading ? (
-          <div className="text-center text-purple-500 animate-pulse">Loading Projects...</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {projects.slice(0, 2).map((project) => (
-              //this divneed to change
-              <div key={project._id} className=" group p-6 rounded-2xl bg-slate-900 border border-slate-800 hover:border-purple-500 transition-all flex flex-col">
-                <div className="overflow-hidden rounded-xl mb-6">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-3">{project.title}</h3>
-                <p className="text-slate-400 mb-6 flex-grow">{project.description}</p>
-                <div className="flex items-center justify-between">
-                  <a href={project.githubLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-slate-800 rounded-full text-purple-500 hover:bg-purple-500 hover:text-white transition-all">
-                    <FiGithub size={20} />
-                  </a>
-                  
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        
-        <div className="flex justify-center mt-16 gap-4">
-          <a href="/projects" className="px-8 py-3 bg-slate-800 text-white rounded-full hover:bg-slate-700 transition-all font-medium">View My Project</a>
-          <a href="/contact" className="px-8 py-3 bg-purple-600 text-white rounded-full hover:bg-purple-500 shadow-lg shadow-purple-500/20 transition-all font-medium">Start a Project</a>
-        </div>
-      </section>
+     
     </div>
   );
 }
