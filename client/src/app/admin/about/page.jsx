@@ -90,7 +90,7 @@ export default function AdminAbout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
+      <div className="min-h-screen p-4 sm:p-8 flex items-center justify-center">
         <div className="text-center space-y-4">
           <FiLoader className="w-16 h-16 text-slate-400 animate-spin mx-auto" />
           <p className="text-slate-400 text-lg">Loading about data...</p>
@@ -100,20 +100,20 @@ export default function AdminAbout() {
   }
 
   return (
-    <div className="space-y-8 p-6 lg:p-8 min-h-screen">
+    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8 min-h-screen">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-slide-in-up">
         <div>
-          <h1 className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent mb-2 leading-tight">
             About Section
           </h1>
-          <p className="text-xl text-slate-400">
+          <p className="text-lg sm:text-xl text-slate-400">
             {aboutData ? "Update your professional bio" : "Introduce yourself to visitors"}
           </p>
         </div>
         {aboutData && (
           <div className="text-right">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 text-sm font-bold rounded-2xl border border-emerald-500/30">
+            <span className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-emerald-500/20 text-emerald-400 text-sm font-bold rounded-2xl border border-emerald-500/30">
               <FiCheckCircle className="w-4 h-4" />
               Live
             </span>
@@ -122,15 +122,15 @@ export default function AdminAbout() {
       </div>
 
       {/* Edit/Add Form */}
-      <div className="bg-slate-900/70 backdrop-blur-sm p-8 lg:p-12 rounded-3xl border border-slate-800/50 shadow-2xl animate-slide-in-up delay-200 max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-white">
+      <div className="bg-slate-900/70 backdrop-blur-sm p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-slate-800/50 shadow-2xl animate-slide-in-up delay-200 max-w-full sm:max-w-4xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">
             {editId ? "Edit About Section" : "About Section"}
           </h2>
           {editId && (
             <button 
               onClick={cancelEdit}
-              className="flex items-center gap-2 text-slate-400 hover:text-white px-4 py-2 rounded-xl hover:bg-slate-800/50 transition-all duration-300"
+              className="flex items-center justify-center gap-2 text-slate-400 hover:text-white px-4 py-2 sm:px-4 sm:py-2 rounded-xl hover:bg-slate-800/50 transition-all duration-300 w-full sm:w-auto"
             >
               <FiX className="w-4 h-4" />
               Cancel
@@ -138,11 +138,11 @@ export default function AdminAbout() {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           {/* Image Upload */}
           <div>
-            <label className="block text-slate-300 font-semibold mb-4 text-lg flex items-center gap-2">
-              <FiImage className="w-6 h-6" />
+            <label className="block text-slate-300 font-semibold mb-4 text-base sm:text-lg flex items-center gap-2">
+              <FiImage className="w-5 h-5 sm:w-6 sm:h-6" />
               Profile Photo
             </label>
             <div className="relative">
@@ -150,7 +150,7 @@ export default function AdminAbout() {
                 type="file"
                 accept="image/*"
                 onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
-                className="w-full px-6 py-6 bg-slate-800/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-slate-700/50 text-white file:mr-6 file:py-4 file:px-6 file:rounded-2xl file:border-0 file:font-semibold file:bg-gradient-to-r file:from-purple-600/20 file:to-indigo-600/20 file:text-purple-300 hover:file:bg-gradient-to-r hover:file:from-purple-600/30 hover:file:to-indigo-600/30 hover:file:text-purple-200 hover:border-purple-500/50 transition-all cursor-pointer text-lg shadow-inner hover:shadow-purple-500/25"
+                className="w-full px-4 sm:px-6 py-6 bg-slate-800/50 backdrop-blur-sm rounded-2xl sm:rounded-3xl border-2 border-dashed border-slate-700/50 text-white file:mr-4 sm:file:mr-6 file:py-3 sm:file:py-4 file:px-4 sm:file:px-6 file:rounded-xl sm:file:rounded-2xl file:border-0 file:font-semibold file:bg-gradient-to-r file:from-purple-600/20 file:to-indigo-600/20 file:text-purple-300 hover:file:bg-gradient-to-r hover:file:from-purple-600/30 hover:file:to-indigo-600/30 hover:file:text-purple-200 hover:border-purple-500/50 transition-all cursor-pointer text-base sm:text-lg shadow-inner hover:shadow-purple-500/25"
               />
               {editId && (
                 <p className="text-xs text-slate-500 mt-3 flex items-center gap-2">
@@ -163,28 +163,28 @@ export default function AdminAbout() {
 
           {/* Description */}
           <div>
-            <label className="block text-slate-300 font-semibold mb-4 text-lg">
+            <label className="block text-slate-300 font-semibold mb-4 text-base sm:text-lg">
               Professional Biography
             </label>
             <textarea
-              rows="8"
+              rows="6"
               placeholder="Tell your story... Introduce yourself, your passion for development, your journey, and what makes you unique. Visitors will read this first!"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               required
-              className="w-full px-6 py-6 bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-700/50 text-white placeholder-slate-400 focus:border-purple-500/75 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all duration-300 text-lg resize-vertical shadow-inner hover:border-slate-600/75 min-h-[200px]"
+              className="w-full px-4 sm:px-6 py-6 bg-slate-800/50 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-slate-700/50 text-white placeholder-slate-400 focus:border-purple-500/75 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all duration-300 text-base sm:text-lg resize-vertical shadow-inner hover:border-slate-600/75 min-h-[160px] sm:min-h-[200px]"
             />
             <p className="text-xs text-slate-500 mt-3">
               Tip: Keep it concise (150-300 words) and engaging. Use first-person voice.
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4 pt-6">
+          {/* Action Buttons - MOBILE RESPONSIVE */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
             <button
               type="submit"
               disabled={submitting || !formData.description.trim()}
-              className={`group relative flex items-center gap-3 px-12 py-5 font-bold text-xl rounded-3xl shadow-2xl transition-all duration-500 flex-1 min-w-[280px] ${
+              className={`group relative flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-12 py-4 sm:py-5 font-bold text-base sm:text-xl rounded-2xl sm:rounded-3xl shadow-2xl transition-all duration-500 flex-1 min-h-[48px] sm:min-h-[52px] ${
                 submitting || !formData.description.trim()
                   ? 'bg-slate-700/50 border border-slate-600/50 text-slate-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-600 hover:from-purple-500 hover:via-purple-600 hover:to-indigo-500 text-white border border-purple-500/50 hover:shadow-purple-500/50 hover:-translate-y-1 hover:scale-[1.02] shadow-purple-500/25'
@@ -192,17 +192,17 @@ export default function AdminAbout() {
             >
               {submitting ? (
                 <>
-                  <FiLoader className="animate-spin w-6 h-6" />
-                  <span>{editId ? "Updating..." : "Creating..."}</span>
+                  <FiLoader className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
+                  <span className="text-sm sm:text-base">{editId ? "Updating..." : "Creating..."}</span>
                 </>
               ) : (
                 <>
-                  {editId ? <FiEdit3 className="w-6 h-6" /> : <FiPlus className="w-6 h-6" />}
-                  <span>{editId ? "Update Bio" : "Create Bio"}</span>
+                  {editId ? <FiEdit3 className="w-5 h-5 sm:w-6 sm:h-6" /> : <FiPlus className="w-5 h-5 sm:w-6 sm:h-6" />}
+                  <span className="text-sm sm:text-base">{editId ? "Update Bio" : "Create Bio"}</span>
                 </>
               )}
               {!submitting && (
-                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-3xl blur-sm transition-all scale-0 group-hover:scale-100" />
+                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-2xl sm:rounded-3xl blur-sm transition-all scale-0 group-hover:scale-100" />
               )}
             </button>
 
@@ -210,10 +210,10 @@ export default function AdminAbout() {
               <button 
                 type="button" 
                 onClick={cancelEdit}
-                className="flex items-center gap-2 px-12 py-5 bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50 text-slate-300 hover:text-white hover:border-slate-600 font-bold text-xl rounded-3xl transition-all duration-300 shadow-lg hover:shadow-slate-500/25 hover:-translate-y-0.5 min-w-[200px]"
+                className="flex items-center justify-center gap-2 px-6 sm:px-12 py-4 sm:py-5 bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50 text-slate-300 hover:text-white hover:border-slate-600 font-bold text-base sm:text-xl rounded-2xl sm:rounded-3xl transition-all duration-300 shadow-lg hover:shadow-slate-500/25 hover:-translate-y-0.5 flex-1 min-h-[48px] sm:min-h-[52px]"
               >
-                <FiX className="w-6 h-6" />
-                Cancel
+                <FiX className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-sm sm:text-base">Cancel</span>
               </button>
             )}
           </div>
@@ -222,62 +222,62 @@ export default function AdminAbout() {
 
       {/* Live Preview */}
       {aboutData && (
-        <div className="bg-slate-900/70 backdrop-blur-sm p-8 lg:p-12 rounded-3xl border border-slate-800/50 shadow-2xl animate-slide-in-up delay-400">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-              <FiCheckCircle className="w-8 h-8 text-emerald-400" />
+        <div className="bg-slate-900/70 backdrop-blur-sm p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-slate-800/50 shadow-2xl animate-slide-in-up delay-400">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
+              <FiCheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-400" />
               Live Preview
             </h2>
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 text-sm font-bold rounded-2xl border border-emerald-500/30">
+            <span className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-emerald-500/20 text-emerald-400 text-sm font-bold rounded-2xl border border-emerald-500/30">
               Published
             </span>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8 items-start lg:items-center">
+          <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-start lg:items-center">
             {/* Profile Image */}
             {aboutData.image ? (
-              <div className="relative flex-shrink-0">
+              <div className="relative flex-shrink-0 w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 mx-auto lg:mx-0">
                 <img 
                   src={aboutData.image} 
                   alt="Profile" 
-                  className="w-32 h-32 lg:w-40 lg:h-40 rounded-3xl object-cover shadow-2xl border-4 border-slate-800/50 ring-4 ring-slate-900/50"
+                  className="w-full h-full rounded-2xl sm:rounded-3xl object-cover shadow-2xl border-4 border-slate-800/50 ring-4 ring-slate-900/50"
                 />
               </div>
             ) : (
-              <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border-4 border-slate-700/50 shadow-2xl ring-4 ring-slate-900/50">
-                <FiImage className="w-16 h-16 text-slate-500" />
+              <div className="w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border-4 border-slate-700/50 shadow-2xl ring-4 ring-slate-900/50 mx-auto lg:mx-0">
+                <FiImage className="w-12 h-12 sm:w-16 sm:h-16 text-slate-500" />
               </div>
             )}
 
             {/* Bio Text */}
-            <div className="flex-1 space-y-4 min-w-0">
-              <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-700/50">
-                <span className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></span>
+            <div className="flex-1 space-y-4 min-w-0 px-2 sm:px-0">
+              <div className="inline-flex items-center gap-2 sm:gap-3 px-4 py-2 sm:px-6 sm:py-3 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50">
+                <span className="w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse"></span>
                 <span className="text-emerald-400 font-bold uppercase text-xs tracking-wider">Live on Portfolio</span>
               </div>
               
               <div className="prose prose-invert max-w-none">
-                <p className="text-lg leading-relaxed text-slate-200 line-clamp-6 lg:line-clamp-none">
+                <p className="text-base sm:text-lg leading-relaxed text-slate-200 line-clamp-4 sm:line-clamp-6 lg:line-clamp-none">
                   {aboutData.description}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-4 pt-8 mt-8 border-t border-slate-800/50">
+          {/* Action Buttons - MOBILE RESPONSIVE */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-800/50">
             <button 
               onClick={() => handleEditClick(aboutData)}
-              className="group flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 rounded-3xl transition-all duration-300 shadow-lg hover:shadow-purple-500/25 hover:scale-105 font-bold"
+              className="group flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 rounded-2xl sm:rounded-3xl transition-all duration-300 shadow-lg hover:shadow-purple-500/25 hover:scale-105 font-bold flex-1 min-h-[44px] sm:min-h-[48px] text-sm sm:text-base"
             >
-              <FiEdit3 className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <FiEdit3 className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               Update Bio
             </button>
             <button 
               onClick={() => handleDelete(aboutData._id)}
-              className="group flex items-center gap-3 px-8 py-4 bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-300 hover:bg-red-500/30 hover:text-red-200 hover:border-red-500/50 rounded-3xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 hover:scale-105 font-bold"
+              className="group flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-300 hover:bg-red-500/30 hover:text-red-200 hover:border-red-500/50 rounded-2xl sm:rounded-3xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 hover:scale-105 font-bold flex-1 min-h-[44px] sm:min-h-[48px] text-sm sm:text-base"
             >
-              <FiTrash2 className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <FiTrash2 className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               Delete Bio
             </button>
           </div>
