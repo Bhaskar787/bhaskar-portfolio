@@ -151,7 +151,7 @@ export default function AdminDashboard() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
-            { label: "Add Project", href: "/admin/project/create", icon: FiBriefcase },
+            { label: "Add Project", href: "/admin/project", icon: FiBriefcase },
             { label: "View Messages", href: "/admin/contact", icon: FiMail },
             { label: "Manage Experience", href: "/admin/experience", icon: MdHomeWork },
             { label: "Update Education", href: "/admin/education", icon: IoSchool },

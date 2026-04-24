@@ -150,55 +150,54 @@ export default function AdminLayout({ children }) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/50 shadow-lg sticky top-0 z-20">
-          <div className="h-20 px-6 lg:px-8 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={toggleSidebar} 
-                className="p-3 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-2xl transition-all duration-300 md:hidden shadow-lg"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-              
-              {/* Breadcrumb */}
-              <div className="hidden md:block">
-                <h2 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                  {(() => {
-                    const pageName = pathname.split('/').pop()?.replace(/([A-Z])/g, ' $1') || 'Dashboard';
-                    return pageName.charAt(0).toUpperCase() + pageName.slice(1);
-                  })()}
-                </h2>
-              </div>
-            </div>
-            
-            {/* Simplified Profile - Mobile Hidden */}
-<div className="hidden lg:flex items-center gap-3 p-2 bg-slate-800/50 rounded-2xl backdrop-blur-sm border border-slate-700/50 hover:border-purple-500/50 transition-all group">
-  {/* Dynamic Avatar Size Based on Name Length */}
-  <div 
-    className="flex items-center justify-center shadow-lg rounded-2xl font-bold uppercase text-white transition-all"
-    style={{
-      width: adminName.length > 8 ? '44px' : adminName.length > 5 ? '40px' : '36px',
-      height: adminName.length > 8 ? '44px' : adminName.length > 5 ? '40px' : '36px',
-      fontSize: adminName.length > 8 ? '0.75rem' : adminName.length > 5 ? '0.875rem' : '1rem',
-      background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)'
-    }}
-  >
-    {adminName.charAt(0)}
+
+<header className="bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/50 shadow-lg sticky top-0 z-30">
+  <div className="h-20 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+    <div className="flex items-center gap-4 flex-shrink-0">
+      {/* FIXED: Mobile Menu Button - Always Visible */}
+      <button 
+        onClick={toggleSidebar} 
+        className="p-3 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-2xl transition-all duration-300 shadow-lg z-40 relative md:hidden flex-shrink-0"
+        aria-label="Toggle menu"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+      
+      {/* Breadcrumb */}
+      <div className="hidden md:block min-w-0 flex-1">
+        <h2 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent truncate">
+          {(() => {
+            const pageName = pathname.split('/').pop()?.replace(/([A-Z])/g, ' $1') || 'Dashboard';
+            return pageName.charAt(0).toUpperCase() + pageName.slice(1);
+          })()}
+        </h2>
+      </div>
+    </div>
+    
+    {/* Profile - Fixed positioning */}
+    <div className="hidden lg:flex items-center gap-3 flex-shrink-0 p-2 bg-slate-800/50 rounded-2xl backdrop-blur-sm border border-slate-700/50 hover:border-purple-500/50 transition-all group">
+      {/* Dynamic Avatar */}
+      <div 
+        className="flex items-center justify-center shadow-lg rounded-2xl font-bold uppercase text-white transition-all"
+        style={{
+          width: adminName.length > 8 ? '44px' : adminName.length > 5 ? '40px' : '36px',
+          height: adminName.length > 8 ? '44px' : adminName.length > 5 ? '40px' : '36px',
+          fontSize: adminName.length > 8 ? '0.75rem' : adminName.length > 5 ? '0.875rem' : '1rem',
+          background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)'
+        }}
+      >
+        {adminName.charAt(0)}
+      </div>
+      
+      <div className="min-w-0 flex flex-col items-end">
+        <p className="font-semibold text-white text-sm truncate max-w-32 group-hover:max-w-none transition-all" title={adminName}>
+          {adminName}
+        </p>
+        <p className="text-xs text-slate-400">Administrator</p>
+      </div>
+    </div>
   </div>
-  
-  {/* Name with Truncate & Tooltip */}
-  <div className="min-w-0 flex flex-col items-end">
-    <p 
-      className="font-semibold text-white text-sm truncate max-w-32 group-hover:max-w-none transition-all"
-      title={adminName} // Tooltip on hover
-    >
-      {adminName}
-    </p>
-    <p className="text-xs text-slate-400">Administrator</p>
-  </div>
-</div>
-          </div>
-        </header>
+</header>
 
         {/* Dynamic Content */}
         <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-950/50 backdrop-blur-sm">

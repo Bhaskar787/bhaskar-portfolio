@@ -41,7 +41,7 @@ export default function Contact() {
       })
 
       if (res.ok) {
-        toast.success("Message sent successfully! I'll be right back to you soon! 🎉")
+        toast.success("Message sent successfully! I'll be right back to you soon!")
         setFormData({ name: "", email: "", phone: "", message: "" })
       } else {
         const data = await res.json()
@@ -59,34 +59,34 @@ export default function Contact() {
       {/* Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(168,85,247,0.1),transparent),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.1),transparent)]" />
       
-      <div className="relative max-w-7xl mx-auto px-6 py-24 lg:py-32">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 xl:py-32">
         
-        {/* Hero Section - MATCHES OTHER PAGES */}
-        <div className="text-center mb-24 animate-slide-in-up">
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-sm rounded-2xl border border-emerald-500/30 mb-8 mx-auto max-w-max">
-            <BsStars className="text-xl text-emerald-400" />
-            <span className="text-lg font-semibold text-emerald-100">Get In Touch</span>
+        {/* Hero Section */}
+        <div className="text-center mb-16 lg:mb-24 animate-slide-in-up">
+          <div className="inline-flex items-center gap-3 px-4 sm:px-6 py-3 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-sm rounded-2xl border border-emerald-500/30 mb-6 lg:mb-8 mx-auto max-w-max">
+            <BsStars className="text-lg sm:text-xl text-emerald-400" />
+            <span className="text-base sm:text-lg font-semibold text-emerald-100">Get In Touch</span>
           </div>
-          <h1 className="text-5xl lg:text-7xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent leading-tight mb-4 lg:mb-6">
             Let's Talk Business
           </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed px-4">
             Ready to bring your vision to life? Drop me a message and let's create something extraordinary together.
           </p>
         </div>
 
         {/* Contact Info & Form */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start animate-slide-in-up delay-200">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-24 items-start">
           
-          {/* Contact Info */}
-          <div className="animate-slide-in-left delay-300 space-y-8">
-            {/* "Reach Out" Header - MATCHES OTHER PAGES */}
-            <h2 className="text-4xl lg:text-5xl font-black text-white mb-12 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+          {/* Contact Info - FULLY RESPONSIVE */}
+          <div className="animate-slide-in-left delay-300 space-y-6 mb-8 lg:mb-12">
+            {/* Header */}
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-8 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
               Reach Out
             </h2>
             
-            {/* Contact Cards */}
-            <div className="space-y-6 mb-12">
+            {/* Contact Cards - RESPONSIVE TEXT */}
+            <div className="space-y-4">
               {[
                 {
                   icon: FiMail,
@@ -97,7 +97,7 @@ export default function Contact() {
                 },
                 {
                   icon: FiPhone,
-                  label: "Phone",
+                  label: "Phone", 
                   value: "+977 9825630086",
                   href: "tel:+9779825630086",
                   gradient: "from-blue-500 to-cyan-500"
@@ -113,7 +113,7 @@ export default function Contact() {
                   icon: FiGithub,
                   label: "GitHub",
                   value: "Bhaskar787",
-                  href: "https://github.com/Bhaskar787",
+                  href: "https://github.com/Bhaskar787", 
                   gradient: "from-slate-500 to-slate-300"
                 }
               ].map((contact, idx) => (
@@ -122,19 +122,30 @@ export default function Contact() {
                   href={contact.href}
                   target={contact.href.startsWith('http') ? '_blank' : '_self'}
                   rel={contact.href.startsWith('http') ? 'noopener noreferrer' : ''}
-                  className="group relative block p-8 bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 hover:border-emerald-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/25 hover:-translate-y-2"
+                  className="group relative block p-6 sm:p-8 bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 hover:border-emerald-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/25 hover:-translate-y-2"
                   style={{ animationDelay: `${idx * 100 + 400}ms` }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-r ${contact.gradient} opacity-0 group-hover:opacity-5 blur-xl rounded-3xl transition-all duration-500`} />
-                  <div className="relative z-10 flex items-start gap-6">
-                    <div className={`p-4 rounded-2xl bg-gradient-to-br ${contact.gradient} shadow-2xl group-hover:scale-110 transition-all duration-500 flex-shrink-0 flex items-center justify-center w-16 h-16`}>
-                      <contact.icon className="w-6 h-6 text-white" />
+                  {/* Gradient Background */}
+                  <div className={`absolute inset-0 bg-gradient-to-r ${contact.gradient} opacity-0 group-hover:opacity-5 blur-xl rounded-3xl transition-all duration-500 -z-10`} />
+                  
+                  <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:gap-6">
+                    {/* Icon */}
+                    <div className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${contact.gradient} shadow-2xl group-hover:scale-110 transition-all duration-500 flex-shrink-0 self-center sm:self-auto w-16 h-16 sm:w-20 sm:h-20`}>
+                      <contact.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                     </div>
-                    <div className="min-w-0 flex-1 py-2">
-                      <p className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-2">
+                    
+                    {/* Content - RESPONSIVE TEXT */}
+                    <div className="min-w-0 flex-1 py-3 sm:py-2 text-center sm:text-left mt-4 sm:mt-0">
+                      {/* Label */}
+                      <p className="text-slate-400 text-xs sm:text-sm font-medium uppercase tracking-wider mb-2">
                         {contact.label}
                       </p>
-                      <p className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors leading-tight">
+                      
+                      {/* Value - FIXED RESPONSIVE TRUNCATION */}
+                      <p 
+                        className="text-lg sm:text-xl lg:text-2xl font-black text-white leading-tight break-all sm:break-words group-hover:text-emerald-400 transition-colors line-clamp-1 sm:line-clamp-none"
+                        title={contact.value} // Full text on hover
+                      >
                         {contact.value}
                       </p>
                     </div>
@@ -145,12 +156,11 @@ export default function Contact() {
 
             {/* Quick Links */}
             <div className="pt-8 border-t border-slate-800/50">
-              {/* "Or Connect Here" - PROPER SIZE */}
               <h3 className="text-2xl lg:text-3xl font-black text-white mb-6">Or Connect Here</h3>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4 sm:gap-6">
                 <a 
                   href="https://github.com/Bhaskar787" 
-                  className="w-16 h-16 bg-slate-900 hover:bg-purple-600/20 border border-slate-800/50 hover:border-purple-500/75 rounded-2xl flex items-center justify-center text-2xl hover:text-purple-400 hover:scale-110 transition-all duration-300 shadow-xl hover:shadow-purple-500/25 group"
+                  className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-purple-600/20 border border-slate-800/50 hover:border-purple-500/75 rounded-2xl flex items-center justify-center text-xl hover:text-purple-400 hover:scale-110 transition-all duration-300 shadow-xl hover:shadow-purple-500/25 group flex-shrink-0"
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
@@ -158,7 +168,7 @@ export default function Contact() {
                 </a>
                 <a 
                   href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" 
-                  className="w-16 h-16 bg-slate-900 hover:bg-blue-600/20 border border-slate-800/50 hover:border-blue-500/75 rounded-2xl flex items-center justify-center text-2xl hover:text-blue-400 hover:scale-110 transition-all duration-300 shadow-xl hover:shadow-blue-500/25 group"
+                  className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-blue-600/20 border border-slate-800/50 hover:border-blue-500/75 rounded-2xl flex items-center justify-center text-xl hover:text-blue-400 hover:scale-110 transition-all duration-300 shadow-xl hover:shadow-blue-500/25 group flex-shrink-0"
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
@@ -170,17 +180,15 @@ export default function Contact() {
 
           {/* Contact Form */}
           <div className="animate-slide-in-right delay-300">
-            <div className="bg-slate-900/70 backdrop-blur-sm p-12 rounded-3xl border border-slate-800/50 shadow-2xl hover:shadow-emerald-500/25 transition-all hover:border-emerald-500/50">
-              {/* "Send Message" Header - MATCHES OTHER PAGES */}
-              <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+            <div className="bg-slate-900/70 backdrop-blur-sm p-8 lg:p-12 rounded-3xl border border-slate-800/50 shadow-2xl hover:shadow-emerald-500/25 transition-all hover:border-emerald-500/50">
+              <h2 className="text-3xl lg:text-4xl xl:text-5xl font-black text-white mb-6 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                 Send Message
               </h2>
-              <p className="text-xl text-slate-400 mb-10 leading-relaxed">
+              <p className="text-lg sm:text-xl text-slate-400 mb-10 leading-relaxed">
                 Fill out the form and I'll respond within 24 hours.
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name */}
                 <div>
                   <label className="block text-slate-300 font-semibold mb-3 text-lg">
                     Your Name
@@ -191,12 +199,11 @@ export default function Contact() {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
+                    className="w-full p-4 sm:p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
                     placeholder="Ram chaudhary"
                   />
                 </div>
 
-                {/* Email */}
                 <div>
                   <label className="block text-slate-300 font-semibold mb-3 text-lg">
                     Email Address
@@ -207,12 +214,11 @@ export default function Contact() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
+                    className="w-full p-4 sm:p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
                     placeholder="ram123@example.com"
                   />
                 </div>
 
-                {/* Phone */}
                 <div>
                   <label className="block text-slate-300 font-semibold mb-3 text-lg">
                     Phone Number
@@ -223,12 +229,11 @@ export default function Contact() {
                     required
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
+                    className="w-full p-4 sm:p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
                     placeholder="+977 9827635522"
                   />
                 </div>
 
-                {/* Message */}
                 <div>
                   <label className="block text-slate-300 font-semibold mb-3 text-lg">
                     Your Message
@@ -239,16 +244,15 @@ export default function Contact() {
                     required
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 resize-vertical shadow-inner hover:border-slate-600/75 min-h-[140px]"
+                    className="w-full p-4 sm:p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 resize-vertical shadow-inner hover:border-slate-600/75 min-h-[140px]"
                     placeholder="Tell me about your project..."
                   />
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`group relative w-full px-10 py-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white font-bold text-lg rounded-3xl shadow-2xl hover:shadow-emerald-500/50 hover:from-emerald-500 hover:via-teal-500 hover:to-emerald-600 transform hover:-translate-y-1 hover:scale-[1.02] transition-all duration-500 border border-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 uppercase tracking-wider font-black shadow-emerald-500/25 ${loading ? 'animate-pulse' : ''}`}
+                  className={`group relative w-full px-8 sm:px-10 py-5 lg:py-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white font-bold text-lg sm:text-xl rounded-3xl shadow-2xl hover:shadow-emerald-500/50 hover:from-emerald-500 hover:via-teal-500 hover:to-emerald-600 transform hover:-translate-y-1 hover:scale-[1.02] transition-all duration-500 border border-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 uppercase tracking-wider font-black shadow-emerald-500/25 ${loading ? 'animate-pulse' : ''}`}
                 >
                   {loading ? (
                     <>
@@ -264,9 +268,8 @@ export default function Contact() {
                   <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-3xl blur-sm transition-all scale-0 group-hover:scale-100" />
                 </button>
 
-                {/* Status */}
                 {status && (
-                  <div className={`p-4 rounded-2xl text-center text-lg font-semibold shadow-lg transition-all ${status.includes("Error") ? "bg-red-500/20 border border-red-500/50 text-red-300" : "bg-emerald-500/20 border border-emerald-500/50 text-emerald-300"}`}>
+                  <div className={`p-4 sm:p-5 rounded-2xl text-center text-lg font-semibold shadow-lg transition-all ${status.includes("Error") ? "bg-red-500/20 border border-red-500/50 text-red-300" : "bg-emerald-500/20 border border-emerald-500/50 text-emerald-300"}`}>
                     {status}
                   </div>
                 )}
@@ -276,10 +279,10 @@ export default function Contact() {
         </div>
 
         {/* Final CTA */}
-        <div className="text-center mt-24 animate-slide-in-up delay-600">
+        <div className="text-center mt-16 lg:mt-24 animate-slide-in-up delay-600">
           <a
             href="/projects"
-            className="group inline-flex items-center gap-3 px-12 py-5 bg-slate-900/50 backdrop-blur-sm text-white font-bold rounded-3xl hover:bg-slate-800 hover:shadow-lg hover:shadow-purple-500/25 border border-slate-800/50 hover:border-purple-500/50 transition-all duration-400 hover:scale-105 text-xl shadow-xl"
+            className="group inline-flex items-center gap-3 px-8 sm:px-12 py-4 lg:py-5 bg-slate-900/50 backdrop-blur-sm text-white font-bold rounded-3xl hover:bg-slate-800 hover:shadow-lg hover:shadow-purple-500/25 border border-slate-800/50 hover:border-purple-500/50 transition-all duration-400 hover:scale-105 text-lg lg:text-xl shadow-xl"
           >
             <span>Or Browse My Work</span>
             <FiArrowRight className="text-lg group-hover:translate-x-2 transition-transform" />
