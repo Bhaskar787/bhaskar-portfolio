@@ -1,14 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import { FiPlus, FiTrash2, FiEdit, FiLoader, FiX } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit, FiLoader, FiX, FiAward } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 export default function AdminExperience() {
   const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  
-  // Track if we are editing
   const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -28,20 +26,19 @@ export default function AdminExperience() {
       const data = await res.json();
       setExperiences(data);
     } catch (error) {
-      console.error("Fetch error:", error);
+      toast.error("Failed to fetch experiences");
     } finally {
       setLoading(false);
     }
   };
 
-  // Populate form for editing
   const handleEditClick = (exp) => {
     setEditingId(exp._id);
     setFormData({
       title: exp.title,
       duration: exp.duration,
       description: exp.description,
-      image: null, // Reset image input; only update if a new file is chosen
+      image: null,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -60,7 +57,6 @@ export default function AdminExperience() {
     data.append("duration", formData.duration);
     data.append("description", formData.description);
     
-    // Only append image if a new file was selected
     if (formData.image) {
       data.append("image", formData.image);
     }
@@ -77,163 +73,259 @@ export default function AdminExperience() {
       if (res.ok) {
         fetchExperiences();
         cancelEdit();
-        toast.success(editingId ? "Experience updated!" : "Experience added!")
+        toast.success(editingId ? "Experience Updated!" : "Experience Added!");
+      } else {
+        toast.error("Submission failed");
       }
     } catch (error) {
-      toast.error("Submission error:", error)
+      toast.error("Error submitting form");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Delete this experience permanently?")) return;
     try {
       const res = await fetch(`/api/experience/${id}`, { method: "DELETE" });
-      if (res.ok) fetchExperiences();
-      toast.success("Experience deleted.")
+      if (res.ok) {
+        fetchExperiences();
+        toast.success("Experience Deleted!");
+      }
     } catch (error) {
-      toast.error("Delete error:", error)
+      toast.error("Delete failed");
     }
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">
-          {editingId ? "Edit Experience" : "Manage Experience"}
-        </h1>
-       
+    <div className="space-y-8 p-6 lg:p-8 min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-slide-in-up">
+        <div>
+          <h1 className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent mb-2">
+            Experience Management
+          </h1>
+          <p className="text-xl text-slate-400">Manage your professional journey timeline</p>
+        </div>
+        <div className="text-right">
+          <span className="text-2xl font-bold text-white">{experiences.length}</span>
+          <p className="text-sm text-slate-400">Total Experiences</p>
+        </div>
       </div>
 
-      {/* Form Section */}
-      <form onSubmit={handleSubmit} className={`p-6 rounded-xl shadow-sm border transition-all ${editingId ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'} space-y-4`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-gray-600">Job Title</label>
-            <input
-              type="text"
-              placeholder="e.g. Full Stack Developer"
-              className="w-full p-2 text-slate-800 border rounded outline-none focus:ring-2 focus:ring-purple-500"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-            />
+      {/* Add/Edit Form */}
+      <div className="bg-slate-900/70 backdrop-blur-sm p-8 lg:p-12 rounded-3xl border border-slate-800/50 shadow-2xl animate-slide-in-up delay-200">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-white">
+            {editingId ? "Edit Experience" : "Add New Experience"}
+          </h2>
+          {editingId && (
+            <button 
+              onClick={cancelEdit}
+              className="flex items-center gap-2 text-slate-400 hover:text-white px-4 py-2 rounded-xl hover:bg-slate-800/50 transition-all duration-300"
+            >
+              <FiX className="w-4 h-4" />
+              Cancel
+            </button>
+          )}
+        </div>
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column */}
+          <div className="space-y-6">
+            {/* Title */}
+            <div>
+              <label className="block text-slate-300 font-semibold mb-3 text-lg">
+                Job Title / Position
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Full Stack Developer at Company XYZ"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+                className="w-full px-5 py-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 text-white placeholder-slate-400 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg shadow-inner hover:border-slate-600/75"
+              />
+            </div>
+
+            {/* Duration */}
+            <div>
+              <label className="block text-slate-300 font-semibold mb-3 text-lg">
+                Duration
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Jan 2023 - Present"
+                value={formData.duration}
+                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                required
+                className="w-full px-5 py-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 text-white placeholder-slate-400 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg shadow-inner hover:border-slate-600/75"
+              />
+            </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-gray-600">Duration</label>
-            <input
-              type="text"
-              placeholder="e.g. 2023 - Present"
-              className="w-full p-2 text-slate-800 border rounded outline-none focus:ring-2 focus:ring-purple-500"
-              value={formData.duration}
-              onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-              required
-            />
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* Description */}
+            <div className="lg:col-span-2">
+              <label className="block text-slate-300 font-semibold mb-3 text-lg">
+                Description / Responsibilities
+              </label>
+              <textarea
+                rows="5"
+                placeholder="Describe your role, achievements, and responsibilities..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                required
+                className="w-full px-5 py-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 text-white placeholder-slate-400 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg resize-vertical shadow-inner hover:border-slate-600/75 min-h-[140px]"
+              />
+            </div>
+
+            {/* Company Logo */}
+            <div>
+              <label className="block text-slate-300 font-semibold mb-3 text-lg">
+                Company Logo {editingId && "(Optional - keeps current if unchanged)"}
+              </label>
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+                  className="w-full px-5 py-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 text-white file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:font-semibold file:bg-emerald-600/20 file:text-emerald-300 hover:file:bg-emerald-600/30 hover:file:text-emerald-200 transition-all cursor-pointer text-lg shadow-inner hover:border-emerald-500/50"
+                />
+                <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                  <FiAward className="w-4 h-4" />
+                  Recommended: 100x100px square
+                </p>
+              </div>
+            </div>
           </div>
+
+          {/* Action Buttons */}
+          <div className="lg:col-span-2 flex flex-wrap gap-4 pt-4">
+            <button
+              type="submit"
+              disabled={submitting || !formData.title.trim()}
+              className={`group relative flex items-center gap-3 px-10 py-4 font-bold text-lg rounded-3xl shadow-2xl transition-all duration-500 flex-1 min-w-[220px] ${
+                submitting || !formData.title.trim()
+                  ? 'bg-slate-700/50 border border-slate-600/50 text-slate-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:via-teal-500 hover:to-emerald-600 text-white border border-emerald-500/50 hover:shadow-emerald-500/50 hover:-translate-y-1 hover:scale-[1.02] shadow-emerald-500/25'
+              }`}
+            >
+              {submitting ? (
+                <>
+                  <FiLoader className="animate-spin w-5 h-5" />
+                  <span>{editingId ? "Updating..." : "Adding..."}</span>
+                </>
+              ) : (
+                <>
+                  {editingId ? <FiEdit className="w-5 h-5" /> : <FiPlus className="w-5 h-5" />}
+                  <span>{editingId ? "Update Experience" : "Add Experience"}</span>
+                </>
+              )}
+              {!submitting && (
+                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-3xl blur-sm transition-all scale-0 group-hover:scale-100" />
+              )}
+            </button>
+
+            {editingId && (
+              <button 
+                type="button" 
+                onClick={cancelEdit}
+                className="flex items-center gap-2 px-10 py-4 bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50 text-slate-300 hover:text-white hover:border-slate-600 font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-slate-500/25 hover:-translate-y-0.5 flex-1 min-w-[160px]"
+              >
+                <FiX className="w-5 h-5" />
+                Cancel Edit
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      {/* Experiences Grid */}
+      <div className="space-y-6 animate-slide-in-up delay-400">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black text-white flex items-center gap-3">
+            <FiAward className="w-8 h-8 text-emerald-400" />
+            Professional Journey ({experiences.length})
+          </h2>
         </div>
         
-        <div className="space-y-1">
-          <label className="text-sm font-semibold text-gray-600">Description</label>
-          <textarea
-            placeholder="Describe your responsibilities..."
-            rows="3"
-            className="w-full text-slate-800 p-2 border rounded outline-none focus:ring-2 focus:ring-purple-500"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label className="text-sm font-semibold text-gray-600">
-            Company Logo {editingId && "(Leave empty to keep current)"}
-          </label>
-          <input
-            type="file"
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer"
-            onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
-          />
-        </div>
-
-<div className="flex items-center gap-4">
-  {/* Main Action Button */}
-  <button
-    type="submit"
-    disabled={submitting}
-    className={`flex items-center gap-2 px-6 py-2 rounded-lg text-white transition-colors 
-      ${editingId ? 'bg-blue-600' : 'bg-purple-600'} 
-      ${submitting ? 'opacity-50' : 'hover:opacity-90'}`}
-  >
-    {submitting ? <FiLoader className="animate-spin" /> : (editingId ? <FiEdit /> : <FiPlus />)}
-    {editingId ? "Update Experience" : "Add Experience"}
-  </button>
-
-  {/* Cancel Button - Only shows when editing */}
-  {editingId && (
-    <button 
-      type="button" 
-      onClick={cancelEdit} 
-      className="flex items-center gap-1 text-gray-500 hover:text-red-500"
-    >
-      <FiX /> Cancel
-    </button>
-  )}
-</div>
-      </form>
-
-      {/* List Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
-            <tr>
-              <th className="p-4">Icon</th>
-              <th className="p-4">Title & Details</th>
-              <th className="p-4">Duration</th>
-              <th className="p-4 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {loading ? (
-               <tr><td colSpan="4" className="p-8 text-center text-gray-400 animate-pulse">Loading...</td></tr>
-            ) : experiences.map((exp) => (
-              <tr key={exp._id} className={`hover:bg-gray-50 transition-colors ${editingId === exp._id ? 'bg-blue-50' : ''}`}>
-                <td className="p-4">
-                  <div className="w-12 h-12 rounded border bg-gray-50 flex items-center justify-center overflow-hidden">
+        {experiences.length === 0 ? (
+          <div className="grid place-items-center py-20 bg-slate-900/50 backdrop-blur-sm rounded-3xl border border-slate-800/50 text-center">
+            <FiAward className="w-20 h-20 text-slate-500 mx-auto mb-6 opacity-50" />
+            <h3 className="text-2xl font-bold text-slate-400 mb-2">No Experiences Yet</h3>
+            <p className="text-slate-500 max-w-md mx-auto mb-8">Add your first professional experience to showcase your career journey.</p>
+            <button 
+              onClick={() => setFormData({ title: "", duration: "", description: "", image: null })}
+              className="flex items-center gap-2 px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-3xl hover:from-emerald-500 hover:to-teal-500 shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all duration-300"
+            >
+              <FiPlus className="w-5 h-5" />
+              Add First Experience
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {experiences.map((exp) => (
+              <div 
+                key={exp._id} 
+                className={`group relative bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 p-8 hover:border-emerald-500/75 hover:bg-slate-900/90 hover:shadow-2xl hover:shadow-emerald-500/25 hover:-translate-y-2 transition-all duration-500 overflow-hidden cursor-pointer ${
+                  editingId === exp._id ? 'ring-2 ring-emerald-500/50 border-emerald-500/75 scale-105' : ''
+                }`}
+                onClick={() => handleEditClick(exp)}
+              >
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none" />
+                
+                {/* Logo */}
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 flex items-center justify-center overflow-hidden mx-auto shadow-xl group-hover:shadow-emerald-500/25 transition-all">
                     {exp.image ? (
-                      <img src={exp.image} alt="logo" className="w-full h-full object-contain" />
+                      <img src={exp.image} alt="Company" className="w-full h-full object-contain p-2" />
                     ) : (
-                      <span className="text-gray-300 text-xs">No Logo</span>
+                      <FiAward className="w-10 h-10 text-slate-500" />
                     )}
                   </div>
-                </td>
-                <td className="p-4">
-                  <div className="font-bold text-gray-800">{exp.title}</div>
-                  <div className="text-xs text-gray-400 line-clamp-1">{exp.description}</div>
-                </td>
-                <td className="p-4 text-gray-500 text-sm font-medium">{exp.duration}</td>
-                <td className="p-4">
-                  <div className="flex justify-center gap-3">
+                </div>
+
+                {/* Content */}
+                <div className="relative z-10 space-y-4 text-center">
+                  <h3 className="text-xl font-black text-white line-clamp-1">{exp.title}</h3>
+                  <div className="bg-slate-800/50 px-4 py-2 rounded-xl backdrop-blur-sm border border-slate-700/50">
+                    <p className="text-emerald-400 font-bold text-sm uppercase tracking-wider">
+                      {exp.duration}
+                    </p>
+                  </div>
+                  <p className="text-slate-400 leading-relaxed line-clamp-3 px-4">{exp.description}</p>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-center gap-3 pt-6 opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <button 
-                      onClick={() => handleEditClick(exp)} 
-                      className="text-blue-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-full transition-all"
-                      title="Edit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(exp);
+                      }}
+                      className="flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 rounded-2xl transition-all shadow-lg hover:shadow-emerald-500/25 hover:scale-105 font-medium"
                     >
-                      <FiEdit size={18} />
+                      <FiEdit className="w-4 h-4" />
+                      Edit
                     </button>
                     <button 
-                      onClick={() => handleDelete(exp._id)} 
-                      className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-all"
-                      title="Delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(exp._id);
+                      }}
+                      className="flex items-center gap-2 px-6 py-3 bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-300 hover:bg-red-500/30 hover:text-red-200 hover:border-red-500/50 rounded-2xl transition-all shadow-lg hover:shadow-red-500/25 hover:scale-105 font-medium"
                     >
-                      <FiTrash2 size={18} />
+                      <FiTrash2 className="w-4 h-4" />
+                      Delete
                     </button>
                   </div>
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        )}
       </div>
     </div>
   );

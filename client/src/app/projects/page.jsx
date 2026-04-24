@@ -30,14 +30,69 @@ export default function Projects() {
     fetchProjects()
   }, [])
 
-  // Shimmer loading component
-  const Shimmer = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-      {Array.from({ length: 6 }).map((_, idx) => (
-        <div key={idx} className="shimmer h-96 rounded-3xl animate-pulse" />
-      ))}
-    </div>
-  )
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(168,85,247,0.08),transparent),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.08),transparent)]" />
+        
+        <div className="relative max-w-7xl mx-auto px-6 py-24 lg:py-32">
+          {/* Hero Section Skeleton */}
+          <div className="text-center mb-24 animate-slide-in-up">
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 mb-8 mx-auto max-w-max animate-pulse">
+              <div className="w-6 h-6 bg-slate-700 rounded-full" />
+              <div className="h-6 bg-slate-700 rounded-lg w-24" />
+            </div>
+            <div className="h-20 lg:h-28 bg-slate-800/50 backdrop-blur-sm rounded-3xl mx-auto w-4/5 lg:w-3/5 animate-pulse mb-6" />
+            <div className="h-8 bg-slate-800/50 backdrop-blur-sm rounded-2xl mx-auto w-96 max-w-full animate-pulse" />
+          </div>
+
+          {/* Projects Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div 
+                key={idx} 
+                className="group relative bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-700/50 overflow-hidden animate-pulse hover:border-purple-500/30 shadow-xl"
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                {/* Image Skeleton */}
+                <div className="relative h-64 overflow-hidden rounded-t-3xl bg-slate-700">
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-700 via-slate-600 to-transparent animate-pulse" />
+                  {/* Live Demo Badge Skeleton */}
+                  <div className="absolute top-4 right-4 w-20 h-6 bg-slate-700 rounded-full opacity-60" />
+                </div>
+
+                {/* Content Skeleton */}
+                <div className="p-8">
+                  {/* Title */}
+                  <div className="h-8 bg-slate-700 rounded-xl w-4/5 mb-4" />
+                  {/* Description */}
+                  <div className="space-y-3 mb-8">
+                    <div className="h-5 bg-slate-700 rounded-lg w-full" />
+                    <div className="h-5 bg-slate-700 rounded-lg w-3/4" />
+                    <div className="h-5 bg-slate-700 rounded-lg w-5/6" />
+                  </div>
+                  
+                  {/* Tech Tags Skeleton */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-6 bg-slate-700 rounded-full w-20" />
+                    ))}
+                  </div>
+
+                  {/* Buttons Skeleton */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 h-12 bg-slate-700 rounded-2xl" />
+                    <div className="w-12 h-12 bg-slate-700 rounded-2xl" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black relative overflow-hidden">
@@ -61,9 +116,7 @@ export default function Projects() {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          {loading ? (
-            <Shimmer />
-          ) : projects.length === 0 ? (
+          {projects.length === 0 ? (
             <div className="col-span-full text-center py-32 animate-slide-in-up">
               <FiCode className="w-24 h-24 text-slate-600 mx-auto mb-8 opacity-50" />
               <h3 className="text-3xl font-bold text-slate-400 mb-4">No Projects Yet</h3>
@@ -146,7 +199,7 @@ export default function Projects() {
         </div>
 
         {/* CTA Section */}
-        {!loading && projects.length > 0 && (
+        {projects.length > 0 && (
           <div className="text-center mt-32 animate-slide-in-up" style={{ animationDelay: '900ms' }}>
             <div className="max-w-2xl mx-auto">
               <h2 className="text-4xl lg:text-5xl font-black text-white mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">

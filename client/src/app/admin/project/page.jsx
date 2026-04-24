@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react";
-import { FiGithub, FiLoader } from "react-icons/fi";
+import { FiLoader, FiPlus, FiTrash2, FiEdit, FiX, FiGithub, FiImage,FiBriefcase } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 export default function AdminProjectPage() {
@@ -9,31 +9,30 @@ export default function AdminProjectPage() {
   
   // State for form handling (both create and edit)
   const [formData, setFormData] = useState({
-    _id: null, // Tracks if we are editing an existing project
+    _id: null,
     title: "",
     description: "",
     githubLink: "",
     image: null,
   });
 
-  // 1. Fetch all projects
+  // Fetch all projects
   const fetchProjects = async () => {
     try {
       const res = await fetch("/api/project");
       const data = await res.json();
       setProjects(data);
     } catch (error) {
-      toast.error("Fetch failed", error)
+      toast.error("Failed to fetch projects");
     }
   };
 
   useEffect(() => {
     fetchProjects();
   }, []);
-     
 
-    // handle inputs
-      const handleChange = (e) => {
+  // Handle inputs
+  const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "image") {
       setFormData({ ...formData, image: files[0] });
@@ -41,8 +40,8 @@ export default function AdminProjectPage() {
       setFormData({ ...formData, [name]: value });
     }
   };
-  
-   // create and update
+
+  // Create/Update
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -57,7 +56,6 @@ export default function AdminProjectPage() {
     }
 
     try {
-      
       const url = isEditing ? `/api/project/${formData._id}` : "/api/project";
       const method = isEditing ? "PUT" : "POST";
 
@@ -67,195 +65,273 @@ export default function AdminProjectPage() {
       });
 
       if (res.ok) {
-        toast.success(isEditing ? "Project Updated!" : "Project Created!")
-
-        // Reset form to Create mode
+        toast.success(isEditing ? "Project Updated!" : "Project Created!");
         setFormData({ _id: null, title: "", description: "", githubLink: "", image: null });
         fetchProjects();
       } else {
-        toast.error("Action failed. Check API.")
+        toast.error("Action failed");
       }
     } catch (error) {
-      toast.error("Error submitting", error)
-      
+      toast.error("Error submitting form");
     } finally {
       setLoading(false);
     }
   };
 
-
-    //set form for editing
-
-   const startEdit = (project) => {
-    // Populate form and set _id to indicate "Edit Mode"
+  // Edit project
+  const startEdit = (project) => {
     setFormData({
       _id: project._id,
       title: project.title,
       description: project.description,
       githubLink: project.githubLink,
-      image: project.image, // URL of existing image
+      image: null, // Reset to allow new image upload
     });
-    
-    // Smooth scroll back to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Delete Project
+  // Delete project
   const deleteProject = async (id) => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
+    if (!confirm("Delete this project permanently?")) return;
     try {
       const res = await fetch(`/api/project/${id}`, { method: "DELETE" });
       if (res.ok) {
         setProjects(projects.filter((p) => p._id !== id));
-        toast.success("Project deleted Successfully!")
+        toast.success("Project deleted!");
       }
     } catch (error) {
-      toast.error("Delete failed:", error)
+      toast.error("Delete failed");
     }
   };
 
-   return (
-    <div className="space-y-12">
-      {/* 1. Main Title from Wireframe */}
-      <h1 className="text-4xl font-semibold text-center text-gray-900 tracking-tight">
-        Admin Projects
-      </h1>
+  return (
+    <div className="space-y-8 p-6 lg:p-8 min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-slide-in-up">
+        <div>
+          <h1 className="text-3xl lg:text-4xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent mb-2">
+            Projects Management
+          </h1>
+          <p className="text-xl text-slate-400">Create, edit, and manage your portfolio projects</p>
+        </div>
+        <div className="text-right">
+          <span className="text-2xl font-bold text-white">{projects.length}</span>
+          <p className="text-sm text-slate-400">Total Projects</p>
+        </div>
+      </div>
 
-      {/* 2. Manage Your Projects Box */}
-      <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
-        <h2 className="text-sm font-bold text-gray-400 uppercase mb-8">Manage Your Projects</h2>
-        
-        {/* Wireframe Grid Layout for Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Title Input */}
+      {/* Add/Edit Form */}
+      <div className="bg-slate-900/70 backdrop-blur-sm p-8 lg:p-12 rounded-3xl border border-slate-800/50 shadow-2xl animate-slide-in-up delay-200">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-white">
+            {formData._id ? "Edit Project" : "Add New Project"}
+          </h2>
+          {formData._id && (
+            <button 
+              onClick={() => setFormData({ _id: null, title: "", description: "", githubLink: "", image: null })}
+              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+            >
+              <FiX className="w-5 h-5" />
+              Cancel Edit
+            </button>
+          )}
+        </div>
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column */}
+          <div className="space-y-6">
+            {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">Title</label>
+              <label className="block text-slate-300 font-semibold mb-3 text-lg">
+                Project Title
+              </label>
               <input
                 type="text"
                 name="title"
-                placeholder="Project Title"
+                placeholder="Enter project title..."
                 value={formData.title}
                 onChange={handleChange}
                 required
-                className="w-full p-3 border border-gray-300 rounded-lg text-gray-900 focus:ring-1 focus:ring-purple-300 focus:outline-none"
+                className="w-full px-5 py-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 text-white placeholder-slate-400 focus:border-purple-500/75 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all duration-300 text-lg shadow-inner hover:border-slate-600/75"
               />
             </div>
 
-            {/* Image Input */}
+            {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">Image</label>
-              <input 
-                type="file" 
-                name="image" 
-                onChange={handleChange} 
-                className="w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-              />
-              {formData._id && typeof formData.image === 'string' && (
-                <p className="text-xs text-green-600 mt-1">Existing image will be kept.</p>
-              )}
-            </div>
-
-           {/* GitHub URL Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">GitHub URL</label>
-              <input
-                type="url"
-                name="githubLink"
-                placeholder="https://github.com/username/project"
-                value={formData.githubLink}
-                onChange={handleChange}
-                required
-                className="w-full p-3 border border-gray-300 rounded-lg text-gray-900 focus:ring-1 focus:ring-purple-300 focus:outline-none"
-              />
-            </div>
-
-            {/* Description Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">Description</label>
+              <label className="block text-slate-300 font-semibold mb-3 text-lg">
+                Description
+              </label>
               <textarea
                 name="description"
-                placeholder="Project Description"
-                rows="3"
+                rows="4"
+                placeholder="Describe your project..."
                 value={formData.description}
                 onChange={handleChange}
                 required
-                className="w-full p-3 border border-gray-300 rounded-lg text-gray-900 focus:ring-1 focus:ring-purple-300 focus:outline-none"
+                className="w-full px-5 py-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 text-white placeholder-slate-400 focus:border-purple-500/75 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all duration-300 text-lg resize-vertical shadow-inner hover:border-slate-600/75 min-h-[120px]"
               />
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="text-center pt-6">
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* GitHub Link */}
+            <div>
+              <label className="block text-slate-300 font-semibold mb-3 text-lg">
+                GitHub Repository
+              </label>
+              <div className="relative">
+                <FiGithub className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  type="url"
+                  name="githubLink"
+                  placeholder="https://github.com/username/project"
+                  value={formData.githubLink}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-12 pr-4 py-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 text-white placeholder-slate-400 focus:border-purple-500/75 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all duration-300 text-lg shadow-inner hover:border-slate-600/75"
+                />
+              </div>
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <label className="block text-slate-300 font-semibold mb-3 text-lg">
+                Project Image
+              </label>
+              <div className="relative">
+                <FiImage className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 z-10 pointer-events-none" />
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="w-full pl-12 pr-4 py-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 text-white file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:font-semibold file:bg-purple-600/20 file:text-purple-300 hover:file:bg-purple-600/30 hover:file:text-purple-200 transition-all cursor-pointer text-lg shadow-inner hover:border-purple-500/50"
+                />
+                <p className="text-xs text-slate-500 mt-2">
+                  {formData._id ? "Keep existing or upload new" : "Recommended: 1200x600px"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="lg:col-span-2 flex flex-wrap gap-4 pt-4">
             <button
               type="submit"
-              disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-10 py-3 rounded-lg transition duration-300 shadow active:scale-95 disabled:opacity-50"
+              disabled={loading || !formData.title.trim()}
+              className={`group relative flex items-center gap-3 px-10 py-4 font-bold text-lg rounded-3xl shadow-2xl transition-all duration-500 flex-1 min-w-[220px] ${
+                loading || !formData.title.trim()
+                  ? 'bg-slate-700/50 border border-slate-600/50 text-slate-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-600 hover:from-purple-500 hover:via-purple-600 hover:to-indigo-500 text-white border border-purple-500/50 hover:shadow-purple-500/50 hover:-translate-y-1 hover:scale-[1.02] shadow-purple-500/25'
+              }`}
             >
-              {loading ? <FiLoader className="animate-spin" /> : (formData._id ? "Update Project" : "Add Project")}
+              {loading ? (
+                <>
+                  <FiLoader className="animate-spin w-5 h-5" />
+                  <span>{formData._id ? "Updating..." : "Creating..."}</span>
+                </>
+              ) : (
+                <>
+                  {formData._id ? <FiEdit className="w-5 h-5" /> : <FiPlus className="w-5 h-5" />}
+                  <span>{formData._id ? "Update Project" : "Create Project"}</span>
+                </>
+              )}
+              {!loading && (
+                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-3xl blur-sm transition-all scale-0 group-hover:scale-100" />
+              )}
             </button>
+
             {formData._id && (
               <button 
                 type="button" 
                 onClick={() => setFormData({ _id: null, title: "", description: "", githubLink: "", image: null })}
-                className="ml-4 text-sm text-gray-500 hover:text-red-500"
+                className="flex items-center gap-2 px-10 py-4 bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50 text-slate-300 hover:text-white hover:border-slate-600 font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-slate-500/25 hover:-translate-y-0.5 flex-1 min-w-[160px]"
               >
-                Cancel Edit
+                <FiX className="w-5 h-5" />
+                Cancel
               </button>
             )}
           </div>
         </form>
       </div>
 
-      {/* 3. Project List Box  */}
-      <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <h2 className="text-sm font-bold text-gray-400 uppercase mb-8">Project List</h2>
+      {/* Projects Grid */}
+      <div className="space-y-6 animate-slide-in-up delay-400">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black text-white flex items-center gap-3">
+            <FiBriefcase className="w-8 h-8 text-purple-400" />
+            Projects ({projects.length})
+          </h2>
+        </div>
         
         {projects.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">No projects added yet.</div>
+          <div className="grid place-items-center py-20 bg-slate-900/50 backdrop-blur-sm rounded-3xl border border-slate-800/50 text-center">
+            <FiBriefcase className="w-20 h-20 text-slate-500 mx-auto mb-6 opacity-50" />
+            <h3 className="text-2xl font-bold text-slate-400 mb-2">No Projects Yet</h3>
+            <p className="text-slate-500 max-w-md mx-auto mb-8">Create your first project using the form above to showcase your work.</p>
+            <button 
+              onClick={() => setFormData({ _id: null, title: "", description: "", githubLink: "", image: null })}
+              className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-3xl hover:from-emerald-500 hover:to-teal-500 shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-1 transition-all duration-300"
+            >
+              <FiPlus className="w-5 h-5" />
+              Add First Project
+            </button>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[600px]">
-              <thead className="border-b-2 border-gray-200 bg-gray-50">
-                <tr>
-                  <th className="p-4 text-sm font-semibold text-gray-600">Image</th>
-                  <th className="p-4 text-sm font-semibold text-gray-600">Title</th>
-                  <th className="py-4 px-6 text-sm font-semibold text-gray-600">GitHub</th>
-                  <th className="p-4 text-sm font-semibold text-gray-600 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projects.map((project) => (
-                  <tr key={project._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="p-4">
-                      <img src={project.image} alt={project.title} className="w-20 h-12 object-cover rounded border" />
-                    </td>
-                    <td className="p-4">
-                      <p className="font-semibold text-gray-900">{project.title}</p>
-                      <p className="text-xs text-gray-500 line-clamp-1">{project.description}</p>
-                    </td>
-                    <td className="p-4 text-sm">
-                      <a href={project.githubLink} target="_blank" className="text-blue-600  hover:underline">View Code </a>
-                    </td>
-                    <td className="p-4 text-right space-x-2">
-                      <button 
-                        onClick={() => startEdit(project)}
-                        className="text-xs font-semibold bg-gray-100 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-200"
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        onClick={() => deleteProject(project._id)}
-                        className="text-xs font-semibold bg-red-50 text-red-600 px-3 py-1 rounded-md hover:bg-red-100"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <div 
+                key={project._id} 
+                className="group relative bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 p-8 hover:border-purple-500/75 hover:bg-slate-900/90 hover:shadow-2xl hover:shadow-purple-500/25 hover:-translate-y-2 transition-all duration-500 overflow-hidden cursor-pointer"
+                onClick={() => startEdit(project)}
+              >
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none" />
+                
+                {/* Image */}
+                <div className="relative mb-6">
+                  <img 
+                    src={project.image} 
+                    alt={project.title}
+                    className="w-full h-48 object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <FiGithub className="w-8 h-8 text-white bg-slate-900/80 p-2 rounded-2xl hover:bg-white hover:text-slate-900 shadow-lg transition-all" />
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="relative z-10 space-y-3">
+                  <h3 className="text-xl font-black text-white line-clamp-1">{project.title}</h3>
+                  <p className="text-slate-400 line-clamp-2 leading-relaxed">{project.description}</p>
+                  
+                  {/* Action Buttons - Always visible on hover */}
+                  <div className="flex items-center gap-3 pt-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startEdit(project);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 rounded-xl transition-all shadow-lg hover:shadow-white/20 hover:scale-105 font-medium"
+                    >
+                      <FiEdit className="w-4 h-4" />
+                      Edit
+                    </button>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteProject(project._id);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-300 hover:bg-red-500/30 hover:text-red-200 hover:border-red-500/50 rounded-xl transition-all shadow-lg hover:shadow-red-500/25 hover:scale-105 font-medium"
+                    >
+                      <FiTrash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

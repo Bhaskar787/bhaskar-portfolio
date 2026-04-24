@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { FiGithub, FiLinkedin, FiMail, FiArrowRight } from "react-icons/fi";
-import { FiLoader } from "react-icons/fi";
 import { BsStars, BsBook, BsCodeSlash, BsBriefcase } from "react-icons/bs";
 
 export default function About() {
@@ -40,15 +39,137 @@ export default function About() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black flex items-center justify-center">
-        <div className="text-center animate-slide-in-up">
-          <FiLoader className="animate-spin w-16 h-16 text-purple-400 mx-auto mb-8" />
-          <h2 className="text-2xl font-bold text-slate-300">Loading Profile...</h2>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(168,85,247,0.08),transparent),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.08),transparent)]" />
+        
+        <div className="relative max-w-7xl mx-auto px-6 py-24 lg:py-32">
+          {/* Hero Section Skeleton */}
+          <div className="text-center mb-24 animate-slide-in-up">
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 mb-8 mx-auto max-w-max animate-pulse">
+              <div className="w-6 h-6 bg-slate-700 rounded-full animate-pulse" />
+              <div className="h-6 bg-slate-700 rounded-lg w-24 animate-pulse" />
+            </div>
+            <div className="h-20 lg:h-28 bg-slate-800/50 backdrop-blur-sm rounded-3xl mx-auto w-4/5 lg:w-3/5 animate-pulse mb-6" />
+            <div className="h-8 bg-slate-800/50 backdrop-blur-sm rounded-2xl mx-auto w-96 max-w-full animate-pulse" />
+          </div>
+
+          {/* Profile & Bio Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center mb-24 animate-slide-in-up delay-200">
+            <div>
+              <div className="w-full max-w-md mx-auto lg:mx-0 h-96 bg-slate-800/50 backdrop-blur-sm rounded-3xl animate-pulse border-4 border-slate-700/50 shadow-2xl" />
+            </div>
+            
+            <div className="space-y-8 animate-slide-in-right">
+              <div>
+                <div className="h-12 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-64 max-w-full mb-4 animate-pulse" />
+                <div className="h-6 bg-slate-800/50 backdrop-blur-sm rounded-xl w-80 max-w-full animate-pulse" />
+                <div className="h-6 bg-slate-800/50 backdrop-blur-sm rounded-xl w-72 max-w-full mt-3 animate-pulse" />
+                <div className="h-6 bg-slate-800/50 backdrop-blur-sm rounded-xl w-64 max-w-full mt-2 animate-pulse" />
+              </div>
+              
+              {/* Stats Skeleton */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="p-6 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 animate-pulse">
+                    <div className="w-12 h-12 bg-slate-700 rounded-2xl mx-auto mb-3" />
+                    <div className="h-10 bg-slate-700 rounded-xl mx-auto w-20 mb-2" />
+                    <div className="h-4 bg-slate-700 rounded w-24 mx-auto" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Skills & Sections Grid Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+            {/* Education Skeleton */}
+            <section className="animate-slide-in-left delay-400">
+              <div className="flex items-center gap-4 mb-12">
+                <div className="w-12 h-12 bg-slate-700 rounded-2xl animate-pulse" />
+                <div className="h-12 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-32 animate-pulse" />
+              </div>
+              <div className="space-y-6">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-3xl border border-slate-700/50 animate-pulse">
+                    <div className="h-8 bg-slate-700 rounded-xl w-72 max-w-full mb-3" />
+                    <div className="h-6 bg-slate-700 rounded-lg w-64 max-w-full mb-2" />
+                    <div className="h-5 bg-slate-700 rounded-lg w-80 max-w-full mb-4" />
+                    <div className="h-4 bg-slate-700 rounded w-96 max-w-full" />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Skills Skeleton */}
+            <section className="animate-slide-in-right delay-400">
+              <div className="flex items-center gap-4 mb-12">
+                <div className="w-12 h-12 bg-slate-700 rounded-2xl animate-pulse" />
+                <div className="h-12 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-40 animate-pulse" />
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="p-6 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 animate-pulse">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="h-6 bg-slate-700 rounded-lg w-32" />
+                      <div className="h-6 bg-slate-700 rounded-full w-12" />
+                    </div>
+                    <div className="h-2 bg-slate-700 rounded-full">
+                      <div className="h-2 bg-slate-600 rounded-full w-4/5 animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {/* Experience Timeline Skeleton */}
+          <section className="mt-24 animate-slide-in-up delay-600">
+            <div className="flex items-center gap-4 justify-center mb-16">
+              <div className="w-12 h-12 bg-slate-700 rounded-2xl animate-pulse" />
+              <div className="h-12 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-48 animate-pulse" />
+            </div>
+            <div className="relative">
+              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-slate-800/50" />
+              <div className="grid gap-8 md:grid-cols-2">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="group relative flex items-start gap-6 p-8 bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-700/50 animate-pulse">
+                    <div className="flex-shrink-0 w-24 h-14 lg:w-28 lg:h-16 bg-slate-700 rounded-2xl lg:rounded-3xl flex items-center justify-center" />
+                    <div className="flex-1">
+                      <div className="h-8 bg-slate-700 rounded-xl w-80 max-w-full mb-2" />
+                      <div className="h-5 bg-slate-700 rounded-lg w-full mb-4" />
+                      <div className="h-5 bg-slate-700 rounded-lg w-3/4 mb-2" />
+                      <div className="h-5 bg-slate-700 rounded-lg w-2/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Social & CTA Skeleton */}
+          <div className="text-center mt-24 animate-slide-in-up delay-800">
+            <div className="max-w-2xl mx-auto mb-12">
+              <div className="h-10 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-72 max-w-full mx-auto mb-6 animate-pulse" />
+              <div className="h-6 bg-slate-800/50 backdrop-blur-sm rounded-xl w-96 max-w-full mx-auto animate-pulse" />
+            </div>
+            
+            {/* Social Links Skeleton */}
+            <div className="flex items-center justify-center gap-8 mb-12">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="w-16 h-16 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl animate-pulse shadow-xl" />
+              ))}
+            </div>
+
+            {/* CTA Skeleton */}
+            <div className="h-14 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl w-80 max-w-max mx-auto animate-pulse shadow-2xl" />
+          </div>
         </div>
       </div>
     );
   }
 
+  // ... rest of your existing JSX remains exactly the same
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black relative overflow-hidden">
       {/* Background Effects */}
@@ -164,7 +285,7 @@ export default function About() {
                       </span>
                     )}
                   </div>
-                  {skill.level && (
+                                    {skill.level && (
                     <div className="w-full bg-slate-800 rounded-full h-2 mt-3">
                       <div 
                         className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full shadow-md transition-all duration-700"

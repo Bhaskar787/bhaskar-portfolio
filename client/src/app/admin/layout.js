@@ -1,9 +1,13 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import Cookies from "js-cookie"; 
-import { jwtDecode } from "jwt-decode"; 
+import { jwtDecode } from "jwt-decode";
+import { FiBriefcase, FiMail, FiUser, FiCode, FiAward, FiBookOpen } from "react-icons/fi";
+import { FaTools } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -33,93 +37,171 @@ export default function AdminLayout({ children }) {
 
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
-  // --- LOGOUT HANDLER ---
-  const handleLogout = (e) => {
-    e.preventDefault();
-    // 1. Remove the token from cookies
-    Cookies.remove("admin_token"); 
-    // 2. Redirect to login page
+  // Logout handler
+  const handleLogout = () => {
+    Cookies.remove("admin_token");
+    toast.success("Logged out successfully!");
     router.push("/admin/login");
+    router.refresh();
   };
 
+  // Navigation items with icons
+  const navItems = [
+    { href: "/admin", label: "Dashboard", icon: FiBriefcase },
+    { href: "/admin/project", label: "Projects", icon: FiCode },
+    { href: "/admin/experience", label: "Experience", icon: FiAward },
+    { href: "/admin/education", label: "Education", icon: FiBookOpen },
+    { href: "/admin/skills", label: "Skills", icon: FaTools },
+    { href: "/admin/about", label: "About", icon: FiUser },
+    { href: "/admin/contact", label: "Contacts", icon: FiMail },
+  ];
+
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black overflow-hidden relative">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(168,85,247,0.08),transparent),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.08),transparent)] pointer-events-none" />
+      
       {/* Sidebar overlay for mobile */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden" 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" 
           onClick={toggleSidebar}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - NO SCROLL */}
       <aside className={`
-        fixed inset-y-0 left-0 z-30 w-64 bg-slate-900 text-white flex flex-col transition-transform duration-300 transform 
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-        md:relative md:translate-x-0
+        fixed inset-y-0 left-0 z-50 w-72 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800/50 flex flex-col transition-all duration-300 ease-in-out
+        ${isSidebarOpen ? "translate-x-0 shadow-2xl shadow-purple-500/10" : "-translate-x-full"} 
+        md:relative md:translate-x-0 md:shadow-xl md:shadow-purple-500/5
+        h-screen overflow-hidden
       `}>
-        <div className="p-6 text-sm font-bold border-b border-slate-800 flex justify-between items-center">
-          <span>Bhaskar Portfolio Admin</span>
-          <button className="md:hidden" onClick={toggleSidebar}>
-            <X size={24} />
+        {/* Logo/Header */}
+        <div className="p-6 border-b border-slate-800/50 flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg">
+              <FiBriefcase className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
+                Portfolio Admin
+              </h1>
+              <p className="text-xs text-slate-500 font-medium tracking-wider uppercase">v1.0</p>
+            </div>
+          </div>
+          <button className="md:hidden p-2 hover:bg-slate-800/50 rounded-xl transition-colors" onClick={toggleSidebar}>
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
-          <nav className="flex-1 p-4 space-y-2">
-  <a href="/admin" className={`block p-3 rounded ${pathname === '/admin' ? 'bg-slate-800' : 'hover:bg-slate-800'}`}>Dashboard</a>
-  <a href="/admin/project" className={`block p-3 rounded ${pathname === '/admin/project' ? 'bg-slate-800' : 'hover:bg-slate-800'}`}>Projects</a>
-  <a href="/admin/experience" className={`block p-3 rounded ${pathname === '/admin/experience' ? 'bg-slate-800' : 'hover:bg-slate-800'}`}>Experience</a>
-  <a href="/admin/education" className={`block p-3 rounded ${pathname === '/admin/education' ? 'bg-slate-800' : 'hover:bg-slate-800'}`}>Education</a>
-  <a href="/admin/skills" className={`block p-3 rounded ${pathname === '/admin/skills' ? 'bg-slate-800' : 'hover:bg-slate-800'}`}>Skills</a>
-  <a href="/admin/about" className={`block p-3 rounded ${pathname === '/admin/about' ? 'bg-slate-800' : 'hover:bg-slate-800'}`}>About</a>
-  <a href="/admin/contact" className={`block p-3 rounded ${pathname === '/admin/contact' ? 'bg-slate-800' : 'hover:bg-slate-800'}`}>Contacts</a>
-</nav>
-
-
-          
+        {/* Navigation - NO SCROLL */}
+        <nav className="flex-1 p-4 lg:p-6 space-y-1 flex flex-col">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group relative flex items-center gap-4 p-4 lg:p-5 rounded-2xl transition-all duration-300 font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 hover:shadow-lg hover:shadow-purple-500/20 border border-transparent hover:border-purple-500/50 ${
+                  isActive 
+                    ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border-purple-500/50 shadow-lg shadow-purple-500/25' 
+                    : ''
+                }`}
+              >
+                <div className={`p-3 rounded-xl bg-white/10 backdrop-blur-sm transition-all group-hover:scale-110 ${isActive ? 'bg-white/20 shadow-lg shadow-purple-500/25' : ''}`}>
+                  <item.icon className={`w-5 h-5 transition-colors ${isActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'}`} />
+                </div>
+                <span className="flex-1">{item.label}</span>
+                {isActive && (
+                  <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Updated Logout Link to use handler */}
-        <nav className="p-4">
+        {/* Profile & Logout - SIMPLIFIED */}
+        <div className="p-4 lg:p-6 border-t border-slate-800/50 space-y-3 flex-shrink-0">
+          {/* Admin Name Only */}
+          <div className="p-4 bg-slate-800/50 rounded-2xl backdrop-blur-sm border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                <span className="text-white font-bold uppercase text-sm">
+                  {adminName.charAt(0)}
+                </span>
+              </div>
+              <div>
+                <p className="font-semibold text-white text-sm truncate">{adminName}</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Logout Button */}
           <button 
             onClick={handleLogout}
-            className="w-full text-left block p-3 hover:bg-red-500 rounded transition-colors"
+            className="group w-full flex items-center gap-3 p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 text-red-300 hover:text-red-100 transition-all duration-300 rounded-2xl backdrop-blur-sm shadow-lg hover:shadow-red-500/25 hover:-translate-y-0.5 font-medium"
           >
-            Logout
+            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <span>Sign Out</span>
           </button>
-        </nav>
+        </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="h-16 bg-white border-b flex items-center justify-between px-4 md:px-8">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={toggleSidebar} 
-              className="p-2 text-gray-600 md:hidden hover:bg-gray-100 rounded"
-            >
-              <Menu size={24} />
-            </button>
-            <h2 className="text-lg md:text-xl font-semibold text-gray-800 truncate">
-              System Overview
-            </h2>
-          </div>
-          
-          <div className="hidden sm:flex items-center gap-3">
-            <span className="text-sm text-gray-500 font-medium text-right">
-              Welcome, <br />
-              <span className="text-slate-900 font-bold">{adminName}</span>
-            </span>
-            <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 border border-slate-300 uppercase">
-              {adminName.charAt(0)}
+        <header className="bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/50 shadow-lg sticky top-0 z-20">
+          <div className="h-20 px-6 lg:px-8 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={toggleSidebar} 
+                className="p-3 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-2xl transition-all duration-300 md:hidden shadow-lg"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              
+              {/* Breadcrumb */}
+              <div className="hidden md:block">
+                <h2 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                  {(() => {
+                    const pageName = pathname.split('/').pop()?.replace(/([A-Z])/g, ' $1') || 'Dashboard';
+                    return pageName.charAt(0).toUpperCase() + pageName.slice(1);
+                  })()}
+                </h2>
+              </div>
             </div>
+            
+            {/* Simplified Profile - Mobile Hidden */}
+<div className="hidden lg:flex items-center gap-3 p-2 bg-slate-800/50 rounded-2xl backdrop-blur-sm border border-slate-700/50 hover:border-purple-500/50 transition-all group">
+  {/* Dynamic Avatar Size Based on Name Length */}
+  <div 
+    className="flex items-center justify-center shadow-lg rounded-2xl font-bold uppercase text-white transition-all"
+    style={{
+      width: adminName.length > 8 ? '44px' : adminName.length > 5 ? '40px' : '36px',
+      height: adminName.length > 8 ? '44px' : adminName.length > 5 ? '40px' : '36px',
+      fontSize: adminName.length > 8 ? '0.75rem' : adminName.length > 5 ? '0.875rem' : '1rem',
+      background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)'
+    }}
+  >
+    {adminName.charAt(0)}
+  </div>
+  
+  {/* Name with Truncate & Tooltip */}
+  <div className="min-w-0 flex flex-col items-end">
+    <p 
+      className="font-semibold text-white text-sm truncate max-w-32 group-hover:max-w-none transition-all"
+      title={adminName} // Tooltip on hover
+    >
+      {adminName}
+    </p>
+    <p className="text-xs text-slate-400">Administrator</p>
+  </div>
+</div>
           </div>
         </header>
 
         {/* Dynamic Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-950/50 backdrop-blur-sm">
           {children}
         </main>
       </div>
