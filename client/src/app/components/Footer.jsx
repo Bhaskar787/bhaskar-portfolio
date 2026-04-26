@@ -10,7 +10,10 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-slate-300 border-t-2 border-slate-700/50">
+    <footer 
+      className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-slate-300 border-t-2 border-slate-700/50 relative z-10"
+      role="contentinfo"
+    >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-12">
@@ -18,7 +21,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                 <span className="text-white font-bold text-lg">BB</span>
               </div>
               <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
@@ -33,7 +36,7 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-6 flex items-center space-x-2">
-              <BiHome className="text-purple-400" />
+              <BiHome className="text-purple-400 flex-shrink-0" />
               <span>Quick Links</span>
             </h3>
             <ul className="space-y-3">
@@ -46,9 +49,10 @@ export default function Footer() {
                 <li key={href}>
                   <a 
                     href={href}
-                    className="group flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-800/50 hover:text-purple-300 transition-all duration-300 border border-transparent hover:border-slate-700/50"
+                    className="group flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800/80 hover:text-purple-300 transition-all duration-300 border border-slate-700/50 hover:border-slate-600 hover:shadow-md z-20 relative pointer-events-auto block w-full"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
-                    <Icon className="text-lg group-hover:text-purple-400 transition-colors" />
+                    <Icon className="text-lg flex-shrink-0 group-hover:text-purple-400 transition-colors" />
                     <span className="font-medium">{label}</span>
                   </a>
                 </li>
@@ -86,10 +90,11 @@ export default function Footer() {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group w-12 h-12 bg-slate-800/50 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:shadow-xl rounded-xl flex items-center justify-center transition-all duration-300 border border-slate-700/50 hover:border-purple-500/50 hover:scale-105"
-                    aria-label={label}
+                    className="group w-12 h-12 bg-slate-800/60 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:shadow-2xl rounded-xl flex items-center justify-center transition-all duration-300 border-2 border-slate-700/60 hover:border-purple-400/60 hover:scale-110 z-20 relative pointer-events-auto shadow-lg"
+                    aria-label={`Visit ${label}`}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
-                    <Icon className="text-xl group-hover:text-white transition-colors" />
+                    <Icon className="text-xl group-hover:text-white transition-colors flex-shrink-0" />
                   </a>
                 ))}
               </div>
@@ -100,29 +105,34 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold text-white mb-6">Stay Updated</h3>
             <p className="text-sm opacity-80 mb-4">Get the latest updates on new projects and articles.</p>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <form className="flex flex-col sm:flex-row gap-2" onSubmit={(e) => e.preventDefault()}>
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
+                className="flex-1 px-4 py-3 bg-slate-800/70 border-2 border-slate-700/70 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-sm placeholder-slate-400 z-10 relative pointer-events-auto"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               />
-              <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 whitespace-nowrap">
+              <button 
+                type="submit"
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 whitespace-nowrap z-20 relative pointer-events-auto active:scale-95"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+              >
                 Subscribe
               </button>
-            </div>
-            <p className="text-xs opacity-60 mt-2">No spam, ever. Unsubscribe anytime.</p>
+            </form>
+            <p className="text-xs opacity-60 mt-3">No spam, ever. Unsubscribe anytime.</p>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-slate-700/30 pt-8 pb-4 flex flex-col md:flex-row justify-center items-center text-sm opacity-75">
-          <p>
+        <div className="border-t border-slate-700/40 pt-8 pb-6 flex flex-col md:flex-row justify-between items-center text-sm opacity-80">
+          <p className="text-center md:text-left">
             &copy; {new Date().getFullYear()} Bhaskar Budha. 
             <span className="hidden md:inline mx-2">•</span>
             <span className="md:hidden block my-1">•</span>
             All rights reserved.
           </p>
-         
+          
         </div>
       </div>
     </footer>
