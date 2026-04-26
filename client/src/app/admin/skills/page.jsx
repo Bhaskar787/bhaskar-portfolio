@@ -108,7 +108,6 @@ export default function AdminSkills() {
                 <option value="Backend">Backend</option>
                 <option value="Database">Database</option>
                 <option value="Tools">Tools</option>
-                <option value="DevOps">DevOps</option>
                 <option value="Other">Other</option>
               </select>
             </div>
