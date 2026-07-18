@@ -77,6 +77,11 @@ export default function About() {
         gsap.from(wrap.children, { scrollTrigger: { trigger: wrap, start: "top 82%", once: true }, y: 35, opacity: 0, duration: .7, stagger: .1, ease: "power3.out" });
       });
 
+      // Stats: fade only, no y-offset, so cards can never appear "stepped" mid-animation
+      gsap.utils.toArray(".stats-fade").forEach((wrap) => {
+        gsap.from(wrap.children, { scrollTrigger: { trigger: wrap, start: "top 90%", once: true }, opacity: 0, duration: .5, stagger: .06, ease: "power1.out" });
+      });
+
       document.querySelectorAll(".skill-bar-fill[data-pct]").forEach((bar) => {
         const pct = bar.dataset.pct;
         ScrollTrigger.create({
@@ -171,9 +176,9 @@ export default function About() {
             </p>
 
             {/* Stats */}
-            <div className="reveal-stagger about-stats" style={{ display: "grid", gap: ".75rem", marginBottom: "1.75rem" }}>
+            <div className="stats-fade about-stats" style={{ display: "grid", gap: ".75rem", marginBottom: "1.75rem", alignItems: "stretch" }}>
               {[{ target: 50, suffix: "+", label: "Projects" }, { target: 2, suffix: "+", label: "Years" }, { target: 99, suffix: "%", label: "Uptime" }, { target: 10, suffix: "+", label: "Stacks" }].map(({ target, suffix, label }) => (
-                <div key={label} className="card" style={{ padding: ".9rem .5rem", textAlign: "center" }}>
+                <div key={label} className="card" style={{ padding: ".9rem .5rem", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                   <div className="abt-stat" data-target={target} data-suffix={suffix} style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--text-primary)", lineHeight: 1 }}>0{suffix}</div>
                   <div style={{ fontSize: ".72rem", color: "var(--muted)", fontWeight: 600, marginTop: ".25rem" }}>{label}</div>
                 </div>
