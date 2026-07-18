@@ -1,206 +1,498 @@
 "use client";
+
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, LogOut } from "lucide-react";
-import Cookies from "js-cookie"; 
+import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { FiBriefcase, FiMail, FiUser, FiCode, FiAward, FiBookOpen } from "react-icons/fi";
-import { FaTools } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+import { Toaster } from "sonner";
+import {
+  RiDashboardLine,
+  RiProjectorLine,
+  RiFolderOpenLine,
+  RiGraduationCapLine,
+  RiCodeBoxLine,
+  RiUser3Line,
+  RiMailLine,
+  RiLogoutBoxRLine,
+  RiMenuLine,
+  RiCloseLine,
+  RiExternalLinkLine,
+  RiShieldUserLine,
+  RiGlobalLine,
+} from "react-icons/ri";
+import ThemeToggle from "../components/ThemeToggle";
+
+const navItems = [
+  { href: "/admin", label: "Dashboard", Icon: RiDashboardLine, exact: true },
+  { href: "/admin/project", label: "Projects", Icon: RiFolderOpenLine },
+  { href: "/admin/experience", label: "Experience", Icon: RiProjectorLine },
+  { href: "/admin/education", label: "Education", Icon: RiGraduationCapLine },
+  { href: "/admin/skills", label: "Skills", Icon: RiCodeBoxLine },
+  { href: "/admin/about", label: "About", Icon: RiUser3Line },
+  { href: "/admin/contact", label: "Messages", Icon: RiMailLine },
+  { href: "/admin/settings", label: "Site Settings", Icon: RiGlobalLine },
+];
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [adminName, setAdminName] = useState("Admin");
 
-  const isLoginPage = pathname === "/admin/login";
-  const isRegisterPage = pathname === "/admin/register";
+  const isAuthPage = pathname === "/admin/login" || pathname === "/admin/register";
 
-  // Fetch admin name from token on load
   useEffect(() => {
-    if (!isLoginPage && !isRegisterPage) {
+    if (!isAuthPage) {
       const token = Cookies.get("admin_token");
       if (token) {
         try {
           const decoded = jwtDecode(token);
           setAdminName(decoded.name || "Admin");
-        } catch (error) {
-          console.error("Token decode error:", error);
-        }
+        } catch {}
       }
     }
-  }, [isLoginPage, isRegisterPage]);
+  }, [isAuthPage]);
 
-  if (isLoginPage || isRegisterPage) return <>{children}</>;
+  if (isAuthPage) {
+    return (
+      <>
+        {children}
+        <Toaster richColors position="top-right" />
+      </>
+    );
+  }
 
-  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
-
-  // Logout handler
   const handleLogout = () => {
     Cookies.remove("admin_token");
-    toast.success("Logged out successfully!");
+    toast.success("Signed out successfully");
     router.push("/admin/login");
     router.refresh();
   };
 
-  // Navigation items with icons
-  const navItems = [
-    { href: "/admin", label: "Dashboard", icon: FiBriefcase },
-    { href: "/admin/project", label: "Projects", icon: FiCode },
-    { href: "/admin/experience", label: "Experience", icon: FiAward },
-    { href: "/admin/education", label: "Education", icon: FiBookOpen },
-    { href: "/admin/skills", label: "Skills", icon: FaTools },
-    { href: "/admin/about", label: "About", icon: FiUser },
-    { href: "/admin/contact", label: "Contacts", icon: FiMail },
-  ];
+  const pageName = (() => {
+    const last = pathname.split("/").pop();
+    if (!last || last === "admin") return "Dashboard";
+    return last.charAt(0).toUpperCase() + last.slice(1);
+  })();
+
+  const isActive = (item) => {
+    if (item.exact) return pathname === item.href;
+    return pathname.startsWith(item.href);
+  };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black overflow-hidden relative">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(168,85,247,0.08),transparent),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.08),transparent)] pointer-events-none" />
-      
-      {/* Sidebar overlay for mobile */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" 
-          onClick={toggleSidebar}
+    <div style={{ display: "flex", height: "100vh", background: "var(--bg)", overflow: "hidden" }}>
+      <Toaster richColors position="top-right" />
+
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.65)",
+            zIndex: 40,
+            backdropFilter: "blur(2px)",
+          }}
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - NO SCROLL */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-50 w-72 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800/50 flex flex-col transition-all duration-300 ease-in-out
-        ${isSidebarOpen ? "translate-x-0 shadow-2xl shadow-purple-500/10" : "-translate-x-full"} 
-        md:relative md:translate-x-0 md:shadow-xl md:shadow-purple-500/5
-        h-screen overflow-hidden
-      `}>
-        {/* Logo/Header */}
-        <div className="p-6 border-b border-slate-800/50 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg">
-              <FiBriefcase className="w-6 h-6 text-white" />
+      {/* ── Sidebar ── */}
+      <aside
+        className={`admin-sidebar${sidebarOpen ? " open-mobile" : ""}`}
+        style={{
+          width: 248,
+          background: "rgba(var(--bg2-rgb),0.98)",
+          borderRight: "1px solid var(--border)",
+          display: "flex",
+          flexDirection: "column",
+          zIndex: 50,
+          transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+          flexShrink: 0,
+        }}
+      >
+        {/* Sidebar header */}
+        <div
+          style={{
+            padding: "1.25rem 1rem",
+            borderBottom: "1px solid var(--border)",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.625rem",
+          }}
+        >
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              background: "linear-gradient(135deg, var(--accent), var(--accent2))",
+              borderRadius: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 900,
+              fontSize: "0.8125rem",
+              color: "var(--on-accent)",
+              flexShrink: 0,
+              boxShadow: "0 4px 12px rgba(var(--accent-rgb),0.4)",
+            }}
+          >
+            BB
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontWeight: 800,
+                fontSize: "0.9375rem",
+                color: "var(--text-primary)",
+                lineHeight: 1.2,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Portfolio Admin
             </div>
-            <div>
-              <h1 className="text-xl font-black bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
-                Portfolio Admin
-              </h1>
-              <p className="text-xs text-slate-500 font-medium tracking-wider uppercase">v1.0</p>
+            <div
+              style={{
+                fontSize: "0.72rem",
+                color: "var(--muted)",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: "0.3rem",
+                marginTop: 1,
+              }}
+            >
+              <span
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  background: "#22c55e",
+                  flexShrink: 0,
+                }}
+              />
+              Management Panel
             </div>
           </div>
-          <button className="md:hidden p-2 hover:bg-slate-800/50 rounded-xl transition-colors" onClick={toggleSidebar}>
-            <X className="w-6 h-6" />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="sidebar-close"
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--muted)",
+              cursor: "pointer",
+              fontSize: "1.25rem",
+              display: "none",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              flexShrink: 0,
+            }}
+          >
+            <RiCloseLine />
           </button>
         </div>
 
-        {/* Navigation - NO SCROLL */}
-        <nav className="flex-1 p-4 lg:p-6 space-y-1 flex flex-col">
+        {/* Nav */}
+        <nav
+          style={{
+            flex: 1,
+            padding: "0.875rem 0.75rem",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: "2px",
+          }}
+        >
+          <p
+            style={{
+              fontSize: "0.68rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--muted)",
+              padding: "0 0.5rem",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Navigation
+          </p>
+
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const active = isActive(item);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`group relative flex items-center gap-4 p-4 lg:p-5 rounded-2xl transition-all duration-300 font-medium text-slate-300 hover:text-white hover:bg-slate-800/50 hover:shadow-lg hover:shadow-purple-500/20 border border-transparent hover:border-purple-500/50 ${
-                  isActive 
-                    ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border-purple-500/50 shadow-lg shadow-purple-500/25' 
-                    : ''
-                }`}
+                onClick={() => setSidebarOpen(false)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.625rem",
+                  padding: "0.65rem 0.875rem",
+                  borderRadius: "10px",
+                  fontSize: "0.9rem",
+                  fontWeight: active ? 700 : 500,
+                  color: active ? "var(--accent-tint)" : "rgba(var(--text-primary-rgb),0.6)",
+                  background: active ? "rgba(var(--accent-rgb),0.12)" : "transparent",
+                  border: `1px solid ${active ? "rgba(var(--accent-rgb),0.2)" : "transparent"}`,
+                  textDecoration: "none",
+                  transition: "background 0.2s, color 0.2s, border-color 0.2s",
+                  position: "relative",
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.background = "rgba(var(--accent-rgb),0.07)";
+                    e.currentTarget.style.color = "var(--text-primary)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "rgba(var(--text-primary-rgb),0.6)";
+                  }
+                }}
               >
-                <div className={`p-3 rounded-xl bg-white/10 backdrop-blur-sm transition-all group-hover:scale-110 ${isActive ? 'bg-white/20 shadow-lg shadow-purple-500/25' : ''}`}>
-                  <item.icon className={`w-5 h-5 transition-colors ${isActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'}`} />
-                </div>
-                <span className="flex-1">{item.label}</span>
-                {isActive && (
-                  <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse" />
+                {/* Active left bar */}
+                {active && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: "25%",
+                      height: "50%",
+                      width: 3,
+                      background: "linear-gradient(to bottom, var(--accent), var(--accent2))",
+                      borderRadius: "0 3px 3px 0",
+                    }}
+                  />
+                )}
+                <item.Icon
+                  style={{
+                    fontSize: "1.1rem",
+                    color: active ? "var(--accent)" : "inherit",
+                    flexShrink: 0,
+                  }}
+                />
+                {item.label}
+                {active && (
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      width: 7,
+                      height: 7,
+                      background: "var(--accent)",
+                      borderRadius: "50%",
+                      boxShadow: "0 0 6px rgba(var(--accent-rgb),0.7)",
+                    }}
+                  />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Profile & Logout - SIMPLIFIED */}
-        <div className="p-4 lg:p-6 border-t border-slate-800/50 space-y-3 flex-shrink-0">
-          {/* Admin Name Only */}
-          <div className="p-4 bg-slate-800/50 rounded-2xl backdrop-blur-sm border border-slate-700/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                <span className="text-white font-bold uppercase text-sm">
-                  {adminName.charAt(0)}
-                </span>
+        {/* User + Logout */}
+        <div
+          style={{
+            padding: "0.875rem 0.75rem",
+            borderTop: "1px solid var(--border)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
+        >
+          {/* User card */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.625rem",
+              padding: "0.75rem 0.875rem",
+              background: "rgba(var(--accent-rgb),0.07)",
+              borderRadius: "10px",
+              border: "1px solid rgba(var(--accent-rgb),0.12)",
+            }}
+          >
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                background: "linear-gradient(135deg, var(--accent), var(--accent2))",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 800,
+                fontSize: "0.9rem",
+                color: "var(--on-accent)",
+                flexShrink: 0,
+              }}
+            >
+              {adminName.charAt(0).toUpperCase()}
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div
+                style={{
+                  fontSize: "0.875rem",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {adminName}
               </div>
-              <div>
-                <p className="font-semibold text-white text-sm truncate">{adminName}</p>
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  color: "var(--muted)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.3rem",
+                }}
+              >
+                <RiShieldUserLine style={{ fontSize: "0.75rem" }} />
+                Administrator
               </div>
             </div>
           </div>
-          
-          {/* Logout Button */}
-          <button 
+
+          {/* Logout */}
+          <button
             onClick={handleLogout}
-            className="group w-full flex items-center gap-3 p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 text-red-300 hover:text-red-100 transition-all duration-300 rounded-2xl backdrop-blur-sm shadow-lg hover:shadow-red-500/25 hover:-translate-y-0.5 font-medium"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+              width: "100%",
+              padding: "0.65rem 0.875rem",
+              background: "transparent",
+              border: "1px solid rgba(239,68,68,0.18)",
+              borderRadius: "10px",
+              color: "#f87171",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "background 0.2s, border-color 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.18)";
+            }}
           >
-            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            <span>Sign Out</span>
+            <RiLogoutBoxRLine style={{ fontSize: "1.1rem" }} />
+            Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
+      {/* ── Main Content ── */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }} className="admin-main">
 
-<header className="bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/50 shadow-lg sticky top-0 z-30">
-  <div className="h-20 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-    <div className="flex items-center gap-4 flex-shrink-0">
-      {/* FIXED: Mobile Menu Button - Always Visible */}
-      <button 
-        onClick={toggleSidebar} 
-        className="p-3 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-2xl transition-all duration-300 shadow-lg z-40 relative md:hidden flex-shrink-0"
-        aria-label="Toggle menu"
-      >
-        <Menu className="w-6 h-6" />
-      </button>
-      
-      {/* Breadcrumb */}
-      <div className="hidden md:block min-w-0 flex-1">
-        <h2 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent truncate">
-          {(() => {
-            const pageName = pathname.split('/').pop()?.replace(/([A-Z])/g, ' $1') || 'Dashboard';
-            return pageName.charAt(0).toUpperCase() + pageName.slice(1);
-          })()}
-        </h2>
-      </div>
-    </div>
-    
-    {/* Profile - Fixed positioning */}
-    <div className="hidden lg:flex items-center gap-3 flex-shrink-0 p-2 bg-slate-800/50 rounded-2xl backdrop-blur-sm border border-slate-700/50 hover:border-purple-500/50 transition-all group">
-      {/* Dynamic Avatar */}
-      <div 
-        className="flex items-center justify-center shadow-lg rounded-2xl font-bold uppercase text-white transition-all"
-        style={{
-          width: adminName.length > 8 ? '44px' : adminName.length > 5 ? '40px' : '36px',
-          height: adminName.length > 8 ? '44px' : adminName.length > 5 ? '40px' : '36px',
-          fontSize: adminName.length > 8 ? '0.75rem' : adminName.length > 5 ? '0.875rem' : '1rem',
-          background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%)'
-        }}
-      >
-        {adminName.charAt(0)}
-      </div>
-      
-      <div className="min-w-0 flex flex-col items-end">
-        <p className="font-semibold text-white text-sm truncate max-w-32 group-hover:max-w-none transition-all" title={adminName}>
-          {adminName}
-        </p>
-        <p className="text-xs text-slate-400">Administrator</p>
-      </div>
-    </div>
-  </div>
-</header>
+        {/* Top header */}
+        <header
+          style={{
+            height: 60,
+            background: "rgba(var(--bg2-rgb),0.95)",
+            borderBottom: "1px solid var(--border)",
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            padding: "0 1.5rem",
+            position: "sticky",
+            top: 0,
+            zIndex: 30,
+            flexShrink: 0,
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          {/* Hamburger (mobile only) */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="sidebar-toggle"
+            style={{
+              background: "rgba(var(--accent-rgb),0.08)",
+              border: "1px solid rgba(var(--accent-rgb),0.15)",
+              borderRadius: "8px",
+              width: 36,
+              height: 36,
+              cursor: "pointer",
+              fontSize: "1.15rem",
+              color: "var(--text-secondary)",
+              display: "none",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <RiMenuLine />
+          </button>
 
-        {/* Dynamic Content */}
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-950/50 backdrop-blur-sm">
+          {/* Breadcrumb */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Admin</span>
+            <span style={{ color: "var(--muted)", fontSize: "0.875rem" }}>/</span>
+            <h2
+              style={{
+                fontWeight: 700,
+                fontSize: "1rem",
+                color: "var(--text-primary)",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {pageName}
+            </h2>
+          </div>
+
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <ThemeToggle size={36} />
+
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                fontSize: "0.875rem",
+                color: "var(--muted)",
+                textDecoration: "none",
+                padding: "0.375rem 0.875rem",
+                border: "1px solid var(--border)",
+                borderRadius: "8px",
+                transition: "color 0.2s, border-color 0.2s",
+                fontWeight: 500,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--text-primary)";
+                e.currentTarget.style.borderColor = "rgba(var(--accent-rgb),0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--muted)";
+                e.currentTarget.style.borderColor = "var(--border)";
+              }}
+            >
+              <RiExternalLinkLine style={{ fontSize: "0.9rem" }} />
+              View Site
+            </a>
+          </div>
+        </header>
+
+        {/* Main content area */}
+        <main style={{ flex: 1, overflowY: "auto", padding: "clamp(1.25rem, 3vw, 2rem)" }}>
           {children}
         </main>
       </div>

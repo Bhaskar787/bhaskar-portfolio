@@ -1,405 +1,444 @@
-"use client"
-import { useEffect, useState } from "react";
-import { 
-  FiGithub, 
-  FiLinkedin, 
-  FiMail, 
-  FiArrowUpRight,
-  FiExternalLink 
-} from "react-icons/fi";
-import { 
-  BsCodeSlash, 
-  BsBriefcase, 
-  BsBook, 
-  BsStars,
-  BsArrowRight,
-  BsPlayFill
-} from "react-icons/bs";
+"use client";
+import Link from "next/link";
+import { useEffect, useRef, useState, useCallback } from "react";
+import gsap            from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { FaGithub, FaLinkedin, FaWhatsapp } from "react-icons/fa";
+import { SiGmail }     from "react-icons/si";
+import {
+  HiArrowNarrowRight,
+  HiExternalLink,
+  HiCode,
+  HiStar,
+  HiBriefcase,
+  HiAcademicCap,
+  HiLightningBolt,
+} from "react-icons/hi";
+import { BiSolidBadgeCheck } from "react-icons/bi";
+import { RiSparklingFill }   from "react-icons/ri";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const SERVICES = [
+  { icon: <HiCode />,         label: "Full-Stack Development" },
+  { icon: <HiLightningBolt />,label: "Performance Optimisation" },
+  { icon: <HiStar />,         label: "UI / UX Design" },
+  { icon: <HiBriefcase />,    label: "API Architecture" },
+  { icon: <HiAcademicCap />,  label: "Database Design" },
+  { icon: <BiSolidBadgeCheck />,label: "Code Review" },
+];
+
+async function safeFetch(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const text = await res.text();
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
 
 export default function Home() {
-  const [projects, setProjects] = useState([]);
+  const [projects,    setProjects]    = useState([]);
   const [experiences, setExperiences] = useState([]);
-  const [education, setEducation] = useState([]);
-  const [skills, setSkills] = useState([]); 
-  const [loading, setLoading] = useState(true);
+  const [skills,      setSkills]      = useState([]);
+  const [education,   setEducation]   = useState([]);
+  const [about,       setAbout]       = useState(null);
+  const [loading,     setLoading]     = useState(true);
+
+  const blob1Ref   = useRef(null);
+  const blob2Ref   = useRef(null);
+  const heroRef    = useRef(null);
+  const statsRef   = useRef(null);
+  const projRef    = useRef(null);
+  const expRef     = useRef(null);
+  const skillsRef  = useRef(null);
+  const ctaRef     = useRef(null);
+
+  const handleMouse = useCallback((e) => {
+    blob1Ref.current?.animate({ left: e.clientX + "px", top: e.clientY + "px" }, { duration: 2200, fill: "forwards" });
+    blob2Ref.current?.animate({ left: e.clientX + "px", top: e.clientY + "px" }, { duration: 3800, fill: "forwards" });
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
+    window.addEventListener("mousemove", handleMouse);
+    return () => window.removeEventListener("mousemove", handleMouse);
+  }, [handleMouse]);
+
+  useEffect(() => {
+    (async () => {
       try {
-        setLoading(true);
-        const [projRes, expRes, eduRes, skillRes] = await Promise.all([
-          fetch("/api/project"),
-          fetch("/api/experience"),
-          fetch("/api/education"),
-          fetch("/api/skills") 
+        const [p, e, s, a, ed] = await Promise.all([
+          safeFetch("/api/project"),
+          safeFetch("/api/experience"),
+          safeFetch("/api/skills"),
+          safeFetch("/api/about"),
+          safeFetch("/api/education"),
         ]);
-
-        const projData = await projRes.json();
-        const expData = await expRes.json();
-        const eduData = await eduRes.json();
-        const skillData = await skillRes.json();
-
-        setProjects(projData);
-        setExperiences(expData);
-        setEducation(eduData);
-        setSkills(skillData);
-      } catch (error) {
-        console.error("Error fetching portfolio data:", error);
+        if (Array.isArray(p)) setProjects(p);
+        if (Array.isArray(e)) setExperiences(e);
+        if (Array.isArray(s)) setSkills(s);
+        if (a && !Array.isArray(a)) setAbout(a);
+        else if (Array.isArray(a) && a.length > 0) setAbout(a[0]);
+        if (Array.isArray(ed)) setEducation(ed);
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchData();
+    })();
   }, []);
 
-  const shimmer = `relative overflow-hidden bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent`;
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".hero-anim", { y: 48, opacity: 0, duration: .9, stagger: .12, ease: "power3.out" });
+      gsap.from(".hero-img",  { scale: .85, opacity: 0, duration: 1.1, delay: .3, ease: "back.out(1.4)" });
+
+      document.querySelectorAll(".stat-num[data-target]").forEach((el) => {
+        const target = +el.dataset.target;
+        ScrollTrigger.create({
+          trigger: el, start: "top 88%", once: true,
+          onEnter: () => gsap.to({ val: 0 }, {
+            val: target, duration: 1.8, ease: "power2.out",
+            onUpdate() { el.textContent = Math.round(this.targets()[0].val) + el.dataset.suffix; },
+          }),
+        });
+      });
+
+      gsap.utils.toArray(".reveal-up").forEach((el) => {
+        gsap.from(el, { scrollTrigger: { trigger: el, start: "top 85%", once: true }, y: 50, opacity: 0, duration: .85, ease: "power3.out" });
+      });
+      gsap.utils.toArray(".reveal-stagger").forEach((wrap) => {
+        gsap.from(wrap.children, { scrollTrigger: { trigger: wrap, start: "top 82%", once: true }, y: 40, opacity: 0, duration: .75, stagger: .1, ease: "power3.out" });
+      });
+
+      document.querySelectorAll(".skill-bar-fill[data-pct]").forEach((bar) => {
+        const pct = bar.dataset.pct;
+        ScrollTrigger.create({
+          trigger: bar, start: "top 88%", once: true,
+          onEnter: () => gsap.to(bar, { width: pct + "%", duration: 1.3, ease: "power2.out" }),
+        });
+      });
+
+      gsap.utils.toArray(".timeline-item").forEach((item, i) => {
+        gsap.from(item, {
+          scrollTrigger: { trigger: item, start: "top 85%", once: true },
+          x: i % 2 === 0 ? -30 : 30, opacity: 0, duration: .75, ease: "power3.out",
+        });
+      });
+
+      document.querySelectorAll(".proj-card").forEach((card) => {
+        card.addEventListener("mouseenter", () => gsap.to(card, { y: -8, duration: .35, ease: "power2.out" }));
+        card.addEventListener("mouseleave", () => gsap.to(card, { y: 0,  duration: .35, ease: "power2.out" }));
+      });
+      document.querySelectorAll(".exp-card").forEach((card) => {
+        card.addEventListener("mouseenter", () => gsap.to(card, { y: -6, duration: .3, ease: "power2.out" }));
+        card.addEventListener("mouseleave", () => gsap.to(card, { y: 0,  duration: .3, ease: "power2.out" }));
+      });
+    });
+    return () => ctx.revert();
+  }, [loading]);
+
+  const Sk = ({ h = "h-40", extra = "" }) => (
+    <div className="skeleton" style={{ height: h === "h-40" ? 160 : h === "h-80" ? 320 : h === "h-48" ? 192 : h === "h-20" ? 80 : 160, borderRadius: "var(--radius)" }} />
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white overflow-x-hidden">
-      {/* Animated Background Particles */}
-      <div className="fixed inset-0 opacity-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(120,119,198,0.3),transparent),radial-gradient(circle_at_80%_20%,rgba(120,119,198,0.3),transparent),radial-gradient(circle_at_40%_40%,rgba(120,119,198,0.2),transparent)]" />
-      </div>
+    <div style={{ background: "var(--bg)", minHeight: "100vh", overflowX: "hidden", position: "relative" }}>
+      <div ref={blob1Ref} className="blob blob-1" style={{ top: "30%", left: "60%" }} />
+      <div ref={blob2Ref} className="blob blob-2" style={{ top: "60%", left: "40%" }} />
 
-      <div className="max-w-7xl mx-auto px-6 py-20 lg:px-8 relative z-10">
-        {/* Hero Section */}
-        <section className="relative mb-32">
-          {/* Floating Elements */}
-          <div className="absolute -top-20 -right-20 w-72 h-72 bg-purple-500/10 rounded-full blur-xl animate-pulse" />
-          <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 text-center lg:text-left">
-            {/* Hero Content */}
-            <div className="lg:flex-1 space-y-8 max-w-xl mx-auto lg:mx-0 order-2 lg:order-1 animate-slide-in-up">
-              <div className="inline-flex items-center gap-3 px-4 py-2 bg-purple-500/20 backdrop-blur-sm rounded-full border border-purple-500/30 animate-float">
-                <BsStars className="text-purple-400" />
-                <span className="text-sm font-medium text-purple-100">Full Stack Developer</span>
-              </div>
-              
-              <div className="space-y-4">
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent leading-tight">
-                  Hey, I'm <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">Bhaskar Budha</span>
-                </h1>
-                <p className="text-xl md:text-2xl text-slate-300 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                  Crafting pixel-perfect web experiences with modern technologies. 
-                  I turn ideas into reality.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <a 
-                  href="/about" 
-                  className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-2xl hover:from-purple-500 hover:to-pink-500 shadow-2xl hover:shadow-purple-500/25 transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-3"
-                >
-                  View My Story 
-                  <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
+      {/* ══ HERO ══ */}
+      <section ref={heroRef} style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", padding: "7rem 1.5rem 4rem" }}>
+        <div className="hero-grid-bg" />
+        <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr", gap: "3rem", alignItems: "center" }} className="hero-grid-layout">
+          {/* left */}
+          <div style={{ order: 2 }}>
+            <div className="hero-anim" style={{ marginBottom: "1.25rem" }}>
+              <span className="section-badge"><RiSparklingFill style={{ color: "var(--accent-tint)" }} /> Available for Work</span>
+            </div>
+            <h1 className="hero-anim" style={{ fontSize: "clamp(2.4rem, 6vw, 5rem)", fontWeight: 900, lineHeight: 1.08, marginBottom: "1.25rem", color: "var(--text-primary)" }}>
+              Hi, I'm <span className="grad-text">Bhaskar Budha</span>
+            </h1>
+            <h2 className="hero-anim" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.6rem)", fontWeight: 700, color: "rgba(var(--text-primary-rgb),.75)", marginBottom: "1.5rem" }}>
+              Full-Stack Developer &amp; UI Engineer
+            </h2>
+            <p className="hero-anim" style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.75, maxWidth: 480, marginBottom: "2.25rem" }}>
+              I craft performant, pixel-perfect web applications — from robust backend APIs to silky-smooth front-end interfaces. Let's build something exceptional together.
+            </p>
+            <div className="hero-anim" style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
+              <Link href="/projects" className="btn-primary">View Projects <HiArrowNarrowRight /></Link>
+              <Link href="/contact" className="btn-outline">Hire Me</Link>
+              {!loading && about?.resume && (
+                <a href={about.resume} target="_blank" rel="noopener noreferrer" download className="btn-outline">
+                  Download PDF <HiExternalLink />
                 </a>
-                <div className="flex items-center gap-4">
-                  <a href="https://github.com/Bhaskar787" className="w-12 h-12 bg-slate-800/50 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-2xl hover:text-purple-400 transition-all duration-300 hover:scale-110" aria-label="GitHub">
-                    <FiGithub />
-                  </a>
-                  <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" className="w-12 h-12 bg-slate-800/50 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-2xl hover:text-blue-400 transition-all duration-300 hover:scale-110" aria-label="LinkedIn">
-                    <FiLinkedin />
-                  </a>
-                  <a href="mailto:budhabhaskar11@gmail.com" className="w-12 h-12 bg-slate-800/50 hover:bg-slate-700 rounded-2xl flex items-center justify-center text-2xl hover:text-emerald-400 transition-all duration-300 hover:scale-110" aria-label="Email">
-                    <FiMail />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Hero Image */}
-            <div className="flex-1 flex justify-center lg:justify-end order-1 lg:order-2 animate-slide-in-right">
-              <div className="relative group">
-                <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-xl -z-10 animate-spin-slow" />
-                  <img
-                    className="w-full h-full object-cover rounded-3xl shadow-2xl border-4 border-slate-800/50 group-hover:border-purple-500/75 transition-all duration-500 relative z-10 hover:scale-105 hover:rotate-3"
-                    src="/assets/images/logo.jpg"
-                    alt="Bhaskar Budha"
-                  />
-                  <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 opacity-0 group-hover:opacity-20 rounded-3xl blur-xl transition-opacity duration-500 animate-pulse" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-24 text-center">
-          <div className="p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-purple-500/50 transition-all duration-300 animate-float">
-            <BsCodeSlash className="text-3xl text-purple-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">50+</div>
-            <div className="text-slate-400 text-sm">Projects</div>
-          </div>
-          <div className="p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-blue-500/50 transition-all duration-300 animate-float delay-200">
-            <BsBriefcase className="text-3xl text-blue-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">2+</div>
-            <div className="text-slate-400 text-sm">Years Exp</div>
-          </div>
-          <div className="p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-emerald-500/50 transition-all duration-300 animate-float delay-400">
-            <BsBook className="text-3xl text-emerald-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">B.Tech</div>
-            <div className="text-slate-400 text-sm">Degree</div>
-          </div>
-          <div className="p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-pink-500/50 transition-all duration-300 animate-float delay-600">
-            <BsStars className="text-3xl text-pink-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">99%</div>
-            <div className="text-slate-400 text-sm">Uptime</div>
-          </div>
-        </div>
-
-        {/* Skills & Education Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 mb-24">
-          {/* Education */}
-          <section className="animate-slide-in-left">
-            <h2 className="flex items-center gap-3 text-2xl font-black text-slate-200 mb-10 uppercase tracking-wider">
-              <BsBook className="text-purple-400" />
-              Education
-            </h2>
-            <div className="space-y-6">
-              {loading ? (
-                <div className={`${shimmer} h-32 rounded-2xl`} />
-              ) : (
-                education.map((edu, idx) => (
-                  <article 
-                    key={edu._id} 
-                    className="group bg-slate-900/70 backdrop-blur-sm p-8 rounded-3xl border border-slate-800/50 hover:border-purple-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/25 relative overflow-hidden"
-                    style={{ animationDelay: `${idx * 100}ms` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-transparent" />
-                    <div className="relative z-10">
-                      <h3 className="text-2xl font-black text-white mb-2 group-hover:text-purple-400 transition-colors">{edu.degree}</h3>
-                      <p className="text-purple-400 font-semibold mb-3">{edu.institution}</p>
-                      <p className="text-slate-500 mb-4">{edu.duration}</p>
-                      <p className="text-slate-400 leading-relaxed">{edu.description}</p>
-                    </div>
-                  </article>
-                ))
               )}
             </div>
-          </section>
-
-          {/* Skills */}
-          <section className="animate-slide-in-right">
-            <h2 className="flex items-center gap-3 text-2xl font-black text-slate-200 mb-10 uppercase tracking-wider">
-              <BsCodeSlash className="text-purple-400" />
-              Skills & Expertise
-            </h2>
-            <div className="space-y-8">
+            <div className="hero-anim" style={{ display: "flex", gap: ".75rem", alignItems: "center" }}>
+              <a href="https://github.com/Bhaskar787" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--gh" aria-label="GitHub"><FaGithub /></a>
+              <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--li" aria-label="LinkedIn"><FaLinkedin /></a>
+              <a href="mailto:budhabhaskar11@gmail.com" className="social-btn social-btn--gm" aria-label="Email"><SiGmail /></a>
+              <a href="https://wa.me/9779825630086" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--wa" aria-label="WhatsApp"><FaWhatsapp /></a>
+            </div>
+          </div>
+          {/* right */}
+          <div className="hero-img" style={{ order: 1, display: "flex", justifyContent: "center" }}>
+            <div style={{ position: "relative", width: 300, height: 300 }}>
+              <div className="profile-ring-outer">
+                <div className="profile-dot profile-dot--top" />
+                <div className="profile-dot profile-dot--right" style={{ background: "var(--accent2)" }} />
+              </div>
+              <div className="profile-ring-inner" />
               {loading ? (
-                <div className={`${shimmer} h-48 rounded-2xl`} />
+                <div className="skeleton" style={{ width: "100%", height: "100%", borderRadius: "50%", position: "relative", zIndex: 1 }} />
               ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-4">
-                    {skills.slice(0, 8).map((skill, idx) => (
-                      <div 
-                        key={skill._id} 
-                        className="group relative p-4 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-purple-500/75 hover:bg-slate-900/80 transition-all duration-300 hover:scale-105 hover:-translate-y-1"
-                        style={{ animationDelay: `${idx * 50}ms` }}
-                      >
-                        <span className="font-semibold text-white group-hover:text-purple-400 transition-colors">
-                          {skill.name}
-                        </span>
-                        {skill.level && (
-                          <div className="absolute -top-3 -right-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                            {skill.level}%
-                          </div>
-                        )}
+                <img src={about?.image || "/assets/images/logo.jpg"} alt="Bhaskar Budha" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", border: "4px solid rgba(var(--accent-rgb),.4)", boxShadow: "0 0 0 8px rgba(var(--accent-rgb),.08), 0 24px 60px rgba(0,0,0,.5)", position: "relative", zIndex: 1 }} />
+              )}
+              <div style={{ position: "absolute", bottom: -16, left: "50%", transform: "translateX(-50%)", background: "var(--card)", border: "1px solid rgba(34,197,94,.3)", borderRadius: 9999, padding: ".35rem 1rem", display: "flex", alignItems: "center", gap: ".4rem", fontSize: ".78rem", fontWeight: 700, color: "#4ade80", whiteSpace: "nowrap", boxShadow: "0 4px 18px rgba(0,0,0,.35)", zIndex: 2 }}>
+                <span style={{ width: 8, height: 8, background: "#4ade80", borderRadius: "50%", boxShadow: "0 0 6px #4ade80" }} />
+                Open to Opportunities
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ STATS ══ */}
+      <section ref={statsRef} style={{ padding: "4rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: "1.25rem", alignItems: "stretch" }}>
+          {[
+            { icon: <HiCode size={24} style={{ color: "var(--accent-tint)" }} />,        suffix: "+", target: 50, label: "Projects Built" },
+            { icon: <HiBriefcase size={24} style={{ color: "var(--accent2)" }} />,   suffix: "+", target: 2,  label: "Years Experience" },
+            { icon: <HiAcademicCap size={24} style={{ color: "#4ade80" }} />, suffix: "",  target: 10, label: "Tech Stacks" },
+            { icon: <HiStar size={24} style={{ color: "#f43f5e" }} />,        suffix: "%", target: 99, label: "Client Satisfaction" },
+          ].map(({ icon, suffix, target, label }) => (
+            <div key={label} className="card" style={{ padding: "1.75rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: ".75rem" }}>{icon}</div>
+              <div className="stat-num" data-target={target} data-suffix={suffix} style={{ fontSize: "2.2rem", fontWeight: 900, color: "var(--text-primary)", lineHeight: 1 }}>0{suffix}</div>
+              <div style={{ color: "var(--muted)", fontSize: ".82rem", marginTop: ".4rem", fontWeight: 600 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══ EDUCATION & SKILLS ══ */}
+      <section style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div className="edu-skills-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: "3rem" }}>
+          {/* Education column */}
+          <div>
+            <div className="reveal-up" style={{ marginBottom: "2rem" }}>
+              <span className="section-badge" style={{ display: "inline-flex" }}><HiAcademicCap /> Education</span>
+            </div>
+            {loading
+              ? <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                  {Array.from({ length: 2 }).map((_, i) => <Sk key={i} h="h-48" />)}
+                </div>
+              : education.length === 0
+              ? <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
+                  <p style={{ color: "var(--muted)" }}>No education entries yet.</p>
+                </div>
+              : <div className="timeline">
+                  {education.map((edu) => (
+                    <div key={edu._id} className="timeline-item">
+                      <div className="timeline-dot timeline-dot--edu" />
+                      <div className="card" style={{ padding: "1.5rem 1.75rem" }}>
+                        <div style={{ display: "inline-block", padding: ".25rem .75rem", background: "rgba(var(--accent2-rgb),.12)", border: "1px solid rgba(var(--accent2-rgb),.25)", borderRadius: 9999, fontSize: ".75rem", fontWeight: 700, color: "var(--accent2)", marginBottom: ".75rem" }}>{edu.duration}</div>
+                        <h3 style={{ fontWeight: 800, fontSize: "1.15rem", color: "var(--text-primary)", marginBottom: ".3rem" }}>{edu.degree}</h3>
+                        <p style={{ color: "var(--accent)", fontWeight: 700, fontSize: ".9rem", marginBottom: edu.description ? ".5rem" : 0 }}>{edu.institution}</p>
+                        {edu.description && <p style={{ color: "var(--muted)", fontSize: ".88rem", lineHeight: 1.65 }}>{edu.description}</p>}
                       </div>
-                    ))}
-                  </div>
-                  
-                  {/* Social Links */}
-                  <div className="pt-8 border-t border-slate-800/50">
-                    <div className="flex items-center gap-6">
-                      <a href="https://github.com/Bhaskar787" className="group w-14 h-14 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-purple-600 hover:to-pink-600 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-110 hover:rotate-12" aria-label="GitHub">
-                        <FiGithub className="group-hover:text-white" />
-                      </a>
-                      <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" className="group w-14 h-14 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-blue-600 hover:to-blue-500 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-blue-500/25 transition-all duration-300 hover:scale-110 hover:rotate-12" aria-label="LinkedIn">
-                        <FiLinkedin className="group-hover:text-white" />
-                      </a>
-                      <a href="mailto:budhabhaskar11@gmail.com" className="group w-14 h-14 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-emerald-600 hover:to-emerald-500 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:rotate-12" aria-label="Email">
-                        <FiMail className="group-hover:text-white" />
-                      </a>
                     </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </section>
-        </div>
-
-        {/* Divider */}
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent my-24" />
-
-        {/* Experience Section */}
-        <section className="mb-32 animate-slide-in-up">
-          <div className="text-center mb-20">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm rounded-full border border-purple-500/30 text-purple-400 font-medium mb-4">
-              <BsBriefcase className="text-lg" />
-              Professional Journey
-            </span>
-            <h2 className="text-5xl lg:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent mb-4">
-              Work Experience
-            </h2>
+                  ))}
+                </div>
+            }
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {loading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className={`${shimmer} h-64 rounded-3xl`} />
-              ))
-            ) : (
-              experiences.map((exp, idx) => (
-                <article 
-                  key={exp._id}
-                  className="group relative bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 p-8 hover:border-purple-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden"
-                  style={{ animationDelay: `${idx * 100}ms` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
-                  {exp.image && (
-                    <div className="relative z-10 mb-6 overflow-hidden rounded-2xl h-40">
-                      <img 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                        src={exp.image} 
-                        alt={exp.title} 
-                      />
+          {/* Skills column */}
+          <div>
+            <div className="reveal-up" style={{ marginBottom: "2rem" }}>
+              <span className="section-badge" style={{ display: "inline-flex" }}><HiCode /> Skills &amp; Expertise</span>
+            </div>
+            <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "1rem" }}>
+              {loading
+                ? Array.from({ length: 6 }).map((_, i) => <Sk key={i} h="h-20" />)
+                : skills.length === 0
+                ? <div className="card" style={{ padding: "2rem", textAlign: "center", gridColumn: "1/-1" }}>
+                    <p style={{ color: "var(--muted)" }}>No skills added yet.</p>
+                  </div>
+                : skills.slice(0, 12).map((sk) => (
+                  <div key={sk._id} className="card" style={{ padding: "1.3rem 1.2rem", position: "relative" }}>
+                    {sk.level != null && (
+                      <span style={{ position: "absolute", top: 10, right: 10, background: "linear-gradient(135deg, var(--accent), var(--accent3))", color: "#fff", borderRadius: 9999, padding: ".2rem .65rem", fontSize: ".72rem", fontWeight: 800 }}>
+                        {sk.level}%
+                      </span>
+                    )}
+                    <span style={{ fontWeight: 700, fontSize: ".95rem", color: "var(--text-primary)" }}>{sk.name}</span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ SERVICES STRIP ══ */}
+      <section className="reveal-up" style={{ padding: "4rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}>What I Do</span>
+          <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, color: "var(--text-primary)" }}>Services I Offer</h2>
+        </div>
+        <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: "1rem" }}>
+          {SERVICES.map(({ icon, label }) => (
+            <div key={label} className="card" style={{ padding: "1.4rem 1.2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: ".6rem", textAlign: "center", cursor: "default" }}>
+              <div style={{ fontSize: "1.6rem", color: "var(--accent)" }}>{icon}</div>
+              <span style={{ fontWeight: 700, fontSize: ".88rem", color: "var(--fg)" }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══ FEATURED PROJECTS ══ */}
+      <section ref={projRef} style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div className="reveal-up" style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}>Portfolio</span>
+          <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, color: "var(--text-primary)", marginBottom: ".75rem" }}>Featured Projects</h2>
+          <p style={{ color: "var(--muted)", maxWidth: 480, margin: "0 auto", fontSize: ".97rem" }}>A selection of digital products I've engineered end-to-end.</p>
+        </div>
+        <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "1.5rem" }}>
+          {loading
+            ? Array.from({ length: 2 }).map((_, i) => <Sk key={i} h="h-80" />)
+            : projects.length === 0
+            ? <div className="card" style={{ padding: "3rem", textAlign: "center", gridColumn: "1/-1" }}>
+                <p style={{ color: "var(--muted)" }}>No projects added yet. Add them from the admin panel.</p>
+              </div>
+            : projects.slice(0, 4).map((proj) => (
+              <article key={proj._id} className="card proj-card" style={{ overflow: "hidden", cursor: "default" }}>
+                <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
+                  <img src={proj.image} alt={proj.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .6s ease" }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.07)"}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                  />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(var(--bg-rgb),.9) 0%, transparent 60%)" }} />
+                  {proj.githubLink && (
+                    <a href={proj.githubLink} target="_blank" rel="noopener noreferrer" style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, background: "rgba(10,10,20,.7)", backdropFilter: "blur(6px)", borderRadius: ".5rem", border: "1px solid rgba(255,255,255,.12)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "1.1rem" }}>
+                      <FaGithub />
+                    </a>
+                  )}
+                </div>
+                <div style={{ padding: "1.4rem" }}>
+                  <h3 style={{ fontWeight: 800, fontSize: "1.15rem", color: "var(--text-primary)", marginBottom: ".5rem" }} className="line-clamp-2">{proj.title}</h3>
+                  <p style={{ color: "var(--muted)", fontSize: ".88rem", lineHeight: 1.6, marginBottom: "1.1rem" }} className="line-clamp-3">{proj.description}</p>
+                  {proj.skills?.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: ".375rem", marginBottom: "1.1rem" }}>
+                      {proj.skills.map((tag) => (
+                        <span key={tag} className="tag">{tag}</span>
+                      ))}
                     </div>
                   )}
-                  <div className="relative z-10">
-                    <h3 className="text-2xl font-black text-white mb-3 group-hover:text-purple-400 transition-colors">{exp.title}</h3>
-                    <p className="text-slate-500 font-medium mb-4">{exp.duration}</p>
-                    <p className="text-slate-400 leading-relaxed">{exp.description}</p>
+                  <div style={{ display: "flex", gap: ".75rem" }}>
+                    {proj.githubLink && <a href={proj.githubLink} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{ padding: ".5rem 1rem", fontSize: ".82rem" }}><FaGithub /> Code</a>}
+                    {proj.liveLink   && <a href={proj.liveLink}   target="_blank" rel="noopener noreferrer" className="btn-primary"  style={{ padding: ".5rem 1rem", fontSize: ".82rem" }}><HiExternalLink /> Live</a>}
                   </div>
-                </article>
-              ))
-            )}
-          </div>
-        </section>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+        <div className="reveal-up" style={{ textAlign: "center", marginTop: "2.5rem" }}>
+          <Link href="/projects" className="btn-outline">View All Projects <HiArrowNarrowRight /></Link>
+        </div>
+      </section>
 
-        {/* Divider */}
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent my-24" />
-
-        {/* Projects Section */}
-        <section className="animate-slide-in-up">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl lg:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent mb-4">
-              Featured Projects
-            </h2>
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-              A glimpse into the digital solutions I've engineered with cutting-edge technologies.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-20">
-                      {loading ? (
-              Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className={`${shimmer} h-96 rounded-3xl`} />
-              ))
-            ) : (
-              projects.slice(0, 2).map((project, idx) => (
-                <article 
-                  key={project._id}
-                  className="group relative bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 overflow-hidden hover:border-purple-500/75 hover:bg-slate-900/90 transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/25 hover:-translate-y-6"
-                  style={{ animationDelay: `${idx * 200}ms` }}
-                >
-                  {/* Project Image */}
-                  <div className="relative overflow-hidden rounded-t-3xl h-80">
-                    <img 
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 group-hover:rotate-1"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
-                      <a 
-                        href={project.githubLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="w-14 h-14 bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20 rounded-2xl flex items-center justify-center text-2xl hover:scale-110 transition-all duration-300 shadow-2xl"
-                      >
-                        <FiGithub />
-                      </a>
-                    </div>
+      {/* ══ EXPERIENCE ══ */}
+      <section ref={expRef} style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div className="reveal-up" style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}>Journey</span>
+          <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, color: "var(--text-primary)" }}>Work Experience</h2>
+        </div>
+        <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1.25rem", alignItems: "stretch" }}>
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => <Sk key={i} h="h-48" />)
+            : experiences.length === 0
+            ? <div className="card" style={{ padding: "3rem", textAlign: "center", gridColumn: "1/-1" }}>
+                <p style={{ color: "var(--muted)" }}>No experience entries yet. Add them from the admin panel.</p>
+              </div>
+            : experiences.map((exp) => (
+              <article key={exp._id} className="card exp-card" style={{ padding: "1.6rem", cursor: "default", display: "flex", flexDirection: "column", height: "100%" }}>
+                {exp.image && (
+                  <div style={{ width: "100%", height: 140, borderRadius: ".75rem", overflow: "hidden", marginBottom: "1rem" }}>
+                    <img src={exp.image} alt={exp.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
+                )}
+                <div style={{ display: "inline-block", alignSelf: "flex-start", padding: ".25rem .75rem", background: "rgba(var(--accent-rgb),.12)", border: "1px solid rgba(var(--accent-rgb),.25)", borderRadius: 9999, fontSize: ".75rem", fontWeight: 700, color: "var(--accent-tint)", marginBottom: ".75rem" }}>{exp.duration}</div>
+                <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text-primary)", marginBottom: ".5rem" }}>{exp.title}</h3>
+                <p style={{ color: "var(--muted)", fontSize: ".88rem", lineHeight: 1.65, flex: 1 }} className="line-clamp-3">{exp.description}</p>
+              </article>
+            ))
+          }
+        </div>
+      </section>
 
-                  {/* Project Content */}
-                  <div className="p-10">
-                    <h3 className="text-3xl font-black text-white mb-4 group-hover:text-purple-400 transition-colors line-clamp-2">
-                      {project.title}
-                    </h3>
-                    <p className="text-slate-400 mb-8 leading-relaxed line-clamp-3 flex-grow">
-                      {project.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm font-medium text-slate-400">
-                        <span className="flex items-center gap-2">
-                          <BsPlayFill className="text-purple-400" />
-                          Live Demo
-                        </span>
-                      </div>
-                      
-                      <a 
-                        href={project.githubLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="group/link flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-800 to-slate-700 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-2xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105"
-                      >
-                        View Code
-                        <FiArrowUpRight className="group-hover/link:translate-x-1 transition-transform" />
-                      </a>
-                    </div>
-                  </div>
-                </article>
-              ))
-            )}
-          </div>
-        </section>
+      {/* ══ SKILLS ══ */}
+      <section ref={skillsRef} style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
+        <div className="reveal-up" style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}>Expertise</span>
+          <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, color: "var(--text-primary)" }}>Skills &amp; Proficiency</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1rem" }}>
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => <Sk key={i} h="h-20" />)
+            : skills.length === 0
+            ? <div className="card" style={{ padding: "2rem", textAlign: "center", gridColumn: "1/-1" }}>
+                <p style={{ color: "var(--muted)" }}>No skills added yet.</p>
+              </div>
+            : skills.slice(0, 12).map((sk) => (
+              <div key={sk._id} className="card reveal-up" style={{ padding: "1.2rem 1.4rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: ".6rem" }}>
+                  <span style={{ fontWeight: 700, fontSize: ".9rem", color: "var(--text-primary)" }}>{sk.name}</span>
+                  {sk.level && <span style={{ fontSize: ".78rem", fontWeight: 700, color: "var(--accent)" }}>{sk.level}%</span>}
+                </div>
+                {sk.level && <div className="skill-bar-bg"><div className="skill-bar-fill" data-pct={sk.level} /></div>}
+              </div>
+            ))
+          }
+        </div>
+      </section>
 
-        {/* CTA Buttons */}
-        <div className="text-center space-y-8 animate-slide-in-up">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-3xl font-black text-white mb-6">
-              Ready to bring your vision to life?
-            </h3>
-            <p className="text-xl text-slate-400 mb-8">
-              Let's collaborate on your next big project. I'm available for exciting opportunities.
-            </p>
+      {/* ══ CTA BANNER ══ */}
+      <section ref={ctaRef} style={{ padding: "5rem 1.5rem" }}>
+        <div className="reveal-up" style={{ maxWidth: 860, margin: "0 auto", background: "linear-gradient(135deg, rgba(var(--accent-rgb),.14) 0%, rgba(var(--accent2-rgb),.08) 100%)", border: "1px solid rgba(var(--accent-rgb),.22)", borderRadius: "1.75rem", padding: "clamp(2.5rem,5vw,4rem)", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, background: "radial-gradient(circle, rgba(var(--accent-rgb),.18) 0%, transparent 70%)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", bottom: -60, left: -60, width: 220, height: 220, background: "radial-gradient(circle, rgba(var(--accent2-rgb),.14) 0%, transparent 70%)", borderRadius: "50%" }} />
+          <span className="section-badge" style={{ marginBottom: "1.25rem", display: "inline-flex" }}><BiSolidBadgeCheck style={{ color: "#4ade80" }} /> Available Now</span>
+          <h2 style={{ fontSize: "clamp(1.8rem,4vw,3rem)", fontWeight: 900, color: "var(--text-primary)", marginBottom: "1rem" }}>
+            Ready to Build Something<br /><span className="grad-text">Extraordinary?</span>
+          </h2>
+          <p style={{ color: "var(--muted)", maxWidth: 480, margin: "0 auto 2rem", fontSize: ".97rem" }}>
+            Whether it's a startup MVP, a redesign, or a complex platform — I'm here for it.
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/contact" className="btn-primary">Start a Project <HiArrowNarrowRight /></Link>
+            <Link href="/about" className="btn-outline">Learn About Me</Link>
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <a 
-              href="/projects" 
-              className="group relative px-10 py-4 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white font-semibold rounded-3xl hover:from-purple-600 hover:via-pink-600 hover:to-purple-700 shadow-2xl hover:shadow-purple-500/25 transform hover:-translate-y-2 transition-all duration-500 text-lg flex items-center gap-3 w-fit mx-auto"
-            >
-              <span>View All Projects</span>
-              <BsArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
-            </a>
-            
-            <a 
-              href="/contact" 
-              className="group px-10 py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white font-semibold rounded-3xl hover:from-purple-500 hover:via-pink-500 hover:to-blue-500 shadow-2xl hover:shadow-purple-500/50 transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 text-lg flex items-center gap-3 w-fit mx-auto relative overflow-hidden"
-            >
-              <span>Start a Project</span>
-              <BsArrowRight className="group-hover:translate-x-2 transition-transform duration-300" />
-              <div className="absolute inset-0 bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300 rounded-3xl" />
-            </a>
+          <div style={{ display: "flex", gap: "2rem", justifyContent: "center", marginTop: "2.5rem", flexWrap: "wrap" }}>
+            {["Fast Delivery", "Clean Code", "24/7 Support", "Pixel Perfect"].map((t) => (
+              <span key={t} style={{ display: "flex", alignItems: "center", gap: ".4rem", fontSize: ".82rem", color: "var(--muted)", fontWeight: 600 }}>
+                <BiSolidBadgeCheck style={{ color: "#4ade80" }} /> {t}
+              </span>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Scroll to Top Indicator */}
-        <div className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-2xl flex items-center justify-center text-2xl shadow-2xl hover:shadow-purple-500/50 cursor-pointer opacity-0 invisible group hover:scale-110 transition-all duration-300 z-50 animate-slide-in-bottom" 
-             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-             title="Back to top"
-        >
-          <FiArrowUpRight />
-        </div>
-      </div>
-
-     
+      <style>{`
+        @media (min-width: 900px) {
+          .hero-grid-layout { grid-template-columns: 1fr 420px !important; }
+          .hero-grid-layout > div:first-child { order: 1 !important; }
+          .hero-grid-layout > div:last-child  { order: 2 !important; }
+          .edu-skills-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        .timeline-item .card { margin-bottom: 0; }
+      `}</style>
     </div>
   );
 }

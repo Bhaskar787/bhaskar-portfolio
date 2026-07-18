@@ -1,294 +1,402 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { toast } from "react-toastify"
-import { 
-  FiMail, 
-  FiPhone, 
-  FiGithub, 
-  FiLinkedin, 
-  FiArrowRight,
-  FiLoader,
-  FiSend 
-} from "react-icons/fi";
-import { BsStars } from "react-icons/bs";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  HiMail,
+  HiPhone,
+  HiArrowNarrowRight,
+  HiLocationMarker,
+  HiExternalLink,
+} from "react-icons/hi";
+import { FaGithub, FaLinkedin, FaWhatsapp } from "react-icons/fa";
+import { SiGmail } from "react-icons/si";
+import { BiSolidBadgeCheck } from "react-icons/bi";
+import { RiSparklingFill } from "react-icons/ri";
+import { MdSend } from "react-icons/md";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const contactItems = [
+  {
+    Icon: HiMail,
+    label: "Email",
+    value: "budhabhaskar11@gmail.com",
+    href: "mailto:budhabhaskar11@gmail.com",
+    color: "#EA4335",
+    bg: "rgba(234,67,53,0.1)",
+    border: "rgba(234,67,53,0.2)",
+  },
+  {
+    Icon: HiPhone,
+    label: "Phone",
+    value: "+977 9825630086",
+    href: "tel:+9779825630086",
+    color: "var(--accent2)",
+    bg: "rgba(var(--accent2-rgb),0.1)",
+    border: "rgba(var(--accent2-rgb),0.2)",
+  },
+  {
+    Icon: FaLinkedin,
+    label: "LinkedIn",
+    value: "bhaskar-budha",
+    href: "https://www.linkedin.com/in/bhaskar-budha-1a58b83b6",
+    color: "#0a66c2",
+    bg: "rgba(10,102,194,0.1)",
+    border: "rgba(10,102,194,0.2)",
+  },
+  {
+    Icon: FaGithub,
+    label: "GitHub",
+    value: "Bhaskar787",
+    href: "https://github.com/Bhaskar787",
+    color: "var(--text-primary)",
+    bg: "rgba(var(--text-primary-rgb),0.07)",
+    border: "rgba(var(--text-primary-rgb),0.12)",
+  },
+];
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  })
-  const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState("")
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const pageRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".contact-hero > *", {
+        y: 30, opacity: 0, duration: 0.75, stagger: 0.13, ease: "power3.out", delay: 0.1,
+      });
+      gsap.from(".contact-info", {
+        x: -36, opacity: 0, duration: 0.8, ease: "power3.out",
+        scrollTrigger: { trigger: ".contact-layout", start: "top 88%", once: true },
+      });
+      gsap.from(".contact-form", {
+        x: 36, opacity: 0, duration: 0.8, ease: "power3.out",
+        scrollTrigger: { trigger: ".contact-layout", start: "top 88%", once: true },
+      });
+      gsap.utils.toArray(".contact-item").forEach((el, i) => {
+        gsap.from(el, {
+          y: 20, opacity: 0, duration: 0.6, delay: i * 0.08, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+        });
+      });
+    }, pageRef);
+    return () => ctx.revert();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setStatus("")
-
+    e.preventDefault();
+    setLoading(true);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      })
-
+        body: JSON.stringify(formData),
+      });
       if (res.ok) {
-        toast.success("Message sent successfully! I'll be right back to you soon!")
-        setFormData({ name: "", email: "", phone: "", message: "" })
+        toast.success("Message sent! I'll be in touch soon.");
+        setFormData({ name: "", email: "", phone: "", message: "" });
       } else {
-        const data = await res.json()
-        setStatus(`Error: ${data.error || "Failed to send"}`)
+        const data = await res.json();
+        toast.error(data.error || "Failed to send message.");
       }
-    } catch (error) {
-      toast.error("Failed to send message. Please try again.")
+    } catch {
+      toast.error("Something went wrong. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(168,85,247,0.1),transparent),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.1),transparent)]" />
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 xl:py-32">
-        
-        {/* Hero Section */}
-        <div className="text-center mb-16 lg:mb-24 animate-slide-in-up">
-          <div className="inline-flex items-center gap-3 px-4 sm:px-6 py-3 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-sm rounded-2xl border border-emerald-500/30 mb-6 lg:mb-8 mx-auto max-w-max">
-            <BsStars className="text-lg sm:text-xl text-emerald-400" />
-            <span className="text-base sm:text-lg font-semibold text-emerald-100">Get In Touch</span>
+    <main ref={pageRef} style={{ background: "var(--bg)", minHeight: "100vh", overflowX: "hidden" }}>
+      <div className="container" style={{ paddingTop: "clamp(4rem, 8vw, 6rem)", paddingBottom: "clamp(4rem, 8vw, 7rem)" }}>
+
+        {/* ── Hero ── */}
+        <div className="contact-hero" style={{ marginBottom: "clamp(3.5rem, 7vw, 5rem)", maxWidth: 680 }}>
+          <div style={{ marginBottom: "0.875rem" }}>
+            <span className="section-badge">
+              <RiSparklingFill style={{ color: "var(--accent-tint)" }} />
+              Let's Connect
+            </span>
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent leading-tight mb-4 lg:mb-6">
-            Let's Talk Business
+          <h1 className="text-display" style={{ marginBottom: "1.25rem" }}>
+            Get in <span className="grad-text">Touch</span>
           </h1>
-          <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed px-4">
-            Ready to bring your vision to life? Drop me a message and let's create something extraordinary together.
+          <p className="text-body" style={{ maxWidth: 520 }}>
+            Have a project in mind or just want to say hello? I'd love to hear from you.
+            Fill out the form or reach out directly — I respond within 24 hours.
           </p>
         </div>
 
-        {/* Contact Info & Form */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-24 items-start">
-          
-          {/* Contact Info - FULLY RESPONSIVE */}
-          <div className="animate-slide-in-left delay-300 space-y-6 mb-8 lg:mb-12">
-            {/* Header */}
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-8 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              Reach Out
-            </h2>
-            
-            {/* Contact Cards - RESPONSIVE TEXT */}
-            <div className="space-y-4">
-              {[
-                {
-                  icon: FiMail,
-                  label: "Email",
-                  value: "budhabhaskar11@gmail.com",
-                  href: "mailto:budhabhaskar11@gmail.com",
-                  gradient: "from-emerald-500 to-teal-500"
-                },
-                {
-                  icon: FiPhone,
-                  label: "Phone", 
-                  value: "+977 9825630086",
-                  href: "tel:+9779825630086",
-                  gradient: "from-blue-500 to-cyan-500"
-                },
-                {
-                  icon: FiLinkedin,
-                  label: "LinkedIn",
-                  value: "Bhaskar Budha",
-                  href: "https://www.linkedin.com/in/bhaskar-budha-1a58b83b6",
-                  gradient: "from-purple-500 to-pink-500"
-                },
-                {
-                  icon: FiGithub,
-                  label: "GitHub",
-                  value: "Bhaskar787",
-                  href: "https://github.com/Bhaskar787", 
-                  gradient: "from-slate-500 to-slate-300"
-                }
-              ].map((contact, idx) => (
-                <a
-                  key={contact.label}
-                  href={contact.href}
-                  target={contact.href.startsWith('http') ? '_blank' : '_self'}
-                  rel={contact.href.startsWith('http') ? 'noopener noreferrer' : ''}
-                  className="group relative block p-6 sm:p-8 bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 hover:border-emerald-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/25 hover:-translate-y-2"
-                  style={{ animationDelay: `${idx * 100 + 400}ms` }}
-                >
-                  {/* Gradient Background */}
-                  <div className={`absolute inset-0 bg-gradient-to-r ${contact.gradient} opacity-0 group-hover:opacity-5 blur-xl rounded-3xl transition-all duration-500 -z-10`} />
-                  
-                  <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:gap-6">
-                    {/* Icon */}
-                    <div className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${contact.gradient} shadow-2xl group-hover:scale-110 transition-all duration-500 flex-shrink-0 self-center sm:self-auto w-16 h-16 sm:w-20 sm:h-20`}>
-                      <contact.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+        {/* ── Main Layout ── */}
+        <div
+          className="contact-layout"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            gap: "2.5rem",
+            alignItems: "start",
+          }}
+        >
+          {/* ── Left: Info ── */}
+          <div className="contact-info" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+
+            {/* Contact cards */}
+            <div>
+              <p
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: "1rem",
+                }}
+              >
+                Direct Contact
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {contactItems.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target={item.href.startsWith("http") ? "_blank" : undefined}
+                    rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="contact-item card"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "1rem",
+                      padding: "1rem 1.25rem",
+                      textDecoration: "none",
+                      transition: "border-color 0.2s, transform 0.2s",
+                      borderRadius: "1rem",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = item.border.replace("0.2", "0.6");
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "var(--border)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: "12px",
+                        background: item.bg,
+                        border: `1px solid ${item.border}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: item.color,
+                        fontSize: "1.2rem",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <item.Icon />
                     </div>
-                    
-                    {/* Content - RESPONSIVE TEXT */}
-                    <div className="min-w-0 flex-1 py-3 sm:py-2 text-center sm:text-left mt-4 sm:mt-0">
-                      {/* Label */}
-                      <p className="text-slate-400 text-xs sm:text-sm font-medium uppercase tracking-wider mb-2">
-                        {contact.label}
-                      </p>
-                      
-                      {/* Value - FIXED RESPONSIVE TRUNCATION */}
-                      <p 
-                        className="text-lg sm:text-xl lg:text-2xl font-black text-white leading-tight break-all sm:break-words group-hover:text-emerald-400 transition-colors line-clamp-1 sm:line-clamp-none"
-                        title={contact.value} // Full text on hover
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: "0.72rem",
+                          fontWeight: 700,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          color: "var(--muted)",
+                          marginBottom: "0.2rem",
+                        }}
                       >
-                        {contact.value}
-                      </p>
+                        {item.label}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.9375rem",
+                          color: "var(--text-primary)",
+                          fontWeight: 600,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item.value}
+                      </div>
                     </div>
-                  </div>
-                </a>
-              ))}
+                    <HiExternalLink style={{ color: "var(--muted)", flexShrink: 0 }} />
+                  </a>
+                ))}
+              </div>
             </div>
 
-            {/* Quick Links */}
-            <div className="pt-8 border-t border-slate-800/50">
-              <h3 className="text-2xl lg:text-3xl font-black text-white mb-6">Or Connect Here</h3>
-              <div className="flex items-center gap-4 sm:gap-6">
-                <a 
-                  href="https://github.com/Bhaskar787" 
-                  className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-purple-600/20 border border-slate-800/50 hover:border-purple-500/75 rounded-2xl flex items-center justify-center text-xl hover:text-purple-400 hover:scale-110 transition-all duration-300 shadow-xl hover:shadow-purple-500/25 group flex-shrink-0"
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  <FiGithub />
-                </a>
-                <a 
-                  href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" 
-                  className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 hover:bg-blue-600/20 border border-slate-800/50 hover:border-blue-500/75 rounded-2xl flex items-center justify-center text-xl hover:text-blue-400 hover:scale-110 transition-all duration-300 shadow-xl hover:shadow-blue-500/25 group flex-shrink-0"
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  <FiLinkedin />
-                </a>
+            {/* Availability badge */}
+            <div
+              style={{
+                padding: "1.25rem 1.5rem",
+                background: "rgba(34,197,94,0.06)",
+                border: "1px solid rgba(34,197,94,0.2)",
+                borderRadius: "1rem",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.6rem" }}>
+                <span
+                  style={{
+                    width: 9,
+                    height: 9,
+                    background: "#22c55e",
+                    borderRadius: "50%",
+                    animation: "pulse-dot 2s ease-in-out infinite",
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#22c55e" }}>
+                  Available for Work
+                </span>
               </div>
+              <p style={{ fontSize: "0.875rem", color: "var(--muted)", lineHeight: 1.6 }}>
+                Currently accepting freelance projects and full-time opportunities.
+                Response time: <strong style={{ color: "var(--text-secondary)" }}>within 24 hours</strong>.
+              </p>
+            </div>
+
+            {/* Location */}
+            <div
+              className="card"
+              style={{ padding: "1.25rem 1.5rem", borderRadius: "1rem" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.6rem" }}>
+                <HiLocationMarker style={{ color: "var(--accent)", fontSize: "1.1rem" }} />
+                <span style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.9375rem" }}>
+                  Location
+                </span>
+              </div>
+              <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
+                Kathmandu, Nepal — Open to remote worldwide
+              </p>
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="animate-slide-in-right delay-300">
-            <div className="bg-slate-900/70 backdrop-blur-sm p-8 lg:p-12 rounded-3xl border border-slate-800/50 shadow-2xl hover:shadow-emerald-500/25 transition-all hover:border-emerald-500/50">
-              <h2 className="text-3xl lg:text-4xl xl:text-5xl font-black text-white mb-6 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                Send Message
-              </h2>
-              <p className="text-lg sm:text-xl text-slate-400 mb-10 leading-relaxed">
-                Fill out the form and I'll respond within 24 hours.
+          {/* ── Right: Form ── */}
+          <div className="contact-form card" style={{ padding: "clamp(1.5rem, 4vw, 2.5rem)", borderRadius: "1.25rem" }}>
+            <div style={{ marginBottom: "1.75rem" }}>
+              <h2 className="text-subheading" style={{ marginBottom: "0.4rem" }}>Send a Message</h2>
+              <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
+                I'll get back to you as soon as possible.
               </p>
+            </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              {/* two-col for name + email on larger screens */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                  gap: "1.25rem",
+                }}
+              >
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-3 text-lg">
-                    Your Name
-                  </label>
+                  <label htmlFor="name" className="form-label">Full Name *</label>
                   <input
+                    id="name"
                     type="text"
                     name="name"
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full p-4 sm:p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
-                    placeholder="Ram chaudhary"
+                    placeholder="Ram Chaudhary"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-3 text-lg">
-                    Email Address
-                  </label>
+                  <label htmlFor="email" className="form-label">Email Address *</label>
                   <input
+                    id="email"
                     type="email"
                     name="email"
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full p-4 sm:p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
-                    placeholder="ram123@example.com"
+                    placeholder="ram@example.com"
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-3 text-lg">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    required
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full p-4 sm:p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 shadow-inner hover:border-slate-600/75"
-                    placeholder="+977 9827635522"
-                  />
-                </div>
+              <div>
+                <label htmlFor="phone" className="form-label">Phone Number</label>
+                <input
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="+977 9827635522"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-3 text-lg">
-                    Your Message
-                  </label>
-                  <textarea
-                    name="message"
-                    rows="5"
-                    required
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full p-4 sm:p-5 lg:p-6 rounded-2xl bg-slate-800/50 backdrop-blur-sm text-white border border-slate-700/50 focus:border-emerald-500/75 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all duration-300 text-lg placeholder-slate-500 resize-vertical shadow-inner hover:border-slate-600/75 min-h-[140px]"
-                    placeholder="Tell me about your project..."
-                  />
-                </div>
+              <div>
+                <label htmlFor="message" className="form-label">Your Message *</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={5}
+                  required
+                  value={formData.message}
+                  onChange={handleChange}
+                  placeholder="Tell me about your project, timeline, and budget..."
+                  style={{ resize: "vertical", minHeight: "130px" }}
+                />
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className={`group relative w-full px-8 sm:px-10 py-5 lg:py-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white font-bold text-lg sm:text-xl rounded-3xl shadow-2xl hover:shadow-emerald-500/50 hover:from-emerald-500 hover:via-teal-500 hover:to-emerald-600 transform hover:-translate-y-1 hover:scale-[1.02] transition-all duration-500 border border-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 uppercase tracking-wider font-black shadow-emerald-500/25 ${loading ? 'animate-pulse' : ''}`}
-                >
-                  {loading ? (
-                    <>
-                      <FiLoader className="animate-spin w-5 h-5" />
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <FiSend className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                      <span>Send Message</span>
-                    </>
-                  )}
-                  <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-3xl blur-sm transition-all scale-0 group-hover:scale-100" />
-                </button>
-
-                {status && (
-                  <div className={`p-4 sm:p-5 rounded-2xl text-center text-lg font-semibold shadow-lg transition-all ${status.includes("Error") ? "bg-red-500/20 border border-red-500/50 text-red-300" : "bg-emerald-500/20 border border-emerald-500/50 text-emerald-300"}`}>
-                    {status}
-                  </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary"
+                style={{
+                  width: "100%",
+                  justifyContent: "center",
+                  padding: "0.9rem",
+                  fontSize: "1rem",
+                  opacity: loading ? 0.65 : 1,
+                  cursor: loading ? "not-allowed" : "pointer",
+                  borderRadius: "0.875rem",
+                }}
+              >
+                {loading ? (
+                  "Sending…"
+                ) : (
+                  <>
+                    Send Message <MdSend style={{ fontSize: "1.05rem" }} />
+                  </>
                 )}
-              </form>
-            </div>
+              </button>
+
+              <p style={{ textAlign: "center", color: "var(--muted)", fontSize: "0.8rem" }}>
+                <BiSolidBadgeCheck style={{ color: "#4ade80", verticalAlign: "middle", marginRight: 4 }} />
+                Your information is kept private and never shared.
+              </p>
+            </form>
           </div>
         </div>
-
-        {/* Final CTA */}
-        <div className="text-center mt-16 lg:mt-24 animate-slide-in-up delay-600">
-          <a
-            href="/projects"
-            className="group inline-flex items-center gap-3 px-8 sm:px-12 py-4 lg:py-5 bg-slate-900/50 backdrop-blur-sm text-white font-bold rounded-3xl hover:bg-slate-800 hover:shadow-lg hover:shadow-purple-500/25 border border-slate-800/50 hover:border-purple-500/50 transition-all duration-400 hover:scale-105 text-lg lg:text-xl shadow-xl"
-          >
-            <span>Or Browse My Work</span>
-            <FiArrowRight className="text-lg group-hover:translate-x-2 transition-transform" />
-          </a>
-        </div>
       </div>
-    </div>
+
+      <style>{`
+        @media (min-width: 900px) {
+          .contact-layout {
+            grid-template-columns: 1fr 1.15fr !important;
+          }
+        }
+        @keyframes pulse-dot {
+          0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+          50%      { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+        }
+      `}</style>
+    </main>
   );
 }

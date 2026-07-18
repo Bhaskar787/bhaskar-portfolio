@@ -7,7 +7,7 @@ export async function GET(req, { params }) {
   try {
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
 
 
     const contact = await Contact.findById(id);

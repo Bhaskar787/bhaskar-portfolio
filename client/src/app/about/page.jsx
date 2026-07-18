@@ -1,388 +1,297 @@
 "use client";
-import { useEffect, useState } from "react";
-import { FiGithub, FiLinkedin, FiMail, FiArrowRight } from "react-icons/fi";
-import { BsStars, BsBook, BsCodeSlash, BsBriefcase } from "react-icons/bs";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import gsap              from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { FaGithub, FaLinkedin, FaWhatsapp } from "react-icons/fa";
+import { SiGmail }       from "react-icons/si";
+import {
+  HiArrowNarrowRight, HiCode, HiBriefcase, HiAcademicCap,
+  HiLocationMarker, HiStar, HiExternalLink, HiDownload,
+} from "react-icons/hi";
+import { BiSolidBadgeCheck } from "react-icons/bi";
+import { RiSparklingFill }   from "react-icons/ri";
+import { MdWork, MdSchool }  from "react-icons/md";
+
+gsap.registerPlugin(ScrollTrigger);
+
+async function safeFetch(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const text = await res.text();
+    return JSON.parse(text);
+  } catch { return null; }
+}
 
 export default function About() {
-  const [data, setData] = useState({
-    about: null,
-    education: [],
-    skills: [],
-    experience: [],
-  });
+  const [data, setData]     = useState({ about: null, education: [], skills: [], experience: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAboutData = async () => {
+    (async () => {
       try {
-        const [aboutRes, eduRes, skillRes, expRes] = await Promise.all([
-          fetch("/api/about"),
-          fetch("/api/education"),
-          fetch("/api/skills"),
-          fetch("/api/experience"),
+        const [a, e, s, x] = await Promise.all([
+          safeFetch("/api/about"),
+          safeFetch("/api/education"),
+          safeFetch("/api/skills"),
+          safeFetch("/api/experience"),
         ]);
-
         setData({
-          about: await aboutRes.json(),
-          education: await eduRes.json(),
-          skills: await skillRes.json(),
-          experience: await expRes.json(),
+          about:      a && !Array.isArray(a) ? a : (Array.isArray(a) && a.length > 0 ? a[0] : null),
+          education:  Array.isArray(e) ? e : [],
+          skills:     Array.isArray(s) ? s : [],
+          experience: Array.isArray(x) ? x : [],
         });
-      } catch (error) {
-        console.error("Error fetching about page data:", error);
       } finally {
         setLoading(false);
       }
-    };
-    fetchAboutData();
+    })();
   }, []);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".about-hero-left",  { x: -60, opacity: 0, duration: 1.1, ease: "power3.out" });
+      gsap.from(".about-hero-right", { x: 60,  opacity: 0, duration: 1.1, delay: .15, ease: "power3.out" });
+
+      document.querySelectorAll(".abt-stat[data-target]").forEach((el) => {
+        ScrollTrigger.create({
+          trigger: el, start: "top 88%", once: true,
+          onEnter: () => gsap.to({ val: 0 }, {
+            val: +el.dataset.target, duration: 1.6, ease: "power2.out",
+            onUpdate() { el.textContent = Math.round(this.targets()[0].val) + el.dataset.suffix; },
+          }),
+        });
+      });
+
+      gsap.utils.toArray(".reveal-up").forEach((el) => {
+        gsap.from(el, { scrollTrigger: { trigger: el, start: "top 85%", once: true }, y: 48, opacity: 0, duration: .9, ease: "power3.out" });
+      });
+      gsap.utils.toArray(".reveal-left").forEach((el) => {
+        gsap.from(el, { scrollTrigger: { trigger: el, start: "top 85%", once: true }, x: -40, opacity: 0, duration: .85, ease: "power3.out" });
+      });
+      gsap.utils.toArray(".reveal-right").forEach((el) => {
+        gsap.from(el, { scrollTrigger: { trigger: el, start: "top 85%", once: true }, x: 40, opacity: 0, duration: .85, ease: "power3.out" });
+      });
+      gsap.utils.toArray(".reveal-stagger").forEach((wrap) => {
+        gsap.from(wrap.children, { scrollTrigger: { trigger: wrap, start: "top 82%", once: true }, y: 35, opacity: 0, duration: .7, stagger: .1, ease: "power3.out" });
+      });
+
+      document.querySelectorAll(".skill-bar-fill[data-pct]").forEach((bar) => {
+        const pct = bar.dataset.pct;
+        ScrollTrigger.create({
+          trigger: bar, start: "top 88%", once: true,
+          onEnter: () => gsap.to(bar, { width: pct + "%", duration: 1.4, ease: "power2.out" }),
+        });
+      });
+
+      gsap.utils.toArray(".timeline-item").forEach((item, i) => {
+        gsap.from(item, {
+          scrollTrigger: { trigger: item, start: "top 85%", once: true },
+          x: i % 2 === 0 ? -30 : 30, opacity: 0, duration: .75, ease: "power3.out",
+        });
+      });
+    });
+    return () => ctx.revert();
+  }, [loading]);
+
+  const Sk = ({ h = "32px", r = "1.25rem" }) => (
+    <div className="skeleton" style={{ height: h, borderRadius: r }} />
+  );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(168,85,247,0.08),transparent),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.08),transparent)]" />
-        
-        <div className="relative max-w-7xl mx-auto px-6 py-24 lg:py-32">
-          {/* Hero Section Skeleton */}
-          <div className="text-center mb-24 animate-slide-in-up">
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 mb-8 mx-auto max-w-max animate-pulse">
-              <div className="w-6 h-6 bg-slate-700 rounded-full animate-pulse" />
-              <div className="h-6 bg-slate-700 rounded-lg w-24 animate-pulse" />
+      <div style={{ background: "var(--bg)", minHeight: "100vh", padding: "7rem 1.5rem 4rem" }}>
+        <div className="container">
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "3rem", alignItems: "center", marginBottom: "4rem" }}>
+            <div className="skeleton" style={{ width: 280, height: 280, borderRadius: "50%" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <Sk h="48px" r=".75rem" /><Sk h="28px" r=".75rem" /><Sk h="80px" r=".75rem" />
             </div>
-            <div className="h-20 lg:h-28 bg-slate-800/50 backdrop-blur-sm rounded-3xl mx-auto w-4/5 lg:w-3/5 animate-pulse mb-6" />
-            <div className="h-8 bg-slate-800/50 backdrop-blur-sm rounded-2xl mx-auto w-96 max-w-full animate-pulse" />
-          </div>
-
-          {/* Profile & Bio Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center mb-24 animate-slide-in-up delay-200">
-            <div>
-              <div className="w-full max-w-md mx-auto lg:mx-0 h-96 bg-slate-800/50 backdrop-blur-sm rounded-3xl animate-pulse border-4 border-slate-700/50 shadow-2xl" />
-            </div>
-            
-            <div className="space-y-8 animate-slide-in-right">
-              <div>
-                <div className="h-12 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-64 max-w-full mb-4 animate-pulse" />
-                <div className="h-6 bg-slate-800/50 backdrop-blur-sm rounded-xl w-80 max-w-full animate-pulse" />
-                <div className="h-6 bg-slate-800/50 backdrop-blur-sm rounded-xl w-72 max-w-full mt-3 animate-pulse" />
-                <div className="h-6 bg-slate-800/50 backdrop-blur-sm rounded-xl w-64 max-w-full mt-2 animate-pulse" />
-              </div>
-              
-              {/* Stats Skeleton */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="p-6 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 animate-pulse">
-                    <div className="w-12 h-12 bg-slate-700 rounded-2xl mx-auto mb-3" />
-                    <div className="h-10 bg-slate-700 rounded-xl mx-auto w-20 mb-2" />
-                    <div className="h-4 bg-slate-700 rounded w-24 mx-auto" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Skills & Sections Grid Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
-            {/* Education Skeleton */}
-            <section className="animate-slide-in-left delay-400">
-              <div className="flex items-center gap-4 mb-12">
-                <div className="w-12 h-12 bg-slate-700 rounded-2xl animate-pulse" />
-                <div className="h-12 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-32 animate-pulse" />
-              </div>
-              <div className="space-y-6">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-3xl border border-slate-700/50 animate-pulse">
-                    <div className="h-8 bg-slate-700 rounded-xl w-72 max-w-full mb-3" />
-                    <div className="h-6 bg-slate-700 rounded-lg w-64 max-w-full mb-2" />
-                    <div className="h-5 bg-slate-700 rounded-lg w-80 max-w-full mb-4" />
-                    <div className="h-4 bg-slate-700 rounded w-96 max-w-full" />
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Skills Skeleton */}
-            <section className="animate-slide-in-right delay-400">
-              <div className="flex items-center gap-4 mb-12">
-                <div className="w-12 h-12 bg-slate-700 rounded-2xl animate-pulse" />
-                <div className="h-12 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-40 animate-pulse" />
-              </div>
-              <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="p-6 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 animate-pulse">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="h-6 bg-slate-700 rounded-lg w-32" />
-                      <div className="h-6 bg-slate-700 rounded-full w-12" />
-                    </div>
-                    <div className="h-2 bg-slate-700 rounded-full">
-                      <div className="h-2 bg-slate-600 rounded-full w-4/5 animate-pulse" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-
-          {/* Experience Timeline Skeleton */}
-          <section className="mt-24 animate-slide-in-up delay-600">
-            <div className="flex items-center gap-4 justify-center mb-16">
-              <div className="w-12 h-12 bg-slate-700 rounded-2xl animate-pulse" />
-              <div className="h-12 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-48 animate-pulse" />
-            </div>
-            <div className="relative">
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-slate-800/50" />
-              <div className="grid gap-8 md:grid-cols-2">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="group relative flex items-start gap-6 p-8 bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-700/50 animate-pulse">
-                    <div className="flex-shrink-0 w-24 h-14 lg:w-28 lg:h-16 bg-slate-700 rounded-2xl lg:rounded-3xl flex items-center justify-center" />
-                    <div className="flex-1">
-                      <div className="h-8 bg-slate-700 rounded-xl w-80 max-w-full mb-2" />
-                      <div className="h-5 bg-slate-700 rounded-lg w-full mb-4" />
-                      <div className="h-5 bg-slate-700 rounded-lg w-3/4 mb-2" />
-                      <div className="h-5 bg-slate-700 rounded-lg w-2/3" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Social & CTA Skeleton */}
-          <div className="text-center mt-24 animate-slide-in-up delay-800">
-            <div className="max-w-2xl mx-auto mb-12">
-              <div className="h-10 bg-slate-800/50 backdrop-blur-sm rounded-2xl w-72 max-w-full mx-auto mb-6 animate-pulse" />
-              <div className="h-6 bg-slate-800/50 backdrop-blur-sm rounded-xl w-96 max-w-full mx-auto animate-pulse" />
-            </div>
-            
-            {/* Social Links Skeleton */}
-            <div className="flex items-center justify-center gap-8 mb-12">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="w-16 h-16 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl animate-pulse shadow-xl" />
-              ))}
-            </div>
-
-            {/* CTA Skeleton */}
-            <div className="h-14 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl w-80 max-w-max mx-auto animate-pulse shadow-2xl" />
           </div>
         </div>
       </div>
     );
   }
 
-  // ... rest of your existing JSX remains exactly the same
+  const about = data.about || {};
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(168,85,247,0.08),transparent),radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.08),transparent)]" />
-      
-      <div className="relative max-w-7xl mx-auto px-6 py-24 lg:py-32">
-        {/* Hero Section */}
-        <div className="text-center mb-24 animate-slide-in-up">
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm rounded-2xl border border-purple-500/30 mb-8 mx-auto max-w-max">
-            <BsStars className="text-xl text-purple-400" />
-            <span className="text-lg font-semibold text-purple-100">About Me</span>
-          </div>
-          <h1 className="text-5xl lg:text-7xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent leading-tight mb-6">
-            The Story Behind
-          </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            {data.about?.description || "Passionate full-stack developer crafting exceptional digital experiences."}
-          </p>
-        </div>
+    <div style={{ background: "var(--bg)", minHeight: "100vh", overflowX: "hidden" }}>
 
-        {/* Profile & Bio */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center mb-24 animate-slide-in-up delay-200">
-          <div>
-            <img
-              className="w-full max-w-md mx-auto lg:mx-0 h-96 object-cover rounded-3xl shadow-2xl border-4 border-slate-800/50 hover:border-purple-500/75 hover:scale-105  transition-all duration-500 cursor-pointer"
-              src={data.about?.image || "/assets/images/logo.jpg"}
-              alt="Bhaskar Budha"
-            />
-          </div>
-          
-          <div className="space-y-8 animate-slide-in-right">
-            <div>
-              <h2 className="text-4xl font-black text-white mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Full Stack Developer
-              </h2>
-              <p className="text-xl text-slate-300 leading-relaxed">
-                {data.about?.bio || "Crafting pixel-perfect web experiences with modern technologies."}
-              </p>
+      {/* ══ HERO ══ */}
+      <section style={{ padding: "8rem 1.5rem 5rem", maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "3rem", alignItems: "center" }} className="about-two-col">
+
+          {/* Left — image */}
+          <div className="about-hero-left" style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ position: "relative", width: 280, height: 280, flexShrink: 0 }}>
+              <div className="profile-ring-outer">
+                <div className="profile-dot profile-dot--top" />
+                <div className="profile-dot profile-dot--right" style={{ background: "var(--accent2)" }} />
+                <div className="profile-dot profile-dot--bot"  style={{ background: "#f43f5e" }} />
+              </div>
+              <div className="profile-ring-inner" />
+              <img
+                src={about.image || "/assets/images/logo.jpg"}
+                alt="Bhaskar Budha"
+                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", border: "4px solid rgba(var(--accent-rgb),.45)", boxShadow: "0 0 0 10px rgba(var(--accent-rgb),.07), 0 30px 70px rgba(0,0,0,.55)", position: "relative", zIndex: 1 }}
+              />
+              <div style={{ position: "absolute", bottom: 12, right: -20, background: "var(--card)", border: "1px solid rgba(var(--accent-rgb),.3)", borderRadius: ".75rem", padding: ".6rem .9rem", display: "flex", alignItems: "center", gap: ".5rem", boxShadow: "0 8px 28px rgba(0,0,0,.4)", zIndex: 2 }}>
+                <HiCode style={{ color: "var(--accent)", fontSize: "1.1rem" }} />
+                <div><div style={{ fontSize: ".72rem", color: "var(--muted)", fontWeight: 600 }}>Coding since</div><div style={{ fontSize: ".9rem", fontWeight: 800, color: "var(--text-primary)" }}>2022</div></div>
+              </div>
+              <div style={{ position: "absolute", top: 20, left: -20, background: "var(--card)", border: "1px solid rgba(var(--accent2-rgb),.3)", borderRadius: ".75rem", padding: ".6rem .9rem", display: "flex", alignItems: "center", gap: ".5rem", boxShadow: "0 8px 28px rgba(0,0,0,.4)", zIndex: 2 }}>
+                <HiStar style={{ color: "var(--accent2)", fontSize: "1.1rem" }} />
+                <div><div style={{ fontSize: ".72rem", color: "var(--muted)", fontWeight: 600 }}>Experience</div><div style={{ fontSize: ".9rem", fontWeight: 800, color: "var(--text-primary)" }}>2+ Years</div></div>
+              </div>
             </div>
-            
+          </div>
+
+          {/* Right — info */}
+          <div className="about-hero-right">
+            <div style={{ marginBottom: ".75rem" }}>
+              <span className="section-badge"><RiSparklingFill style={{ color: "var(--accent-tint)" }} /> About Me</span>
+            </div>
+            <h1 style={{ fontSize: "clamp(2rem,5vw,3.2rem)", fontWeight: 900, color: "var(--text-primary)", lineHeight: 1.1, marginBottom: ".5rem" }}>Bhaskar Budha</h1>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: ".75rem" }} className="grad-text">
+              {about.title || "Full-Stack Developer & UI Engineer"}
+            </h2>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".75rem", marginBottom: "1.25rem" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: ".35rem", color: "var(--muted)", fontSize: ".85rem", fontWeight: 600 }}>
+                <HiLocationMarker style={{ color: "var(--accent)" }} /> {about.location || "Kathmandu, Nepal"}
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: ".35rem", background: "rgba(74,222,128,.1)", border: "1px solid rgba(74,222,128,.25)", borderRadius: 9999, padding: ".25rem .75rem", fontSize: ".78rem", fontWeight: 700, color: "#4ade80" }}>
+                <span style={{ width: 7, height: 7, background: "#4ade80", borderRadius: "50%", boxShadow: "0 0 6px #4ade80" }} />
+                Available for Work
+              </span>
+            </div>
+            <p style={{ color: "rgba(var(--text-primary-rgb),.75)", fontSize: ".97rem", lineHeight: 1.75, marginBottom: "1.75rem", maxWidth: 480 }}>
+              {about.bio || "I'm a passionate full-stack developer with a love for clean code and great UX. I specialise in building scalable web applications using modern JavaScript frameworks, cloud services, and thoughtful design."}
+            </p>
+
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="group p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-purple-500/50 hover:bg-slate-900/80 transition-all">
-                <BsBriefcase className="w-12 h-12 text-emerald-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <div className="text-3xl font-black text-white">2+</div>
-                <div className="text-slate-400 text-sm">Years Exp</div>
-              </div>
-              <div className="group p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-blue-500/50 hover:bg-slate-900/80 transition-all">
-                <BsBook className="w-12 h-12 text-blue-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <div className="text-3xl font-black text-white">50+</div>
-                <div className="text-slate-400 text-sm">Projects</div>
-              </div>
-              <div className="group p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-purple-500/50 hover:bg-slate-900/80 transition-all">
-                <BsStars className="w-12 h-12 text-purple-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <div className="text-3xl font-black text-white">99%</div>
-                <div className="text-slate-400 text-sm">Client Satisfaction</div>
-              </div>
-              <div className="group p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-pink-500/50 hover:bg-slate-900/80 transition-all">
-                <BsCodeSlash className="w-12 h-12 text-pink-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <div className="text-3xl font-black text-white">10+</div>
-                <div className="text-slate-400 text-sm">Tech Stack</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Skills & Sections Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
-          
-          {/* Education */}
-          <section className="animate-slide-in-left delay-400">
-            <h2 className="text-4xl font-black text-slate-200 mb-12 flex items-center gap-4">
-              <BsBook className="text-purple-400 text-3xl" />
-              Education
-            </h2>
-            <div className="space-y-6">
-              {data.education.map((edu, idx) => (
-                <article
-                  key={edu._id}
-                  className="group relative bg-slate-900/70 backdrop-blur-sm p-8 rounded-3xl border border-slate-800/50 hover:border-purple-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden"
-                  style={{ animationDelay: `${idx * 100}ms` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-transparent" />
-                  <div className="relative z-10">
-                    <h3 className="text-2xl font-black text-white mb-3">{edu.degree}</h3>
-                    <p className="text-purple-400 font-semibold mb-2">{edu.institution}</p>
-                    <p className="text-slate-500 mb-4">{edu.duration}</p>
-                    <p className="text-slate-400">{edu.description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          {/* Skills */}
-          <section className="animate-slide-in-right delay-400">
-            <h2 className="text-4xl font-black text-slate-200 mb-12 flex items-center gap-4">
-              <BsCodeSlash className="text-emerald-400 text-3xl" />
-              Skills & Tools
-            </h2>
-            <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-              {data.skills.map((skill, idx) => (
-                <div
-                  key={skill._id}
-                  className="group relative p-6 bg-slate-900/50 backdrop-blur-sm rounded-2xl border border-slate-800/50 hover:border-purple-500/75 hover:bg-slate-900/80 transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-purple-500/25"
-                  style={{ animationDelay: `${idx * 75}ms` }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-white text-lg">{skill.name}</span>
-                    {skill.level && (
-                      <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
-                        {skill.level}%
-                      </span>
-                    )}
-                  </div>
-                                    {skill.level && (
-                    <div className="w-full bg-slate-800 rounded-full h-2 mt-3">
-                      <div 
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full shadow-md transition-all duration-700"
-                        style={{ width: `${skill.level}%` }}
-                      />
-                    </div>
-                  )}
+            <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: ".75rem", marginBottom: "1.75rem" }}>
+              {[{ target: 50, suffix: "+", label: "Projects" }, { target: 2, suffix: "+", label: "Years" }, { target: 99, suffix: "%", label: "Uptime" }, { target: 10, suffix: "+", label: "Stacks" }].map(({ target, suffix, label }) => (
+                <div key={label} className="card" style={{ padding: ".9rem .5rem", textAlign: "center" }}>
+                  <div className="abt-stat" data-target={target} data-suffix={suffix} style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--text-primary)", lineHeight: 1 }}>0{suffix}</div>
+                  <div style={{ fontSize: ".72rem", color: "var(--muted)", fontWeight: 600, marginTop: ".25rem" }}>{label}</div>
                 </div>
               ))}
             </div>
-          </section>
-        </div>
 
-        {/* Experience Timeline */}
-        <section className="mt-24 animate-slide-in-up delay-600">
-          <h2 className="text-4xl font-black text-slate-200 mb-16 flex items-center gap-4 justify-center">
-            <BsBriefcase className="text-blue-400 text-3xl" />
-            Professional Journey
-          </h2>
-          <div className="relative">
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-purple-500 to-pink-500 opacity-20" />
-            <div className="grid gap-8 md:grid-cols-2">
-              {data.experience.map((exp, idx) => (
-               <article
-  key={exp._id}
-  className={`group relative flex items-start gap-6 p-8 bg-slate-900/70 backdrop-blur-sm rounded-3xl border border-slate-800/50 hover:border-blue-500/75 hover:bg-slate-900/90 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/25 animate-slide-in-up ${idx % 2 === 0 ? 'md:pr-0 md:border-r-4 md:border-r-blue-500/30' : 'md:pl-0 md:border-l-4 md:border-l-blue-500/30 md:text-right md:translate-x-8'}`}
-  style={{ animationDelay: `${idx * 150}ms` }}
->
-  {/* Larger Duration Box */}
-<div className={`flex-shrink-0 w-24 h-14 lg:w-28 lg:h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 rounded-2xl lg:rounded-3xl flex items-center justify-center shadow-2xl group-hover:shadow-blue-500/50 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border-2 border-white/20 backdrop-blur-sm ${idx % 2 === 0 ? 'order-1' : 'order-2 md:order-1'}`}>
-  <span className="font-mono font-bold text-xs lg:text-sm xl:text-base text-white uppercase tracking-widest px-2 py-1 text-center drop-shadow-md whitespace-nowrap">
-    {exp.duration}
-  </span>
-</div>
-  
-  <div className="flex-1 relative z-10">
-    <h3 className="text-2xl font-black text-white mb-2 group-hover:text-blue-400 transition-colors duration-300">
-      {exp.title}
-    </h3>
-    <p className="text-slate-400 leading-relaxed mb-4 text-lg">
-      {exp.description}
-    </p>
-  </div>
-</article>
-              ))}
+            {/* Social + CTA */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+              <a href="https://github.com/Bhaskar787" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--gh" aria-label="GitHub"><FaGithub /></a>
+              <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--li" aria-label="LinkedIn"><FaLinkedin /></a>
+              <a href="mailto:budhabhaskar11@gmail.com" className="social-btn social-btn--gm" aria-label="Email"><SiGmail /></a>
+              <a href="https://wa.me/9779825630086" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--wa" aria-label="WhatsApp"><FaWhatsapp /></a>
+              <Link href="/contact" className="btn-primary" style={{ marginLeft: "auto" }}>Hire Me <HiArrowNarrowRight /></Link>
+              {about.resume && (
+                <a href={about.resume} target="_blank" rel="noopener noreferrer" download className="btn-outline">
+                  Download PDF <HiDownload />
+                </a>
+              )}
             </div>
           </div>
-        </section>
-
-        {/* Social & CTA */}
-        <div className="text-center mt-24 animate-slide-in-up delay-800">
-          <div className="max-w-2xl mx-auto mb-12">
-            <h3 className="text-3xl font-black text-white mb-6">
-              Let's Create Something Amazing
-            </h3>
-            <p className="text-xl text-slate-400 mb-8">
-              Ready to bring your vision to life? I'm just an email away.
-            </p>
-          </div>
-          
-          {/* Social Links */}
-          <div className="flex items-center justify-center gap-8 mb-12">
-            <a 
-              href="https://github.com/Bhaskar787" 
-              target="_blank" 
-              className="group w-16 h-16 bg-slate-900 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 border border-slate-800/50 hover:border-purple-500/75 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-purple-500/25 transition-all duration-400 hover:scale-110 hover:rotate-12 hover:-translate-y-2"
-              rel="noopener noreferrer"
-            >
-              <FiGithub className="group-hover:text-white" />
-            </a>
-            <a 
-              href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" 
-              target="_blank" 
-              className="group w-16 h-16 bg-slate-900 hover:bg-gradient-to-r hover:from-blue-600 hover:to-cyan-500 border border-slate-800/50 hover:border-blue-500/75 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-blue-500/25 transition-all duration-400 hover:scale-110 hover:rotate-12 hover:-translate-y-2"
-              rel="noopener noreferrer"
-            >
-              <FiLinkedin className="group-hover:text-white" />
-            </a>
-            <a 
-              href="mailto:budhabhaskar11@gmail.com" 
-              className="group w-16 h-16 bg-slate-900 hover:bg-gradient-to-r hover:from-emerald-600 hover:to-teal-500 border border-slate-800/50 hover:border-emerald-500/75 rounded-2xl flex items-center justify-center text-2xl shadow-xl hover:shadow-emerald-500/25 transition-all duration-400 hover:scale-110 hover:rotate-12 hover:-translate-y-2"
-            >
-              <FiMail className="group-hover:text-white" />
-            </a>
-          </div>
-
-          {/* CTA */}
-          <a
-            href="/contact"
-            className="group relative px-12 py-5 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white font-bold rounded-3xl hover:from-purple-500 hover:via-pink-500 hover:to-blue-500 shadow-2xl hover:shadow-purple-500/50 transform hover:-translate-y-3 hover:scale-[1.05] transition-all duration-700 inline-flex items-center gap-3 text-xl mx-auto block max-w-max"
-          >
-            <span>Start Collaboration</span>
-            <FiArrowRight className="text-lg group-hover:translate-x-3 transition-transform" />
-            <div className="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 rounded-3xl blur-sm transition-all scale-0 group-hover:scale-100" />
-          </a>
         </div>
-      </div>
+      </section>
+
+      {/* ══ SKILLS ══ */}
+      {data.skills.length > 0 && (
+        <section style={{ padding: "4rem 1.5rem", maxWidth: 1100, margin: "0 auto" }}>
+          <div className="reveal-up" style={{ marginBottom: "2.5rem" }}>
+            <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}><HiCode /> Tech Stack</span>
+            <h2 style={{ fontSize: "clamp(1.6rem,3.5vw,2.4rem)", fontWeight: 900, color: "var(--text-primary)" }}>Skills &amp; Proficiency</h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "1rem" }}>
+            {data.skills.map((sk) => (
+              <div key={sk._id} className="card reveal-left" style={{ padding: "1.15rem 1.4rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: ".55rem" }}>
+                  <span style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: ".92rem" }}>{sk.name}</span>
+                  {sk.level && <span style={{ fontSize: ".78rem", fontWeight: 700, color: "var(--accent)" }}>{sk.level}%</span>}
+                </div>
+                {sk.level && <div className="skill-bar-bg"><div className="skill-bar-fill" data-pct={sk.level} /></div>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ══ EDUCATION ══ */}
+      {data.education.length > 0 && (
+        <section style={{ padding: "4rem 1.5rem", maxWidth: 1100, margin: "0 auto" }}>
+          <div className="reveal-up" style={{ marginBottom: "2.5rem" }}>
+            <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}><MdSchool /> Education</span>
+            <h2 style={{ fontSize: "clamp(1.6rem,3.5vw,2.4rem)", fontWeight: 900, color: "var(--text-primary)" }}>Academic Background</h2>
+          </div>
+          <div className="timeline">
+            {data.education.map((edu) => (
+              <div key={edu._id} className="timeline-item">
+                <div className="timeline-dot timeline-dot--edu" />
+                <div className="card" style={{ padding: "1.5rem 1.75rem" }}>
+                  <div style={{ display: "inline-block", padding: ".25rem .75rem", background: "rgba(var(--accent2-rgb),.12)", border: "1px solid rgba(var(--accent2-rgb),.25)", borderRadius: 9999, fontSize: ".75rem", fontWeight: 700, color: "var(--accent2)", marginBottom: ".75rem" }}>{edu.duration}</div>
+                  <h3 style={{ fontWeight: 800, fontSize: "1.15rem", color: "var(--text-primary)", marginBottom: ".3rem" }}>{edu.degree}</h3>
+                  <p style={{ color: "var(--accent)", fontWeight: 700, fontSize: ".9rem", marginBottom: ".5rem" }}>{edu.institution}</p>
+                  {edu.description && <p style={{ color: "var(--muted)", fontSize: ".88rem", lineHeight: 1.65 }}>{edu.description}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ══ EXPERIENCE ══ */}
+      {data.experience.length > 0 && (
+        <section style={{ padding: "4rem 1.5rem", maxWidth: 1100, margin: "0 auto" }}>
+          <div className="reveal-up" style={{ marginBottom: "2.5rem" }}>
+            <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}><MdWork /> Experience</span>
+            <h2 style={{ fontSize: "clamp(1.6rem,3.5vw,2.4rem)", fontWeight: 900, color: "var(--text-primary)" }}>Professional Journey</h2>
+          </div>
+          <div className="timeline">
+            {data.experience.map((exp) => (
+              <div key={exp._id} className="timeline-item">
+                <div className="timeline-dot" />
+                <div className="card" style={{ padding: "1.5rem 1.75rem", display: "flex", gap: "1.2rem", alignItems: "flex-start" }}>
+                  {exp.image && (
+                    <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: ".75rem", overflow: "hidden", border: "1px solid var(--border)" }}>
+                      <img src={exp.image} alt={exp.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "inline-block", padding: ".25rem .75rem", background: "rgba(var(--accent-rgb),.12)", border: "1px solid rgba(var(--accent-rgb),.25)", borderRadius: 9999, fontSize: ".75rem", fontWeight: 700, color: "var(--accent-tint)", marginBottom: ".6rem" }}>{exp.duration}</div>
+                    <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text-primary)", marginBottom: ".4rem" }}>{exp.title}</h3>
+                    <p style={{ color: "var(--muted)", fontSize: ".88rem", lineHeight: 1.65 }}>{exp.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ══ CTA ══ */}
+      <section style={{ padding: "4rem 1.5rem 6rem" }}>
+        <div className="reveal-up" style={{ maxWidth: 720, margin: "0 auto", background: "linear-gradient(135deg, rgba(var(--accent-rgb),.13) 0%, rgba(var(--accent2-rgb),.07) 100%)", border: "1px solid rgba(var(--accent-rgb),.2)", borderRadius: "1.75rem", padding: "clamp(2rem,5vw,3.5rem)", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -50, right: -50, width: 200, height: 200, background: "radial-gradient(circle, rgba(var(--accent-rgb),.18) 0%, transparent 70%)", borderRadius: "50%" }} />
+          <span className="section-badge" style={{ marginBottom: "1rem", display: "inline-flex" }}><BiSolidBadgeCheck style={{ color: "#4ade80" }} /> Open to Work</span>
+          <h2 style={{ fontSize: "clamp(1.6rem,3.5vw,2.4rem)", fontWeight: 900, color: "var(--text-primary)", marginBottom: ".75rem" }}>
+            Let's Build Something <span className="grad-text">Amazing</span>
+          </h2>
+          <p style={{ color: "var(--muted)", maxWidth: 440, margin: "0 auto 2rem", fontSize: ".95rem" }}>
+            I'm always open to exciting opportunities, collaborations, and interesting projects.
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/contact" className="btn-primary">Get In Touch <HiArrowNarrowRight /></Link>
+            <Link href="/projects" className="btn-outline">See My Work</Link>
+          </div>
+        </div>
+      </section>
+
+      <style>{`
+        @media (min-width: 768px) { .about-two-col { grid-template-columns: auto 1fr !important; } }
+        .timeline-item .card { margin-bottom: 0; }
+      `}</style>
     </div>
   );
 }

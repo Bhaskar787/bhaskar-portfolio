@@ -1,138 +1,386 @@
-import { 
-  BiLogoGithub, 
-  BiLogoLinkedin, 
-  BiMailSend,
-  BiHome,
-  BiUser,
-  BiBook,
-  BiMessageRounded
-} from "react-icons/bi";
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { FaGithub, FaLinkedin, FaWhatsapp } from "react-icons/fa";
+import { SiGmail } from "react-icons/si";
+import {
+  HiCode,
+  HiLocationMarker,
+  HiMail,
+  HiPhone,
+} from "react-icons/hi";
+
+const navLinks = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/projects", label: "Projects" },
+  { href: "/services", label: "Services" },
+  { href: "/contact", label: "Contact" },
+];
+
+const services = [
+  "Full-Stack Development",
+  "API Architecture",
+  "UI / UX Design",
+  "Performance Optimisation",
+  "Database Design",
+  "Code Review",
+];
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/settings");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && !Array.isArray(data)) setSettings(data);
+      } catch {}
+    })();
+  }, []);
+
+  const siteName = settings?.siteName || "Bhaskar Budha";
+  const logo = settings?.logo || "";
+  const initials = siteName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+
   return (
-    <footer 
-      className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-slate-300 border-t-2 border-slate-700/50 relative z-10"
-      role="contentinfo"
+    <footer
+      style={{
+        position: "relative",
+        background: "var(--bg2)",
+        borderTop: "1px solid var(--border)",
+        overflow: "hidden",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-12">
-          
-          {/* Brand Section */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                <span className="text-white font-bold text-lg">BB</span>
+      {/* subtle glow top */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 600,
+          height: 1,
+          background: "linear-gradient(90deg, transparent, rgba(var(--accent-rgb),0.6), transparent)",
+        }}
+      />
+      {/* background radial blobs */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: -100,
+          left: -100,
+          width: 400,
+          height: 400,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(var(--accent-rgb),0.07) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: -80,
+          right: -80,
+          width: 350,
+          height: 350,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(var(--accent2-rgb),0.06) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <div
+        className="container"
+        style={{ paddingTop: "4rem", paddingBottom: "2rem", position: "relative", zIndex: 1 }}
+      >
+        {/* ── Main Grid ── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "3rem",
+            marginBottom: "3rem",
+          }}
+        >
+          {/* Brand */}
+          <div style={{ gridColumn: "span 1" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  background: logo ? "transparent" : "linear-gradient(135deg, var(--accent), var(--accent2))",
+                  borderRadius: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 900,
+                  fontSize: "0.875rem",
+                  color: "var(--on-accent)",
+                  overflow: "hidden",
+                  boxShadow: logo ? "none" : "0 4px 16px rgba(var(--accent-rgb),0.4)",
+                }}
+              >
+                {logo ? <img src={logo} alt={siteName} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
               </div>
-              <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
-                Bhaskar Portfolio
-              </h2>
+              <span style={{ fontWeight: 800, fontSize: "1.0625rem", color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+                {siteName}
+              </span>
             </div>
-            <p className="text-sm leading-relaxed opacity-80 max-w-md">
-              Crafting exceptional digital experiences with passion and precision.
+            <p
+              style={{
+                color: "var(--muted)",
+                fontSize: "0.9rem",
+                lineHeight: 1.75,
+                maxWidth: 260,
+                marginBottom: "1.25rem",
+              }}
+            >
+              Full-stack developer crafting performant, pixel-perfect web applications. Based in Nepal.
             </p>
+
+            {/* location */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                color: "var(--muted)",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                marginBottom: "1.25rem",
+              }}
+            >
+              <HiLocationMarker style={{ color: "var(--accent)", fontSize: "1rem" }} />
+              Kathmandu, Nepal
+            </div>
+
+            {/* Social icons */}
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              {[
+                { href: "https://github.com/Bhaskar787", Icon: FaGithub, cls: "social-btn--gh", label: "GitHub" },
+                { href: "https://www.linkedin.com/in/bhaskar-budha-1a58b83b6", Icon: FaLinkedin, cls: "social-btn--li", label: "LinkedIn" },
+                { href: "mailto:budhabhaskar11@gmail.com", Icon: SiGmail, cls: "social-btn--gm", label: "Email" },
+                { href: "https://wa.me/9779825630086", Icon: FaWhatsapp, cls: "social-btn--wa", label: "WhatsApp" },
+              ].map(({ href, Icon, cls, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  aria-label={label}
+                  className={`social-btn ${cls}`}
+                >
+                  <Icon />
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Navigation */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-6 flex items-center space-x-2">
-              <BiHome className="text-purple-400 flex-shrink-0" />
-              <span>Quick Links</span>
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { href: "/", label: "Home", icon: BiHome },
-                { href: "/about", label: "About", icon: BiUser },
-                { href: "/projects", label: "Projects", icon: BiBook },
-                { href: "/contact", label: "Contact", icon: BiMessageRounded }
-              ].map(({ href, label, icon: Icon }) => (
-                <li key={href}>
-                  <a 
-                    href={href}
-                    className="group flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800/80 hover:text-purple-300 transition-all duration-300 border border-slate-700/50 hover:border-slate-600 hover:shadow-md z-20 relative pointer-events-auto block w-full"
-                    style={{ WebkitTapHighlightColor: 'transparent' }}
+            <p
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                marginBottom: "1.25rem",
+              }}
+            >
+              Navigation
+            </p>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+              {navLinks.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    style={{
+                      color: "rgba(var(--text-primary-rgb),0.6)",
+                      fontSize: "0.9375rem",
+                      textDecoration: "none",
+                      transition: "color 0.2s, padding-left 0.2s",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "var(--text-primary)";
+                      e.currentTarget.style.paddingLeft = "0.25rem";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "rgba(var(--text-primary-rgb),0.6)";
+                      e.currentTarget.style.paddingLeft = "0";
+                    }}
                   >
-                    <Icon className="text-lg flex-shrink-0 group-hover:text-purple-400 transition-colors" />
-                    <span className="font-medium">{label}</span>
-                  </a>
+                    <span
+                      style={{
+                        width: 4,
+                        height: 4,
+                        borderRadius: "50%",
+                        background: "var(--accent)",
+                        flexShrink: 0,
+                        opacity: 0.5,
+                      }}
+                    />
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Connect Section */}
+          {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-6 flex items-center space-x-2">
-              <span>Connect</span>
-            </h3>
-            <div className="space-y-3 mb-6">
-              <p className="text-sm opacity-80 mb-3">Let's connect and create something amazing together!</p>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  {
-                    href: "https://github.com/Bhaskar787",
-                    icon: BiLogoGithub,
-                    label: "GitHub"
-                  },
-                  {
-                    href: "https://www.linkedin.com/in/bhaskar-budha-1a58b83b6",
-                    icon: BiLogoLinkedin,
-                    label: "LinkedIn"
-                  },
-                  {
-                    href: "mailto:budhabhaskar11@gmail.com?subject=Hello%20Bhaskar&body=I%20want%20to%20contact%20you.",
-                    icon: BiMailSend,
-                    label: "Email"
-                  }
-                ].map(({ href, icon: Icon, label }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group w-12 h-12 bg-slate-800/60 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:shadow-2xl rounded-xl flex items-center justify-center transition-all duration-300 border-2 border-slate-700/60 hover:border-purple-400/60 hover:scale-110 z-20 relative pointer-events-auto shadow-lg"
-                    aria-label={`Visit ${label}`}
-                    style={{ WebkitTapHighlightColor: 'transparent' }}
+            <p
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                marginBottom: "1.25rem",
+              }}
+            >
+              Services
+            </p>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+              {services.map((s) => (
+                <li key={s}>
+                  <Link
+                    href="/services"
+                    style={{
+                      color: "rgba(var(--text-primary-rgb),0.6)",
+                      fontSize: "0.9rem",
+                      textDecoration: "none",
+                      transition: "color 0.2s",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(var(--text-primary-rgb),0.6)"; }}
                   >
-                    <Icon className="text-xl group-hover:text-white transition-colors flex-shrink-0" />
-                  </a>
-                ))}
-              </div>
-            </div>
+                    <HiCode style={{ color: "var(--accent)", fontSize: "0.8rem", flexShrink: 0 }} />
+                    {s}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Newsletter Signup */}
+          {/* Contact */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-6">Stay Updated</h3>
-            <p className="text-sm opacity-80 mb-4">Get the latest updates on new projects and articles.</p>
-            <form className="flex flex-col sm:flex-row gap-2" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 bg-slate-800/70 border-2 border-slate-700/70 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-sm placeholder-slate-400 z-10 relative pointer-events-auto"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
-              />
-              <button 
-                type="submit"
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 whitespace-nowrap z-20 relative pointer-events-auto active:scale-95"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
-              >
-                Subscribe
-              </button>
-            </form>
-            <p className="text-xs opacity-60 mt-3">No spam, ever. Unsubscribe anytime.</p>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                marginBottom: "1.25rem",
+              }}
+            >
+              Get In Touch
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+              {[
+                { Icon: HiMail, label: "Email", value: "budhabhaskar11@gmail.com", href: "mailto:budhabhaskar11@gmail.com" },
+                { Icon: HiPhone, label: "Phone", value: "+977 9825630086", href: "tel:+9779825630086" },
+                { Icon: FaGithub, label: "GitHub", value: "Bhaskar787", href: "https://github.com/Bhaskar787" },
+              ].map(({ Icon, label, value, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "0.6rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: "8px",
+                      background: "rgba(var(--accent-rgb),0.1)",
+                      border: "1px solid rgba(var(--accent-rgb),0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--accent)",
+                      fontSize: "0.85rem",
+                      flexShrink: 0,
+                      marginTop: 2,
+                    }}
+                  >
+                    <Icon />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.72rem", color: "var(--muted)", fontWeight: 600, marginBottom: "0.1rem" }}>
+                      {label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.875rem",
+                        color: "rgba(var(--text-primary-rgb),0.65)",
+                        transition: "color 0.2s",
+                        wordBreak: "break-all",
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(var(--text-primary-rgb),0.65)"; }}
+                    >
+                      {value}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-slate-700/40 pt-8 pb-6 flex flex-col md:flex-row justify-between items-center text-sm opacity-80">
-          <p className="text-center md:text-left">
-            &copy; {new Date().getFullYear()} Bhaskar Budha. 
-            <span className="hidden md:inline mx-2">•</span>
-            <span className="md:hidden block my-1">•</span>
-            All rights reserved.
+        {/* ── Bottom bar ── */}
+        <div
+          style={{
+            borderTop: "1px solid var(--border)",
+            paddingTop: "1.5rem",
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "0.75rem",
+          }}
+        >
+          <p style={{ color: "var(--muted)", fontSize: "0.875rem" }}>
+            © {year} {siteName}. All rights reserved.
           </p>
-          
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ color: "var(--muted)", fontSize: "0.875rem" }}>Built with</span>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.3rem",
+                padding: "0.2rem 0.6rem",
+                background: "rgba(var(--accent-rgb),0.1)",
+                border: "1px solid rgba(var(--accent-rgb),0.2)",
+                borderRadius: 9999,
+                fontSize: "0.78rem",
+                fontWeight: 600,
+                color: "var(--accent-tint)",
+              }}
+            >
+              Next.js &amp; MongoDB
+            </span>
+          </div>
         </div>
       </div>
     </footer>

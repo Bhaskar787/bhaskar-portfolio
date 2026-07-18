@@ -13,31 +13,21 @@ export async function GET() {
   }
 }
 
-// POST a new education entry (JSON only)
+// POST a new education entry (JSON body)
 export async function POST(request) {
   try {
     await connectDB();
-    
-    // Parse JSON instead of FormData
     const body = await request.json();
     const { institution, degree, duration, description } = body;
-    
 
-    // Validation
     if (!institution || !degree || !duration) {
       return NextResponse.json(
-        { error: "Institution, degree, and duration are required" }, 
+        { error: "Institution, degree, and duration are required" },
         { status: 400 }
       );
     }
 
-    const newEdu = await Education.create({
-      institution,
-      degree,
-      duration,
-      description,
-    });
-
+    const newEdu = await Education.create({ institution, degree, duration, description });
     return NextResponse.json(newEdu, { status: 201 });
   } catch (error) {
     console.error("Education POST error:", error);

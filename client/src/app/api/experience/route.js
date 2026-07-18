@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import connectDB from "@/lib/db";
-
-import cloudinary from "@/lib/cloudinary";
 import Experience from '@/models/Experience';
 
 // GET all experiences
@@ -15,44 +13,21 @@ export async function GET() {
   }
 }
 
-// POST a new experience (with Cloudinary image)
+// POST a new experience (JSON body: title, duration, description, image)
 export async function POST(request) {
   try {
     await connectDB();
-    const formData = await request.formData();
-    
-    const title = formData.get("title");
-    const duration = formData.get("duration");
-    const description = formData.get("description");
-    const file = formData.get("image");
+    const body = await request.json();
+    const { title, duration, description, image } = body;
 
-    let imageUrl = "";
-
-    if (file && typeof file !== "string") {
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      const uploadResponse = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder: "portfolio_experience" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(buffer);
-      });
-      imageUrl = uploadResponse.secure_url;
+    if (!title || !duration || !description) {
+      return NextResponse.json({ error: "Title, duration, and description are required" }, { status: 400 });
     }
 
-    const newExp = await Experience.create({
-      title,
-      duration,
-      description,
-      image: imageUrl,
-    });
-
+    const newExp = await Experience.create({ title, duration, description, image });
     return NextResponse.json(newExp, { status: 201 });
   } catch (error) {
+    console.error("Experience POST error:", error);
     return NextResponse.json({ error: "Creation failed" }, { status: 500 });
   }
 }

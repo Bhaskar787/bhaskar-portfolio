@@ -1,55 +1,52 @@
 import { NextResponse } from 'next/server';
 import connectDB from "@/lib/db";
-import Experience from '@/models/Experience';
+import SiteSettings from '@/models/SiteSettings';
 
-// GET a single experience
+// GET a single settings doc
 export async function GET(request, { params }) {
   try {
     await connectDB();
     const { id } = await params;
-    const exp = await Experience.findById(id);
-    if (!exp) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    return NextResponse.json(exp);
+    const settings = await SiteSettings.findById(id);
+    if (!settings) return NextResponse.json({ error: "Settings not found" }, { status: 404 });
+    return NextResponse.json(settings);
   } catch (error) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 }
 
-// PUT (Edit) Experience — JSON body
+// PUT (Update) the site settings doc — JSON body
 export async function PUT(request, { params }) {
   try {
     await connectDB();
     const { id } = await params;
     const body = await request.json();
-    const { title, duration, description, image } = body;
+    const { siteName, logo } = body;
 
-    const updatedExp = await Experience.findByIdAndUpdate(
+    const updatedSettings = await SiteSettings.findByIdAndUpdate(
       id,
-      { title, duration, description, image },
+      { siteName, logo },
       { new: true, runValidators: true }
     );
 
-    if (!updatedExp) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!updatedSettings) {
+      return NextResponse.json({ error: "Settings not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updatedExp);
+    return NextResponse.json(updatedSettings);
   } catch (error) {
-    console.error("Experience PUT error:", error);
+    console.error("Site settings PUT error:", error);
     return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 }
 
-// DELETE Experience
+// DELETE the settings doc
 export async function DELETE(request, { params }) {
   try {
     await connectDB();
     const { id } = await params;
-    const exp = await Experience.findById(id);
 
-    if (!exp) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-    await Experience.findByIdAndDelete(id);
+    await SiteSettings.findByIdAndDelete(id);
     return NextResponse.json({ message: "Deleted successfully" });
   } catch (error) {
     return NextResponse.json({ error: "Delete failed" }, { status: 500 });

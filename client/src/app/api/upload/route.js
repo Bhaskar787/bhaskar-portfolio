@@ -13,8 +13,10 @@ export async function POST(request){
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
+        // "auto" lets Cloudinary detect images vs. non-image files (e.g. PDFs) correctly
+        const resourceType = data.get("resourceType") || "auto";
 
-        const uploadRes = await new Promise ((resolve, reject) => { cloudinary.uploader.upload_stream({folder: "portfolio"}, (error, result) => {
+        const uploadRes = await new Promise ((resolve, reject) => { cloudinary.uploader.upload_stream({folder: "portfolio", resource_type: resourceType}, (error, result) => {
             if(error) reject(error);
             else resolve(result);
         }).end(buffer)})

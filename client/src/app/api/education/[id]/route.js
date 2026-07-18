@@ -1,44 +1,36 @@
 import { NextResponse } from 'next/server';
 import connectDB from "@/lib/db";
 import Education from '@/models/Education';
-import cloudinary from "@/lib/cloudinary";
 
-// PUT (Update) Education entry
+// GET a single education entry
+export async function GET(request, { params }) {
+  try {
+    await connectDB();
+    const { id } = await params;
+    const edu = await Education.findById(id);
+    if (!edu) return NextResponse.json({ error: "Education entry not found" }, { status: 404 });
+    return NextResponse.json(edu);
+  } catch (error) {
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+  }
+}
+
+// PUT (Update) Education entry — JSON body
 export async function PUT(request, { params }) {
   try {
     await connectDB();
-    const { id } = await params; 
-    const formData = await request.formData();
-    
-    const institution = formData.get("institution");
-    const degree = formData.get("degree");
-    const duration = formData.get("duration");
-    const description = formData.get("description");
-    const file = formData.get("image");
+    const { id } = await params;
+    const body = await request.json();
+    const { institution, degree, duration, description } = body;
 
-    let updateData = { institution, degree, duration, description };
+    const updatedEdu = await Education.findByIdAndUpdate(
+      id,
+      { institution, degree, duration, description },
+      { new: true, runValidators: true }
+    );
 
-    // If a new image file is provided, upload it
-    if (file && typeof file !== "string") {
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      const uploadResponse = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder: "portfolio_education" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(buffer);
-      });
-      updateData.image = uploadResponse.secure_url;
-    }
-
-    const updatedEdu = await Education.findByIdAndUpdate(id, updateData, { new: true });
-    
     if (!updatedEdu) {
-        return NextResponse.json({ error: "Education entry not found" }, { status: 404 });
+      return NextResponse.json({ error: "Education entry not found" }, { status: 404 });
     }
 
     return NextResponse.json(updatedEdu);
@@ -56,17 +48,7 @@ export async function DELETE(request, { params }) {
 
     const edu = await Education.findById(id);
     if (!edu) {
-        return NextResponse.json({ error: "Education entry not found" }, { status: 404 });
-    }
-
-    // Optional: Delete the image from Cloudinary to save space
-    if (edu.image) {
-      try {
-        const publicId = edu.image.split('/').pop().split('.')[0]; 
-        await cloudinary.uploader.destroy(`portfolio_education/${publicId}`);
-      } catch (err) {
-        console.error("Cloudinary delete error:", err);
-      }
+      return NextResponse.json({ error: "Education entry not found" }, { status: 404 });
     }
 
     await Education.findByIdAndDelete(id);
