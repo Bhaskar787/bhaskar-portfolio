@@ -171,7 +171,7 @@ export default function About() {
             </p>
 
             {/* Stats */}
-            <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: ".75rem", marginBottom: "1.75rem" }}>
+            <div className="reveal-stagger about-stats" style={{ display: "grid", gap: ".75rem", marginBottom: "1.75rem" }}>
               {[{ target: 50, suffix: "+", label: "Projects" }, { target: 2, suffix: "+", label: "Years" }, { target: 99, suffix: "%", label: "Uptime" }, { target: 10, suffix: "+", label: "Stacks" }].map(({ target, suffix, label }) => (
                 <div key={label} className="card" style={{ padding: ".9rem .5rem", textAlign: "center" }}>
                   <div className="abt-stat" data-target={target} data-suffix={suffix} style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--text-primary)", lineHeight: 1 }}>0{suffix}</div>
@@ -180,13 +180,17 @@ export default function About() {
               ))}
             </div>
 
-            {/* Social + CTA */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+            {/* Social row */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center", marginBottom: "1rem" }}>
               <a href="https://github.com/Bhaskar787" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--gh" aria-label="GitHub"><FaGithub /></a>
               <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--li" aria-label="LinkedIn"><FaLinkedin /></a>
               <a href="mailto:budhabhaskar11@gmail.com" className="social-btn social-btn--gm" aria-label="Email"><SiGmail /></a>
               <a href="https://wa.me/9779825630086" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--wa" aria-label="WhatsApp"><FaWhatsapp /></a>
-              <Link href="/contact" className="btn-primary" style={{ marginLeft: "auto" }}>Hire Me <HiArrowNarrowRight /></Link>
+            </div>
+
+            {/* CTA row */}
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+              <Link href="/contact" className="btn-primary">Hire Me <HiArrowNarrowRight /></Link>
               {about.resume && (
                 <a href={about.resume} target="_blank" rel="noopener noreferrer" download className="btn-outline">
                   Download PDF <HiDownload />
@@ -291,6 +295,10 @@ export default function About() {
       <style>{`
         @media (min-width: 768px) { .about-two-col { grid-template-columns: auto 1fr !important; } }
         .timeline-item .card { margin-bottom: 0; }
+
+        /* Stats grid: 2 columns on mobile, 4 on larger screens */
+        .about-stats { grid-template-columns: repeat(2, 1fr); }
+        @media (min-width: 640px) { .about-stats { grid-template-columns: repeat(4, 1fr); } }
       `}</style>
     </div>
   );
