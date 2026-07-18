@@ -39,6 +39,163 @@ async function safeFetch(url) {
   }
 }
 
+/* ────────────────────────────────────────────────────────────
+   useTilt — subtle 3D pointer-tilt for "Dribbble style" cards.
+   Applies rotateX/rotateY + a moving radial highlight via CSS vars,
+   so the glow tracks the cursor without extra DOM nodes.
+──────────────────────────────────────────────────────────── */
+function useTilt(max = 8) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = null;
+
+    const onMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width;   // 0 → 1
+      const py = (e.clientY - rect.top) / rect.height;    // 0 → 1
+      const rx = (py - 0.5) * -max;
+      const ry = (px - 0.5) * max;
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        gsap.to(el, { rotateX: rx, rotateY: ry, duration: 0.5, ease: "power2.out", transformPerspective: 800 });
+        el.style.setProperty("--mx", `${px * 100}%`);
+        el.style.setProperty("--my", `${py * 100}%`);
+      });
+    };
+    const onLeave = () => {
+      gsap.to(el, { rotateX: 0, rotateY: 0, duration: 0.7, ease: "elastic.out(1,0.6)" });
+    };
+
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [max]);
+  return ref;
+}
+
+/* Magnetic button — nudges toward the cursor within its bounds. */
+function useMagnetic(strength = 0.35) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) * strength;
+      const y = (e.clientY - rect.top - rect.height / 2) * strength;
+      gsap.to(el, { x, y, duration: 0.4, ease: "power2.out" });
+    };
+    const onLeave = () => gsap.to(el, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1,0.5)" });
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, [strength]);
+  return ref;
+}
+
+/* ══ Dribbble-style Project Card ══ */
+function ProjectCard({ proj, index }) {
+  const tiltRef = useTilt(6);
+  return (
+    <article
+      ref={tiltRef}
+      className="proj-card-v2"
+      style={{ transformStyle: "preserve-3d" }}
+    >
+      <span className="proj-card-v2__index">{String(index + 1).padStart(2, "0")}</span>
+
+      <div className="proj-card-v2__media">
+        <img src={proj.image} alt={proj.title} />
+        <div className="proj-card-v2__scrim" />
+        {proj.githubLink && (
+          <a
+            href={proj.githubLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="proj-card-v2__ghbadge"
+            aria-label="View source on GitHub"
+          >
+            <FaGithub />
+          </a>
+        )}
+      </div>
+
+      <div className="proj-card-v2__body">
+        <h3 className="line-clamp-2">{proj.title}</h3>
+        <p className="line-clamp-3">{proj.description}</p>
+
+        {proj.skills?.length > 0 && (
+          <div className="proj-card-v2__tags">
+            {proj.skills.map((tag) => (
+              <span key={tag} className="tag">{tag}</span>
+            ))}
+          </div>
+        )}
+
+        <div className="proj-card-v2__actions">
+          {proj.liveLink && (
+            <a href={proj.liveLink} target="_blank" rel="noopener noreferrer" className="proj-card-v2__cta">
+              View Project
+              <span className="proj-card-v2__cta-circle"><HiArrowNarrowRight style={{ transform: "rotate(-45deg)" }} /></span>
+            </a>
+          )}
+          {proj.githubLink && !proj.liveLink && (
+            <a href={proj.githubLink} target="_blank" rel="noopener noreferrer" className="proj-card-v2__cta">
+              View Code
+              <span className="proj-card-v2__cta-circle"><HiArrowNarrowRight style={{ transform: "rotate(-45deg)" }} /></span>
+            </a>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/* ══ Timeline Experience Card — image + overlaid date badge + expandable copy ══ */
+function ExperienceCard({ exp, side, index }) {
+  const tiltRef = useTilt(4);
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className={`exp-row exp-row--${side}`}>
+      <div className="exp-row__dot-col">
+        <span className="exp-row__dot" />
+        <span className="exp-row__dot-pulse" />
+      </div>
+
+      <article ref={tiltRef} className="exp-card-v2" style={{ transformStyle: "preserve-3d" }}>
+        {exp.image && (
+          <div className="exp-card-v2__media">
+            <img src={exp.image} alt={exp.title} />
+            <span className="exp-card-v2__index">{String(index + 1).padStart(2, "0")}</span>
+            <span className="exp-card-v2__duration exp-card-v2__duration--onmedia">{exp.duration}</span>
+          </div>
+        )}
+        <div className="exp-card-v2__body">
+          {!exp.image && <div className="exp-card-v2__duration">{exp.duration}</div>}
+          <h3>{exp.title}</h3>
+          <p className={open ? "" : "line-clamp-3"}>{exp.description}</p>
+          {exp.description && exp.description.length > 140 && (
+            <button type="button" className="exp-card-v2__more" onClick={() => setOpen((v) => !v)}>
+              {open ? "Show Less" : "Read More"}
+              <HiArrowNarrowRight style={{ transform: open ? "rotate(-90deg)" : "rotate(90deg)", transition: "transform .3s ease" }} />
+            </button>
+          )}
+        </div>
+      </article>
+    </div>
+  );
+}
+
 export default function Home() {
   const [projects,    setProjects]    = useState([]);
   const [experiences, setExperiences] = useState([]);
@@ -55,6 +212,10 @@ export default function Home() {
   const expRef     = useRef(null);
   const skillsRef  = useRef(null);
   const ctaRef     = useRef(null);
+  const timelineLineRef = useRef(null);
+
+  const primaryBtnRef = useMagnetic(0.3);
+  const outlineBtnRef = useMagnetic(0.3);
 
   const handleMouse = useCallback((e) => {
     blob1Ref.current?.animate({ left: e.clientX + "px", top: e.clientY + "px" }, { duration: 2200, fill: "forwards" });
@@ -90,9 +251,22 @@ export default function Home() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from(".hero-anim", { y: 48, opacity: 0, duration: .9, stagger: .12, ease: "power3.out" });
-      gsap.from(".hero-img",  { scale: .85, opacity: 0, duration: 1.1, delay: .3, ease: "back.out(1.4)" });
+      /* ── Hero: word-level headline reveal + orchestrated intro ── */
+      const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      heroTl
+        .from(".hero-badge", { y: 24, opacity: 0, duration: 0.7 })
+        .from(".hero-word", { yPercent: 130, opacity: 0, duration: 0.9, stagger: 0.05, ease: "expo.out" }, "-=.35")
+        .from(".hero-sub", { y: 20, opacity: 0, duration: 0.7 }, "-=.5")
+        .from(".hero-copy", { y: 20, opacity: 0, duration: 0.7 }, "-=.5")
+        .from(".hero-anim-cta > *", { y: 18, opacity: 0, duration: 0.6, stagger: 0.08 }, "-=.45")
+        .from(".hero-anim-social > *", { scale: 0, opacity: 0, duration: 0.5, stagger: 0.07, ease: "back.out(2.2)" }, "-=.35")
+        .from(".hero-img", { scale: 0.8, opacity: 0, rotate: -6, duration: 1.1, ease: "back.out(1.5)" }, "-=.9");
 
+      /* subtle continuous float on the profile portrait */
+      gsap.to(".hero-img", { y: -14, duration: 3.2, ease: "sine.inOut", yoyo: true, repeat: -1 });
+      gsap.to(".profile-ring-outer", { rotate: 360, duration: 22, ease: "none", repeat: -1 });
+
+      /* ── Stat counters ── */
       document.querySelectorAll(".stat-num[data-target]").forEach((el) => {
         const target = +el.dataset.target;
         ScrollTrigger.create({
@@ -104,21 +278,45 @@ export default function Home() {
         });
       });
 
+      /* ── Generic reveals ── */
       gsap.utils.toArray(".reveal-up").forEach((el) => {
-        gsap.from(el, { scrollTrigger: { trigger: el, start: "top 85%", once: true }, y: 50, opacity: 0, duration: .85, ease: "power3.out" });
+        gsap.from(el, {
+          scrollTrigger: { trigger: el, start: "top 85%", once: true },
+          y: 50, opacity: 0, duration: .85, ease: "power3.out",
+        });
       });
       gsap.utils.toArray(".reveal-stagger").forEach((wrap) => {
-        gsap.from(wrap.children, { scrollTrigger: { trigger: wrap, start: "top 82%", once: true }, y: 40, opacity: 0, duration: .75, stagger: .1, ease: "power3.out" });
-      });
-
-      document.querySelectorAll(".skill-bar-fill[data-pct]").forEach((bar) => {
-        const pct = bar.dataset.pct;
-        ScrollTrigger.create({
-          trigger: bar, start: "top 88%", once: true,
-          onEnter: () => gsap.to(bar, { width: pct + "%", duration: 1.3, ease: "power2.out" }),
+        gsap.from(wrap.children, {
+          scrollTrigger: { trigger: wrap, start: "top 82%", once: true },
+          y: 40, opacity: 0, duration: .75, stagger: .1, ease: "power3.out",
         });
       });
 
+      /* ── Project cards: scale + fade + slight rotation in ── */
+      gsap.utils.toArray(".proj-card-v2").forEach((card, i) => {
+        gsap.from(card, {
+          scrollTrigger: { trigger: card, start: "top 88%", once: true },
+          y: 70, opacity: 0, scale: 0.94, rotateZ: i % 2 === 0 ? -1.5 : 1.5,
+          duration: 0.9, ease: "power3.out", delay: (i % 2) * 0.08,
+        });
+      });
+
+      /* ── Skill bars ── */
+      document.querySelectorAll(".skill-bar-fill[data-pct]").forEach((bar) => {
+        const pct = bar.dataset.pct;
+        const rect = bar.getBoundingClientRect();
+        const alreadyInView = rect.top < window.innerHeight * 0.88;
+        if (alreadyInView) {
+          gsap.to(bar, { width: pct + "%", duration: 1.3, ease: "power2.out" });
+        } else {
+          ScrollTrigger.create({
+            trigger: bar, start: "top 88%", once: true,
+            onEnter: () => gsap.to(bar, { width: pct + "%", duration: 1.3, ease: "power2.out" }),
+          });
+        }
+      });
+
+      /* ── Education timeline items ── */
       gsap.utils.toArray(".timeline-item").forEach((item, i) => {
         gsap.from(item, {
           scrollTrigger: { trigger: item, start: "top 85%", once: true },
@@ -126,14 +324,28 @@ export default function Home() {
         });
       });
 
-      document.querySelectorAll(".proj-card").forEach((card) => {
-        card.addEventListener("mouseenter", () => gsap.to(card, { y: -8, duration: .35, ease: "power2.out" }));
-        card.addEventListener("mouseleave", () => gsap.to(card, { y: 0,  duration: .35, ease: "power2.out" }));
+      /* ── Experience timeline: alternating slide-in + animated drawn line ── */
+      gsap.utils.toArray(".exp-row").forEach((row) => {
+        const fromSide = row.classList.contains("exp-row--left") ? -60 : 60;
+        gsap.from(row.querySelector(".exp-card-v2"), {
+          scrollTrigger: { trigger: row, start: "top 85%", once: true },
+          x: fromSide, opacity: 0, duration: 0.85, ease: "power3.out",
+        });
+        gsap.from(row.querySelector(".exp-row__dot"), {
+          scrollTrigger: { trigger: row, start: "top 85%", once: true },
+          scale: 0, duration: 0.5, ease: "back.out(3)",
+        });
       });
-      document.querySelectorAll(".exp-card").forEach((card) => {
-        card.addEventListener("mouseenter", () => gsap.to(card, { y: -6, duration: .3, ease: "power2.out" }));
-        card.addEventListener("mouseleave", () => gsap.to(card, { y: 0,  duration: .3, ease: "power2.out" }));
-      });
+      if (timelineLineRef.current && expRef.current) {
+        gsap.fromTo(
+          timelineLineRef.current,
+          { scaleY: 0 },
+          {
+            scaleY: 1, ease: "none", transformOrigin: "top center",
+            scrollTrigger: { trigger: expRef.current, start: "top 75%", end: "bottom 85%", scrub: 0.6 },
+          }
+        );
+      }
     });
     return () => ctx.revert();
   }, [loading]);
@@ -141,6 +353,8 @@ export default function Home() {
   const Sk = ({ h = "h-40", extra = "" }) => (
     <div className="skeleton" style={{ height: h === "h-40" ? 160 : h === "h-80" ? 320 : h === "h-48" ? 192 : h === "h-20" ? 80 : 160, borderRadius: "var(--radius)" }} />
   );
+
+  const heroTitle = "Bhaskar Budha";
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh", overflowX: "hidden", position: "relative" }}>
@@ -153,28 +367,33 @@ export default function Home() {
         <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr", gap: "3rem", alignItems: "center" }} className="hero-grid-layout">
           {/* left */}
           <div style={{ order: 2 }}>
-            <div className="hero-anim" style={{ marginBottom: "1.25rem" }}>
+            <div className="hero-badge" style={{ marginBottom: "1.25rem" }}>
               <span className="section-badge"><RiSparklingFill style={{ color: "var(--accent-tint)" }} /> Available for Work</span>
             </div>
-            <h1 className="hero-anim" style={{ fontSize: "clamp(2.4rem, 6vw, 5rem)", fontWeight: 900, lineHeight: 1.08, marginBottom: "1.25rem", color: "var(--text-primary)" }}>
-              Hi, I'm <span className="grad-text">Bhaskar Budha</span>
+            <h1 style={{ fontSize: "clamp(2.4rem, 6vw, 5rem)", fontWeight: 900, lineHeight: 1.08, marginBottom: "1.25rem", color: "var(--text-primary)", overflow: "hidden" }}>
+              <span style={{ display: "block", overflow: "hidden" }}><span className="hero-word" style={{ display: "inline-block" }}>Hi,</span> <span className="hero-word" style={{ display: "inline-block" }}>I'm</span></span>
+              <span style={{ display: "block", overflow: "hidden" }}>
+                {heroTitle.split(" ").map((w, i) => (
+                  <span key={i} className="hero-word grad-text" style={{ display: "inline-block", marginRight: "0.35ch" }}>{w}</span>
+                ))}
+              </span>
             </h1>
-            <h2 className="hero-anim" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.6rem)", fontWeight: 700, color: "rgba(var(--text-primary-rgb),.75)", marginBottom: "1.5rem" }}>
+            <h2 className="hero-sub" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.6rem)", fontWeight: 700, color: "rgba(var(--text-primary-rgb),.75)", marginBottom: "1.5rem" }}>
               Full-Stack Developer &amp; UI Engineer
             </h2>
-            <p className="hero-anim" style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.75, maxWidth: 480, marginBottom: "2.25rem" }}>
+            <p className="hero-copy" style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.75, maxWidth: 480, marginBottom: "2.25rem" }}>
               I craft performant, pixel-perfect web applications — from robust backend APIs to silky-smooth front-end interfaces. Let's build something exceptional together.
             </p>
-            <div className="hero-anim" style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
-              <Link href="/projects" className="btn-primary">View Projects <HiArrowNarrowRight /></Link>
-              <Link href="/contact" className="btn-outline">Hire Me</Link>
+            <div className="hero-anim-cta" style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
+              <Link ref={primaryBtnRef} href="/projects" className="btn-primary">View Projects <HiArrowNarrowRight /></Link>
+              <Link ref={outlineBtnRef} href="/contact" className="btn-outline">Hire Me</Link>
               {!loading && about?.resume && (
                 <a href={about.resume} target="_blank" rel="noopener noreferrer" download className="btn-outline">
                   Download PDF <HiExternalLink />
                 </a>
               )}
             </div>
-            <div className="hero-anim" style={{ display: "flex", gap: ".75rem", alignItems: "center" }}>
+            <div className="hero-anim-social" style={{ display: "flex", gap: ".75rem", alignItems: "center" }}>
               <a href="https://github.com/Bhaskar787" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--gh" aria-label="GitHub"><FaGithub /></a>
               <a href="https://www.linkedin.com/in/bhaskar-budha-1a58b83b6" target="_blank" rel="noopener noreferrer" className="social-btn social-btn--li" aria-label="LinkedIn"><FaLinkedin /></a>
               <a href="mailto:budhabhaskar11@gmail.com" className="social-btn social-btn--gm" aria-label="Email"><SiGmail /></a>
@@ -212,7 +431,7 @@ export default function Home() {
             { icon: <HiAcademicCap size={24} style={{ color: "#4ade80" }} />, suffix: "",  target: 10, label: "Tech Stacks" },
             { icon: <HiStar size={24} style={{ color: "#f43f5e" }} />,        suffix: "%", target: 99, label: "Client Satisfaction" },
           ].map(({ icon, suffix, target, label }) => (
-            <div key={label} className="card" style={{ padding: "1.75rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div key={label} className="card stat-card-v2" style={{ padding: "1.75rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: ".75rem" }}>{icon}</div>
               <div className="stat-num" data-target={target} data-suffix={suffix} style={{ fontSize: "2.2rem", fontWeight: 900, color: "var(--text-primary)", lineHeight: 1 }}>0{suffix}</div>
               <div style={{ color: "var(--muted)", fontSize: ".82rem", marginTop: ".4rem", fontWeight: 600 }}>{label}</div>
@@ -253,12 +472,12 @@ export default function Home() {
             }
           </div>
 
-          {/* Skills column */}
+          {/* Skills column — bar-style with shimmer */}
           <div>
             <div className="reveal-up" style={{ marginBottom: "2rem" }}>
-              <span className="section-badge" style={{ display: "inline-flex" }}><HiCode /> Skills &amp; Expertise</span>
+              <span className="section-badge" style={{ display: "inline-flex" }}><HiCode /> Skills &amp; Proficiency</span>
             </div>
-            <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "1rem" }}>
               {loading
                 ? Array.from({ length: 6 }).map((_, i) => <Sk key={i} h="h-20" />)
                 : skills.length === 0
@@ -266,13 +485,12 @@ export default function Home() {
                     <p style={{ color: "var(--muted)" }}>No skills added yet.</p>
                   </div>
                 : skills.slice(0, 12).map((sk) => (
-                  <div key={sk._id} className="card" style={{ padding: "1.3rem 1.2rem", position: "relative" }}>
-                    {sk.level != null && (
-                      <span style={{ position: "absolute", top: 10, right: 10, background: "linear-gradient(135deg, var(--accent), var(--accent3))", color: "#fff", borderRadius: 9999, padding: ".2rem .65rem", fontSize: ".72rem", fontWeight: 800 }}>
-                        {sk.level}%
-                      </span>
-                    )}
-                    <span style={{ fontWeight: 700, fontSize: ".95rem", color: "var(--text-primary)" }}>{sk.name}</span>
+                  <div key={sk._id} className="card reveal-up skill-card-v2" style={{ padding: "1.2rem 1.4rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: ".6rem" }}>
+                      <span style={{ fontWeight: 700, fontSize: ".9rem", color: "var(--text-primary)" }}>{sk.name}</span>
+                      {sk.level && <span style={{ fontSize: ".78rem", fontWeight: 700, color: "var(--accent)" }}>{sk.level}%</span>}
+                    </div>
+                    {sk.level && <div className="skill-bar-bg"><div className="skill-bar-fill" data-pct={sk.level} /></div>}
                   </div>
                 ))
               }
@@ -289,59 +507,31 @@ export default function Home() {
         </div>
         <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: "1rem" }}>
           {SERVICES.map(({ icon, label }) => (
-            <div key={label} className="card" style={{ padding: "1.4rem 1.2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: ".6rem", textAlign: "center", cursor: "default" }}>
-              <div style={{ fontSize: "1.6rem", color: "var(--accent)" }}>{icon}</div>
+            <div key={label} className="card service-card-v2" style={{ padding: "1.4rem 1.2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: ".6rem", textAlign: "center" }}>
+              <div className="service-card-v2__icon">{icon}</div>
               <span style={{ fontWeight: 700, fontSize: ".88rem", color: "var(--fg)" }}>{label}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ══ FEATURED PROJECTS ══ */}
+      {/* ══ FEATURED PROJECTS — Dribbble-style cards ══ */}
       <section ref={projRef} style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
         <div className="reveal-up" style={{ textAlign: "center", marginBottom: "3rem" }}>
           <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}>Portfolio</span>
           <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, color: "var(--text-primary)", marginBottom: ".75rem" }}>Featured Projects</h2>
           <p style={{ color: "var(--muted)", maxWidth: 480, margin: "0 auto", fontSize: ".97rem" }}>A selection of digital products I've engineered end-to-end.</p>
         </div>
-        <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "1.75rem" }}>
           {loading
             ? Array.from({ length: 2 }).map((_, i) => <Sk key={i} h="h-80" />)
             : projects.length === 0
             ? <div className="card" style={{ padding: "3rem", textAlign: "center", gridColumn: "1/-1" }}>
                 <p style={{ color: "var(--muted)" }}>No projects added yet. Add them from the admin panel.</p>
               </div>
-            : projects.slice(0, 4).map((proj) => (
-              <article key={proj._id} className="card proj-card" style={{ overflow: "hidden", cursor: "default" }}>
-                <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
-                  <img src={proj.image} alt={proj.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .6s ease" }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.07)"}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-                  />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(var(--bg-rgb),.9) 0%, transparent 60%)" }} />
-                  {proj.githubLink && (
-                    <a href={proj.githubLink} target="_blank" rel="noopener noreferrer" style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, background: "rgba(10,10,20,.7)", backdropFilter: "blur(6px)", borderRadius: ".5rem", border: "1px solid rgba(255,255,255,.12)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "1.1rem" }}>
-                      <FaGithub />
-                    </a>
-                  )}
-                </div>
-                <div style={{ padding: "1.4rem" }}>
-                  <h3 style={{ fontWeight: 800, fontSize: "1.15rem", color: "var(--text-primary)", marginBottom: ".5rem" }} className="line-clamp-2">{proj.title}</h3>
-                  <p style={{ color: "var(--muted)", fontSize: ".88rem", lineHeight: 1.6, marginBottom: "1.1rem" }} className="line-clamp-3">{proj.description}</p>
-                  {proj.skills?.length > 0 && (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: ".375rem", marginBottom: "1.1rem" }}>
-                      {proj.skills.map((tag) => (
-                        <span key={tag} className="tag">{tag}</span>
-                      ))}
-                    </div>
-                  )}
-                  <div style={{ display: "flex", gap: ".75rem" }}>
-                    {proj.githubLink && <a href={proj.githubLink} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{ padding: ".5rem 1rem", fontSize: ".82rem" }}><FaGithub /> Code</a>}
-                    {proj.liveLink   && <a href={proj.liveLink}   target="_blank" rel="noopener noreferrer" className="btn-primary"  style={{ padding: ".5rem 1rem", fontSize: ".82rem" }}><HiExternalLink /> Live</a>}
-                  </div>
-                </div>
-              </article>
-            ))
+            : projects.slice(0, 4).map((proj, i) => (
+                <ProjectCard key={proj._id} proj={proj} index={i} />
+              ))
           }
         </div>
         <div className="reveal-up" style={{ textAlign: "center", marginTop: "2.5rem" }}>
@@ -349,59 +539,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══ EXPERIENCE ══ */}
-      <section ref={expRef} style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div className="reveal-up" style={{ textAlign: "center", marginBottom: "3rem" }}>
+      {/* ══ EXPERIENCE — animated vertical timeline ══ */}
+      <section ref={expRef} style={{ padding: "5rem 1.5rem", maxWidth: 1000, margin: "0 auto" }}>
+        <div className="reveal-up" style={{ textAlign: "center", marginBottom: "3.5rem" }}>
           <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}>Journey</span>
           <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, color: "var(--text-primary)" }}>Work Experience</h2>
         </div>
-        <div className="reveal-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1.25rem", alignItems: "stretch" }}>
-          {loading
-            ? Array.from({ length: 3 }).map((_, i) => <Sk key={i} h="h-48" />)
-            : experiences.length === 0
-            ? <div className="card" style={{ padding: "3rem", textAlign: "center", gridColumn: "1/-1" }}>
-                <p style={{ color: "var(--muted)" }}>No experience entries yet. Add them from the admin panel.</p>
-              </div>
-            : experiences.map((exp) => (
-              <article key={exp._id} className="card exp-card" style={{ padding: "1.6rem", cursor: "default", display: "flex", flexDirection: "column", height: "100%" }}>
-                {exp.image && (
-                  <div style={{ width: "100%", height: 140, borderRadius: ".75rem", overflow: "hidden", marginBottom: "1rem" }}>
-                    <img src={exp.image} alt={exp.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  </div>
-                )}
-                <div style={{ display: "inline-block", alignSelf: "flex-start", padding: ".25rem .75rem", background: "rgba(var(--accent-rgb),.12)", border: "1px solid rgba(var(--accent-rgb),.25)", borderRadius: 9999, fontSize: ".75rem", fontWeight: 700, color: "var(--accent-tint)", marginBottom: ".75rem" }}>{exp.duration}</div>
-                <h3 style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text-primary)", marginBottom: ".5rem" }}>{exp.title}</h3>
-                <p style={{ color: "var(--muted)", fontSize: ".88rem", lineHeight: 1.65, flex: 1 }} className="line-clamp-3">{exp.description}</p>
-              </article>
-            ))
-          }
-        </div>
-      </section>
 
-      {/* ══ SKILLS ══ */}
-      <section ref={skillsRef} style={{ padding: "5rem 1.5rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div className="reveal-up" style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <span className="section-badge" style={{ marginBottom: ".75rem", display: "inline-flex" }}>Expertise</span>
-          <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, color: "var(--text-primary)" }}>Skills &amp; Proficiency</h2>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "1rem" }}>
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => <Sk key={i} h="h-20" />)
-            : skills.length === 0
-            ? <div className="card" style={{ padding: "2rem", textAlign: "center", gridColumn: "1/-1" }}>
-                <p style={{ color: "var(--muted)" }}>No skills added yet.</p>
+        {loading
+          ? <div style={{ display: "grid", gap: "1.25rem" }}>{Array.from({ length: 3 }).map((_, i) => <Sk key={i} h="h-48" />)}</div>
+          : experiences.length === 0
+          ? <div className="card" style={{ padding: "3rem", textAlign: "center" }}>
+              <p style={{ color: "var(--muted)" }}>No experience entries yet. Add them from the admin panel.</p>
+            </div>
+          : (
+            <div className="exp-timeline">
+              <div className="exp-timeline__track">
+                <div ref={timelineLineRef} className="exp-timeline__line" />
               </div>
-            : skills.slice(0, 12).map((sk) => (
-              <div key={sk._id} className="card reveal-up" style={{ padding: "1.2rem 1.4rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: ".6rem" }}>
-                  <span style={{ fontWeight: 700, fontSize: ".9rem", color: "var(--text-primary)" }}>{sk.name}</span>
-                  {sk.level && <span style={{ fontSize: ".78rem", fontWeight: 700, color: "var(--accent)" }}>{sk.level}%</span>}
-                </div>
-                {sk.level && <div className="skill-bar-bg"><div className="skill-bar-fill" data-pct={sk.level} /></div>}
-              </div>
-            ))
-          }
-        </div>
+              {experiences.map((exp, i) => (
+                <ExperienceCard key={exp._id} exp={exp} index={i} side={i % 2 === 0 ? "left" : "right"} />
+              ))}
+            </div>
+          )
+        }
       </section>
 
       {/* ══ CTA BANNER ══ */}
@@ -438,6 +599,191 @@ export default function Home() {
           .edu-skills-grid { grid-template-columns: 1fr 1fr !important; }
         }
         .timeline-item .card { margin-bottom: 0; }
+
+        /* ── shared tilt-card polish ── */
+        .stat-card-v2, .service-card-v2, .skill-card-v2 {
+          transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+        }
+        .stat-card-v2:hover, .service-card-v2:hover, .skill-card-v2:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 18px 40px rgba(0,0,0,.35);
+          border-color: rgba(var(--accent-rgb),.4);
+        }
+        .service-card-v2__icon {
+          font-size: 1.6rem; color: var(--accent);
+          transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+        }
+        .service-card-v2:hover .service-card-v2__icon { transform: scale(1.25) rotate(-6deg); }
+
+        /* ── skill bar shimmer ── */
+        .skill-bar-fill {
+          position: relative; overflow: hidden;
+        }
+        .skill-bar-fill::after {
+          content: ""; position: absolute; inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+          transform: translateX(-100%);
+          animation: shimmer 2.2s ease-in-out infinite;
+          animation-delay: 1.5s;
+        }
+        @keyframes shimmer { to { transform: translateX(100%); } }
+
+        /* ── Dribbble-style project card ── */
+        .proj-card-v2 {
+          position: relative;
+          background: var(--card);
+          border: 1px solid rgba(255,255,255,.08);
+          border-radius: 1.25rem;
+          overflow: hidden;
+          transition: box-shadow .4s ease, border-color .4s ease;
+          will-change: transform;
+        }
+        .proj-card-v2:hover {
+          border-color: rgba(var(--accent-rgb),.5);
+          box-shadow: 0 30px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(var(--accent-rgb),.15);
+        }
+        .proj-card-v2__index {
+          position: absolute; top: 14px; left: 16px; z-index: 2;
+          font-size: .7rem; font-weight: 800; letter-spacing: .08em;
+          color: rgba(255,255,255,.85);
+          background: rgba(10,10,20,.55); backdrop-filter: blur(6px);
+          border: 1px solid rgba(255,255,255,.15);
+          padding: .3rem .55rem; border-radius: 9999px;
+        }
+        .proj-card-v2__media { position: relative; height: 230px; overflow: hidden; }
+        .proj-card-v2__media img {
+          width: 100%; height: 100%; object-fit: cover;
+          transition: transform .7s cubic-bezier(.16,1,.3,1);
+        }
+        .proj-card-v2:hover .proj-card-v2__media img { transform: scale(1.1) rotate(0.5deg); }
+        .proj-card-v2__scrim {
+          position: absolute; inset: 0;
+          background: linear-gradient(to top, rgba(var(--bg-rgb),.95) 0%, rgba(var(--bg-rgb),.15) 55%, transparent 100%);
+        }
+        .proj-card-v2__ghbadge {
+          position: absolute; top: 12px; right: 12px; z-index: 2;
+          width: 38px; height: 38px; border-radius: .6rem;
+          background: rgba(10,10,20,.65); backdrop-filter: blur(6px);
+          border: 1px solid rgba(255,255,255,.14);
+          display: flex; align-items: center; justify-content: center;
+          color: #fff; font-size: 1.1rem;
+          transition: transform .35s cubic-bezier(.34,1.56,.64,1), background .3s ease;
+        }
+        .proj-card-v2__ghbadge:hover { transform: translateY(-3px) rotate(-6deg); background: rgba(var(--accent-rgb),.85); }
+        .proj-card-v2__body { padding: 1.5rem 1.5rem 1.6rem; position: relative; z-index: 1; }
+        .proj-card-v2__body h3 { font-weight: 800; font-size: 1.18rem; color: var(--text-primary); margin-bottom: .5rem; }
+        .proj-card-v2__body p { color: var(--muted); font-size: .88rem; line-height: 1.6; margin-bottom: 1.1rem; }
+        .proj-card-v2__tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.25rem; }
+        .proj-card-v2__actions { display: flex; }
+        .proj-card-v2__cta {
+          display: inline-flex; align-items: center; gap: .6rem;
+          font-weight: 700; font-size: .88rem; color: var(--text-primary);
+          padding-bottom: 2px; border-bottom: 1px solid transparent;
+          transition: border-color .3s ease, gap .3s ease;
+        }
+        .proj-card-v2__cta:hover { border-color: var(--accent); gap: .85rem; }
+        .proj-card-v2__cta-circle {
+          width: 30px; height: 30px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          background: rgba(var(--accent-rgb),.14); color: var(--accent);
+          border: 1px solid rgba(var(--accent-rgb),.3);
+          transition: background .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+        }
+        .proj-card-v2__cta:hover .proj-card-v2__cta-circle { background: var(--accent); color: #fff; transform: rotate(45deg); }
+
+        /* ── Experience: vertical animated timeline (image-card, alternating) ──
+           Mobile-first: line + dots sit on the left, cards stack in one column.
+           From 700px: line moves to center, cards alternate left/right. */
+        .exp-timeline { position: relative; display: flex; flex-direction: column; gap: 2.25rem; }
+        .exp-timeline__track {
+          position: absolute; left: 15px; top: 6px; bottom: 6px; width: 2px;
+          background: rgba(255,255,255,.08);
+        }
+        .exp-timeline__line {
+          width: 100%; height: 100%;
+          background: linear-gradient(to bottom, var(--accent), var(--accent2));
+          transform-origin: top center; transform: scaleY(0);
+        }
+        .exp-row {
+          position: relative; display: grid;
+          grid-template-columns: 32px 1fr;
+          align-items: start; gap: 1rem;
+        }
+        .exp-row__dot-col { display: flex; justify-content: center; position: relative; margin-top: 12px; }
+        .exp-row__dot {
+          width: 14px; height: 14px; border-radius: 50%;
+          background: var(--accent);
+          box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px rgba(var(--accent-rgb),.3);
+          position: relative; z-index: 2;
+        }
+        .exp-row__dot-pulse {
+          position: absolute; inset: 0; margin: auto; width: 14px; height: 14px;
+          border-radius: 50%; background: rgba(var(--accent-rgb),.55);
+          animation: expPulse 2.4s ease-out infinite;
+        }
+        @keyframes expPulse {
+          0%   { transform: scale(1);   opacity: .7; }
+          80%  { transform: scale(2.6); opacity: 0; }
+          100% { transform: scale(2.6); opacity: 0; }
+        }
+
+        .exp-card-v2 {
+          background: var(--card); border: 1px solid rgba(255,255,255,.08);
+          border-radius: 1.25rem; overflow: hidden;
+          transition: border-color .35s ease, box-shadow .35s ease, transform .35s ease;
+          will-change: transform;
+        }
+        .exp-card-v2:hover {
+          border-color: rgba(var(--accent-rgb),.45);
+          box-shadow: 0 24px 50px rgba(0,0,0,.42);
+        }
+        .exp-card-v2__media { position: relative; width: 100%; height: 170px; overflow: hidden; }
+        .exp-card-v2__media img {
+          width: 100%; height: 100%; object-fit: cover;
+          transition: transform .6s cubic-bezier(.16,1,.3,1);
+        }
+        .exp-card-v2:hover .exp-card-v2__media img { transform: scale(1.08); }
+        .exp-card-v2__index {
+          position: absolute; top: 12px; left: 12px; z-index: 2;
+          font-size: .68rem; font-weight: 800; letter-spacing: .06em;
+          color: #fff; background: rgba(10,10,20,.55); backdrop-filter: blur(6px);
+          border: 1px solid rgba(255,255,255,.15);
+          padding: .3rem .55rem; border-radius: 9999px;
+        }
+        .exp-card-v2__duration {
+          display: inline-block; padding: .25rem .75rem;
+          background: rgba(var(--accent-rgb),.12); border: 1px solid rgba(var(--accent-rgb),.25);
+          border-radius: 9999px; font-size: .75rem; font-weight: 700; color: var(--accent-tint);
+          margin-bottom: .75rem;
+        }
+        .exp-card-v2__duration--onmedia {
+          position: absolute; top: 12px; right: 12px; z-index: 2; margin-bottom: 0;
+          background: rgba(10,10,20,.55); backdrop-filter: blur(6px);
+          border-color: rgba(255,255,255,.18); color: #fff;
+        }
+        .exp-card-v2__body { padding: 1.4rem 1.5rem 1.6rem; }
+        .exp-card-v2 h3 { font-weight: 800; font-size: 1.12rem; color: var(--text-primary); margin-bottom: .5rem; }
+        .exp-card-v2 p { color: var(--muted); font-size: .88rem; line-height: 1.65; }
+        .exp-card-v2__more {
+          display: inline-flex; align-items: center; gap: .4rem; margin-top: .9rem;
+          background: none; border: none; padding: 0; cursor: pointer;
+          font-size: .82rem; font-weight: 700; color: var(--accent);
+        }
+
+        @media (min-width: 700px) {
+          .exp-timeline__track { left: 50%; transform: translateX(-50%); }
+          .exp-row {
+            grid-template-columns: 1fr 48px 1fr !important;
+            align-items: start; gap: 1.75rem;
+          }
+          .exp-row__dot-col { justify-content: center; grid-column: 2; margin-top: 12px; }
+          .exp-row--left  .exp-card-v2 { grid-column: 1; }
+          .exp-row--right .exp-card-v2 { grid-column: 3; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
       `}</style>
     </div>
   );
