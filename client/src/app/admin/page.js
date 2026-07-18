@@ -17,6 +17,7 @@ import {
   RiTrophyLine,
   RiTimeLine,
   RiShieldCheckLine,
+  RiGlobalLine,
 } from "react-icons/ri";
 import { HiCode, HiBriefcase, HiAcademicCap, HiStar, HiMail } from "react-icons/hi";
 
@@ -36,6 +37,7 @@ const quickActions = [
   { label: "Update Education", href: "/admin/education", desc: "Manage academic records", Icon: RiGraduationCapLine, color: "#3b82f6" },
   { label: "Edit Skills", href: "/admin/skills", desc: "Add or update your skillset", Icon: RiCodeBoxLine, color: "#ec4899" },
   { label: "Update About", href: "/admin/about", desc: "Refresh your bio", Icon: RiUser3Line, color: "#14b8a6" },
+  { label: "Site Settings", href: "/admin/settings", desc: "Configure global site options", Icon: RiGlobalLine, color: "#8b5cf6" },
 ];
 
 export default function AdminDashboard() {
