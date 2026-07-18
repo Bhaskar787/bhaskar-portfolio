@@ -198,7 +198,7 @@ export default function About() {
               <Link href="/contact" className="btn-primary">Hire Me <HiArrowNarrowRight /></Link>
               {about.resume && (
                 <a href={about.resume} target="_blank" rel="noopener noreferrer" download className="btn-outline">
-                  Download PDF <HiDownload />
+                  Download Resume <HiDownload />
                 </a>
               )}
             </div>

@@ -389,7 +389,7 @@ export default function Home() {
               <Link ref={outlineBtnRef} href="/contact" className="btn-outline">Hire Me</Link>
               {!loading && about?.resume && (
                 <a href={about.resume} target="_blank" rel="noopener noreferrer" download className="btn-outline">
-                  Download PDF <HiExternalLink />
+                  Download Resume <HiExternalLink />
                 </a>
               )}
             </div>
