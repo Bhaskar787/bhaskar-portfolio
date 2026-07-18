@@ -389,7 +389,7 @@ export default function Home() {
               <Link ref={outlineBtnRef} href="/contact" className="btn-outline">Hire Me</Link>
               {!loading && about?.resume && (
                 <a href={about.resume} target="_blank" rel="noopener noreferrer" download className="btn-outline">
-                  Download Resume <HiExternalLink />
+                  Download PDF <HiExternalLink />
                 </a>
               )}
             </div>
@@ -524,12 +524,12 @@ export default function Home() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: "1.75rem" }}>
           {loading
-            ? Array.from({ length: 2 }).map((_, i) => <Sk key={i} h="h-80" />)
+            ? Array.from({ length: 6 }).map((_, i) => <Sk key={i} h="h-80" />)
             : projects.length === 0
             ? <div className="card" style={{ padding: "3rem", textAlign: "center", gridColumn: "1/-1" }}>
                 <p style={{ color: "var(--muted)" }}>No projects added yet. Add them from the admin panel.</p>
               </div>
-            : projects.slice(0, 4).map((proj, i) => (
+            : projects.slice(0, 6).map((proj, i) => (
                 <ProjectCard key={proj._id} proj={proj} index={i} />
               ))
           }
