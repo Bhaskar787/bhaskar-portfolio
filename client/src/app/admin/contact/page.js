@@ -7,6 +7,7 @@ import {
 } from "react-icons/ri";
 import { HiMail } from "react-icons/hi";
 import ConfirmDialog from "@/app/components/ConfirmDialog";
+import { useNotifications } from "@/app/context/NotificationContext";
 
 async function safeFetch(url, opts) {
   try {
@@ -89,23 +90,56 @@ export default function AdminContact() {
   const [selected, setSelected] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const { markAsRead, decrementUnreadCount, lastMessage } = useNotifications();
 
   const fetchItems = async () => {
     setLoading(true);
     const { ok, data } = await safeFetch("/api/contact");
-    if (ok && Array.isArray(data)) setItems(data.reverse());
+    // API already returns newest-first (sort: createdAt -1) — keep that order
+    // so the most recent message is always at the top of the inbox.
+    if (ok && Array.isArray(data)) setItems(data);
     setLoading(false);
   };
   useEffect(() => { fetchItems(); }, []);
+
+  // A socket push told us a brand-new message just arrived — drop it
+  // straight into the top of the list instead of waiting for a refetch.
+  useEffect(() => {
+    if (!lastMessage) return;
+    setItems((prev) => {
+      if (prev.some((i) => i._id === lastMessage._id)) return prev;
+      return [lastMessage, ...prev];
+    });
+  }, [lastMessage]);
+
+  const handleSelect = (item) => {
+    const next = selected?._id === item._id ? null : item;
+    setSelected(next);
+    if (next && !next.read) {
+      setItems((prev) => prev.map((i) => (i._id === next._id ? { ...i, read: true } : i)));
+      markAsRead(next._id, { wasUnread: true });
+    }
+  };
 
   const handleDelete = (id) => setDeleteTarget(id);
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
+    const targetItem = items.find((item) => item._id === deleteTarget);
+    const wasUnread = Boolean(targetItem && !targetItem.read);
+
     setDeleting(true);
     const { ok, data } = await safeFetch(`/api/contact/${deleteTarget}`, { method: "DELETE" });
-    if (ok) { toast.success("Message deleted."); setSelected(null); fetchItems(); }
-    else    { toast.error(data.error || "Failed."); }
+    if (ok) {
+      toast.success("Message deleted.");
+      setSelected(null);
+      if (wasUnread) {
+        decrementUnreadCount(deleteTarget, { wasUnread: true });
+      }
+      fetchItems();
+    } else {
+      toast.error(data.error || "Failed.");
+    }
     setDeleting(false);
     setDeleteTarget(null);
   };
@@ -171,29 +205,33 @@ export default function AdminContact() {
             {filtered.map((item) => (
               <div key={item._id}>
                 <div
-                  onClick={() => setSelected(selected?._id === item._id ? null : item)}
+                  onClick={() => handleSelect(item)}
                   className="card message-row"
                   style={{
                     borderRadius: "1rem",
                     cursor: "pointer",
-                    borderColor: selected?._id === item._id ? "rgba(var(--accent-rgb),0.5)" : undefined,
+                    borderColor: selected?._id === item._id ? "rgba(var(--accent-rgb),0.5)" : (!item.read ? "rgba(var(--accent-rgb),0.35)" : undefined),
+                    background: !item.read ? "rgba(var(--accent-rgb),0.05)" : undefined,
                     transition: "border-color 0.2s, transform 0.15s",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
                 >
                   {/* Avatar */}
-                  <div style={{ width: 40, height: 40, borderRadius: "10px", background: "rgba(var(--accent-rgb),0.1)", border: "1px solid rgba(var(--accent-rgb),0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "1rem", color: "var(--accent)", flexShrink: 0 }}>
+                  <div style={{ position: "relative", width: 40, height: 40, borderRadius: "10px", background: "rgba(var(--accent-rgb),0.1)", border: "1px solid rgba(var(--accent-rgb),0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "1rem", color: "var(--accent)", flexShrink: 0 }}>
                     {(item.name||"?").charAt(0).toUpperCase()}
+                    {!item.read && (
+                      <span style={{ position: "absolute", top: -3, right: -3, width: 10, height: 10, borderRadius: "50%", background: "#ef4444", boxShadow: "0 0 0 2px var(--card)" }} />
+                    )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.15rem" }}>
-                      <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
+                      <span style={{ fontWeight: item.read ? 700 : 800, fontSize: "0.9rem", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
                       <span style={{ fontSize: "0.7rem", color: "var(--muted)", whiteSpace: "nowrap", marginLeft: "auto", flexShrink: 0, display: "flex", alignItems: "center", gap: "0.25rem" }}>
                         <RiTimeLine style={{ fontSize: "0.75rem" }} />{timeAgo(item.createdAt)}
                       </span>
                     </div>
-                    <p className="line-clamp-2" style={{ color: "var(--muted)", fontSize: "0.8rem", lineHeight: 1.45 }}>{item.message}</p>
+                    <p className="line-clamp-2" style={{ color: !item.read ? "var(--text-secondary)" : "var(--muted)", fontSize: "0.8rem", lineHeight: 1.45, fontWeight: item.read ? 400 : 600 }}>{item.message}</p>
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDelete(item._id); }}

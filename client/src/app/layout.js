@@ -3,6 +3,7 @@
 import "./globals.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
+import Script           from "next/script";
 import Footer          from "./components/Footer";
 import Navbar          from "./components/Navbar";
 import FloatingButtons from "./components/FloatingButtons";
@@ -31,7 +32,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
       </head>
       <body suppressHydrationWarning>
         <ThemeProvider>

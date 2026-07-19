@@ -62,6 +62,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
   const [loading, setLoading] = useState(false);
   const pageRef = useRef(null);
+  const submitLockedRef = useRef(false);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -93,7 +94,12 @@ export default function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (submitLockedRef.current) return;
+
+    submitLockedRef.current = true;
     setLoading(true);
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -111,6 +117,7 @@ export default function Contact() {
       toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
+      submitLockedRef.current = false;
     }
   };
 
