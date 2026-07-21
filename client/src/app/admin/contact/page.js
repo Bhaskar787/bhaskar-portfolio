@@ -97,7 +97,13 @@ export default function AdminContact() {
     const { ok, data } = await safeFetch("/api/contact");
     // API already returns newest-first (sort: createdAt -1) — keep that order
     // so the most recent message is always at the top of the inbox.
-    if (ok && Array.isArray(data)) setItems(data);
+    if (ok && Array.isArray(data)) {
+      setItems((prev) => {
+        if (!lastMessage) return data;
+        const exists = data.some((i) => String(i._id) === String(lastMessage._id));
+        return exists ? data : [lastMessage, ...data];
+      });
+    }
     setLoading(false);
   };
   useEffect(() => { fetchItems(); }, []);
@@ -107,7 +113,7 @@ export default function AdminContact() {
   useEffect(() => {
     if (!lastMessage) return;
     setItems((prev) => {
-      if (prev.some((i) => i._id === lastMessage._id)) return prev;
+      if (prev.some((i) => String(i._id) === String(lastMessage._id))) return prev;
       return [lastMessage, ...prev];
     });
   }, [lastMessage]);

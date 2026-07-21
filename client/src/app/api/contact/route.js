@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Contact from "@/models/Contact";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import eventBus from "@/lib/eventBus";
 
 
 
@@ -43,12 +44,16 @@ export async function POST(req) {
 
     const newContact = await Contact.create(body);
 
-    // Push a real-time event to any connected admin dashboards.
-    // `global.__io` is set by server.js (the custom Socket.IO server) —
-    // it won't exist when running under plain `next dev`/serverless,
-    // so this is guarded and simply skipped in that case.
-    if (global.__io) {
-      global.__io.to("admin-room").emit("new-message", newContact);
+    const plainContact = JSON.parse(JSON.stringify(newContact));
+
+    // Push real-time event via internal EventBus (SSE)
+    eventBus.emit("new-message", plainContact);
+
+    // Push real-time event via Socket.IO if custom server is attached
+    const io = process.__io || global.__io;
+    if (io) {
+      io.to("admin-room").emit("new-message", plainContact);
+      io.emit("new-message", plainContact);
     }
 
     return NextResponse.json(newContact, { status: 201 });

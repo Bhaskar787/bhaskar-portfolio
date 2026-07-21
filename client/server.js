@@ -53,6 +53,7 @@ app.prepare().then(() => {
 
   // Expose io to API route handlers running in this same process.
   global.__io = io;
+  process.__io = io;
 
   httpServer.listen(port, () => {
     console.log(`> Ready on http://${hostname}:${port} (Socket.IO attached)`);
