@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { compressImage } from "@/lib/compressImage";
 import {
   RiAddLine, RiDeleteBinLine, RiEditLine, RiCloseLine,
   RiSaveLine, RiImageLine, RiProjectorLine, RiCalendarLine,
@@ -44,9 +45,10 @@ export default function AdminExperience() {
   const closeModal = () => { setModal(false); setForm(EMPTY); setEditId(null); };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
     setUploading(true);
+    const file = await compressImage(rawFile);
     const fd = new FormData();
     fd.append("file", file);
     const { ok, data } = await safeFetch("/api/upload", { method: "POST", body: fd });

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { compressImage } from "@/lib/compressImage";
 import {
   RiGlobalLine, RiSaveLine, RiImageLine, RiRefreshLine, RiUploadCloud2Line,
 } from "react-icons/ri";
@@ -36,10 +37,11 @@ export default function AdminSettings() {
   }, []);
 
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
 
     setUploading(true);
+    const file = await compressImage(rawFile);
     const fd = new FormData();
     fd.append("file", file);
 
