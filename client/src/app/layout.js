@@ -1,50 +1,48 @@
-"use client";
-
 import "./globals.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-import Script           from "next/script";
-import Footer          from "./components/Footer";
-import Navbar          from "./components/Navbar";
-import FloatingButtons from "./components/FloatingButtons";
-import { usePathname } from "next/navigation";
-import { Toaster }     from "sonner";
+import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/ThemeContext";
+import SiteChrome from "./components/SiteChrome";
+import connectDB from "@/lib/db";
+import SiteSettings from "@/models/SiteSettings";
 
-// Runs before first paint so the correct theme (saved choice, or "dark"
-// by default) is applied immediately — no flash of the wrong theme.
-const THEME_INIT_SCRIPT = `
-(function () {
+export const metadata = {
+  title: "Bhaskar Budha | Full-Stack Developer",
+  description: "Portfolio of Bhaskar Budha - Full-Stack Developer & UI Engineer",
+};
+
+// Runs before first paint so the correct theme is applied synchronously
+// by the browser parser before any CSS styles or elements are rendered.
+const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("site-theme");var t=s==="light"||s==="dark"?s:"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();`;
+
+async function getInitialSettings() {
   try {
-    var stored = localStorage.getItem("site-theme");
-    var theme = stored === "light" || stored === "dark" ? stored : "dark";
-    document.documentElement.setAttribute("data-theme", theme);
-  } catch (e) {
-    document.documentElement.setAttribute("data-theme", "dark");
+    await connectDB();
+    const doc = await SiteSettings.findOne().sort({ createdAt: -1 }).lean();
+    if (doc) {
+      return JSON.parse(JSON.stringify(doc));
+    }
+  } catch (err) {
+    console.error("SSR getInitialSettings error:", err);
   }
-})();
-`;
+  return null;
+}
 
-export default function RootLayout({ children }) {
-  const pathname    = usePathname();
-  const isAdminPage = pathname.startsWith("/admin");
+export default async function RootLayout({ children }) {
+  const initialSettings = await getInitialSettings();
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script id="theme-init" strategy="beforeInteractive">
-          {THEME_INIT_SCRIPT}
-        </Script>
+        <script
+          id="theme-init"
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+        />
       </head>
       <body suppressHydrationWarning>
         <ThemeProvider>
-          {!isAdminPage && <Navbar />}
-
-          {children}
-
-          {!isAdminPage && <Footer />}
-          {!isAdminPage && <FloatingButtons />}
-
+          <SiteChrome initialSettings={initialSettings}>{children}</SiteChrome>
           <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
       </body>

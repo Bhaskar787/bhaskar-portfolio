@@ -11,4 +11,8 @@ const aboutSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+if (mongoose.models.About) {
+  delete mongoose.models.About;
+}
+
 export default mongoose.models.About || mongoose.model("About", aboutSchema);

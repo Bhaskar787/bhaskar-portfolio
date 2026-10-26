@@ -106,7 +106,7 @@ export default function AdminContact() {
     }
     setLoading(false);
   };
-  useEffect(() => { fetchItems(); }, []);
+  useEffect(() => { fetchItems(); });
 
   // A socket push told us a brand-new message just arrived — drop it
   // straight into the top of the list instead of waiting for a refetch.

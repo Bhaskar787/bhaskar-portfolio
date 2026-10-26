@@ -6,7 +6,7 @@ import Skill from '@/models/Skill';
 export async function GET() {
   try {
     await connectDB();
-    const skills = await Skill.find().sort({ category: 1, name: 1 });
+    const skills = await Skill.find().sort({ createdAt: -1 });
     return NextResponse.json(skills);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch skills" }, { status: 500 });
@@ -21,13 +21,13 @@ export async function POST(request) {
   try {
     await connectDB();
     const body = await request.json();
-    const { name, category, level } = body;
+    const { name, image } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Skill name is required" }, { status: 400 });
     }
 
-    const newSkill = await Skill.create({ name, category, level });
+    const newSkill = await Skill.create({ name, image: image || "" });
     return NextResponse.json(newSkill, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Skill creation failed" }, { status: 500 });

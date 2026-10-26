@@ -2,8 +2,13 @@ import mongoose from "mongoose";
 
 const skillSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  category: { type: String, default: "Frontend" },
-  level: { type: Number, min: 1, max: 100, default: 80 },
+  image: { type: String, default: "" },
 }, { timestamps: true });
 
-export default mongoose.models.Skill || mongoose.model("Skill", skillSchema);
+if (mongoose.models.Skill) {
+  delete mongoose.models.Skill;
+}
+
+const Skill = mongoose.model("Skill", skillSchema);
+
+export default Skill;

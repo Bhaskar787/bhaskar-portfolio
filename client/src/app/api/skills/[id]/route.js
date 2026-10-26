@@ -8,11 +8,12 @@ export async function PUT(request, { params }) {
     await connectDB();
     const { id } = await params;
     const body = await request.json();
+    const { _id, ...updateData } = body;
 
     // { new: true } returns the updated document instead of the old one
     const updatedSkill = await Skill.findByIdAndUpdate(
       id,
-      { ...body },
+      updateData,
       { new: true, runValidators: true }
     );
 

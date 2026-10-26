@@ -6,6 +6,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { HiMenuAlt3, HiX, HiArrowNarrowRight } from "react-icons/hi";
 import ThemeToggle from "./ThemeToggle";
+import { fetchWithCache, getCached } from "@/utils/apiCache";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -15,10 +16,10 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ initialSettings = null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState(() => initialSettings || getCached("/api/settings") || null);
   const pathname = usePathname();
   const navRef = useRef(null);
   const mobileLinksRef = useRef(null);
@@ -26,16 +27,14 @@ export default function Navbar() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/settings");
-        if (!res.ok) return;
-        const data = await res.json();
+        const data = await fetchWithCache("/api/settings");
         if (data && !Array.isArray(data)) setSettings(data);
       } catch {}
     })();
   }, []);
 
-  const siteName = settings?.siteName || "Bhaskar Budha";
-  const logo = settings?.logo || "";
+  const siteName = settings?.siteName || initialSettings?.siteName || "Bhaskar Budha";
+  const logo = settings?.logo || initialSettings?.logo || "";
   const initials = siteName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
   useEffect(() => {
@@ -107,6 +106,7 @@ export default function Navbar() {
         >
           <div
             className="logo-badge"
+            suppressHydrationWarning
             style={{
               width: 40,
               height: 40,
@@ -125,7 +125,7 @@ export default function Navbar() {
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
             }}
           >
-            {logo ? <img src={logo} alt={siteName} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
+            {logo ? <img src={logo} alt={siteName} fetchPriority="high" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
           </div>
           <span
             style={{

@@ -2,8 +2,10 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { compressImage } from "@/lib/compressImage";
+import { clearCache } from "@/utils/apiCache";
 import {
   RiUser3Line, RiSaveLine, RiImageLine, RiRefreshLine, RiUploadCloud2Line, RiFilePdf2Line, RiCloseLine,
+  RiBriefcaseLine, RiMapPinLine,
 } from "react-icons/ri";
 import { HiCheckCircle } from "react-icons/hi";
 
@@ -17,7 +19,7 @@ async function safeFetch(url, opts) {
 }
 
 export default function AdminAbout() {
-  const [form,      setForm]      = useState({ bio: "", image: "", resume: "" });
+  const [form,      setForm]      = useState({ title: "", location: "", bio: "", image: "", resume: "" });
   const [loading,   setLoading]   = useState(true);
   const [saving,    setSaving]    = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -31,12 +33,24 @@ export default function AdminAbout() {
     (async () => {
       const { ok, data } = await safeFetch("/api/about");
       if (ok && data && !Array.isArray(data)) {
-        setForm({ bio: data.bio || "", image: data.image || "", resume: data.resume || "" });
+        setForm({
+          title: data.title || "",
+          location: data.location || "",
+          bio: data.bio || "",
+          image: data.image || "",
+          resume: data.resume || "",
+        });
         setHasData(true);
         setSavedId(data._id || null);
       } else if (ok && Array.isArray(data) && data.length > 0) {
         const d = data[0];
-        setForm({ bio: d.bio || "", image: d.image || "", resume: d.resume || "" });
+        setForm({
+          title: d.title || "",
+          location: d.location || "",
+          bio: d.bio || "",
+          image: d.image || "",
+          resume: d.resume || "",
+        });
         setHasData(true);
         setSavedId(d._id || null);
       }
@@ -98,6 +112,7 @@ export default function AdminAbout() {
     const url    = hasData && savedId ? `/api/about/${savedId}` : "/api/about";
     const { ok, data } = await safeFetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
     if (ok) {
+      clearCache("/api/about");
       toast.success("About section updated!");
       setHasData(true);
       if (data?._id) setSavedId(data._id);
@@ -123,18 +138,34 @@ export default function AdminAbout() {
         </div>
         <div>
           <h1 style={{ fontWeight: 900, fontSize: "1.3rem", color: "var(--text-primary)", letterSpacing: "-0.03em", lineHeight: 1.1 }}>About Section</h1>
-          <p style={{ color: "var(--muted)", fontSize: "0.8rem" }}>Edit your profile image and biography</p>
+          <p style={{ color: "var(--muted)", fontSize: "0.8rem" }}>Edit your profile image, title, location, and biography</p>
         </div>
       </div>
 
       {/* Preview */}
-      {form.image && (
+      {(form.image || form.title || form.location) && (
         <div className="card" style={{ padding: "1.25rem", borderRadius: "1.25rem", marginBottom: "1.5rem", display: "flex", gap: "1rem", alignItems: "center" }}>
-          <img src={form.image} alt="Profile" style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: "3px solid rgba(var(--accent-rgb),0.3)" }} />
-          <div style={{ fontSize: "0.825rem", color: "var(--muted)" }}>Current profile image</div>
+          {form.image ? (
+            <img src={form.image} alt="Profile" style={{ width: 68, height: 68, borderRadius: "50%", objectFit: "cover", border: "3px solid rgba(var(--accent-rgb),0.3)" }} />
+          ) : (
+            <div style={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(var(--accent-rgb),0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent)", fontSize: "1.5rem", border: "1px dashed rgba(var(--accent-rgb),0.3)" }}>
+              <RiUser3Line />
+            </div>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+            <div style={{ fontWeight: 800, fontSize: "1rem", color: "var(--text-primary)" }}>Bhaskar Budha</div>
+            <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--accent)" }}>
+              {form.title || "Full-Stack Developer & UI Engineer"}
+            </div>
+            {form.location && (
+              <div style={{ fontSize: "0.78rem", color: "var(--muted)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                <RiMapPinLine style={{ color: "var(--accent)" }} /> {form.location}
+              </div>
+            )}
+          </div>
           <div style={{ marginLeft: "auto" }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.25rem 0.75rem", background: "rgba(20,184,166,0.1)", border: "1px solid rgba(20,184,166,0.2)", borderRadius: 9999, fontSize: "0.78rem", fontWeight: 700, color: "#14b8a6" }}>
-              <HiCheckCircle /> Preview
+              <HiCheckCircle /> Live Preview
             </span>
           </div>
         </div>
@@ -142,6 +173,44 @@ export default function AdminAbout() {
 
       <form onSubmit={handleSubmit}>
         <div className="card" style={{ padding: "2rem", borderRadius: "1.25rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+
+          <div>
+            <label className="form-label">Professional Title / Subtitle</label>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", left: "0.875rem", top: "50%", transform: "translateY(-50%)", color: "var(--muted)", fontSize: "1.1rem", display: "flex", pointerEvents: "none" }}>
+                <RiBriefcaseLine />
+              </span>
+              <input
+                type="text"
+                value={form.title}
+                onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+                placeholder="e.g. Full-Stack Developer & UI Engineer"
+                style={{ paddingLeft: "2.75rem" }}
+              />
+            </div>
+            <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "0.35rem" }}>
+              Appears as the prominent subtitle under your name on Home and About pages
+            </p>
+          </div>
+
+          <div>
+            <label className="form-label">Location</label>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", left: "0.875rem", top: "50%", transform: "translateY(-50%)", color: "var(--muted)", fontSize: "1.1rem", display: "flex", pointerEvents: "none" }}>
+                <RiMapPinLine />
+              </span>
+              <input
+                type="text"
+                value={form.location}
+                onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))}
+                placeholder="e.g. Kathmandu, Nepal"
+                style={{ paddingLeft: "2.75rem" }}
+              />
+            </div>
+            <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "0.35rem" }}>
+              Displayed with a location badge on your About page
+            </p>
+          </div>
 
           <div>
             <label className="form-label">Profile Image</label>

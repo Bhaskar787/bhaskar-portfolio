@@ -27,23 +27,23 @@ const services = [
   "Code Review",
 ];
 
-export default function Footer() {
+import { fetchWithCache, getCached } from "@/utils/apiCache";
+
+export default function Footer({ initialSettings = null }) {
   const year = new Date().getFullYear();
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState(() => initialSettings || getCached("/api/settings") || null);
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/settings");
-        if (!res.ok) return;
-        const data = await res.json();
+        const data = await fetchWithCache("/api/settings");
         if (data && !Array.isArray(data)) setSettings(data);
       } catch {}
     })();
   }, []);
 
-  const siteName = settings?.siteName || "Bhaskar Budha";
-  const logo = settings?.logo || "";
+  const siteName = settings?.siteName || initialSettings?.siteName || "Bhaskar Budha";
+  const logo = settings?.logo || initialSettings?.logo || "";
   const initials = siteName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
   return (
@@ -110,6 +110,7 @@ export default function Footer() {
           <div style={{ gridColumn: "span 1" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
               <div
+                suppressHydrationWarning
                 style={{
                   width: 40,
                   height: 40,
@@ -125,7 +126,7 @@ export default function Footer() {
                   boxShadow: logo ? "none" : "0 4px 16px rgba(var(--accent-rgb),0.4)",
                 }}
               >
-                {logo ? <img src={logo} alt={siteName} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
+                {logo ? <img src={logo} alt={siteName} fetchPriority="high" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
               </div>
               <span style={{ fontWeight: 800, fontSize: "1.0625rem", color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
                 {siteName}
