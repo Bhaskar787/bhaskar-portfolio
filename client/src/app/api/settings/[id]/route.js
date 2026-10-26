@@ -21,11 +21,11 @@ export async function PUT(request, { params }) {
     await connectDB();
     const { id } = await params;
     const body = await request.json();
-    const { siteName, logo } = body;
+    const { siteName, logo, favicon } = body;
 
     const updatedSettings = await SiteSettings.findByIdAndUpdate(
       id,
-      { siteName, logo },
+      { siteName, logo, favicon },
       { new: true, runValidators: true }
     );
 

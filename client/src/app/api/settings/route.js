@@ -18,9 +18,9 @@ export async function POST(request) {
   try {
     await connectDB();
     const body = await request.json();
-    const { siteName, logo } = body;
+    const { siteName, logo, favicon } = body;
 
-    const newSettings = await SiteSettings.create({ siteName, logo });
+    const newSettings = await SiteSettings.create({ siteName, logo, favicon });
     return NextResponse.json(newSettings, { status: 201 });
   } catch (error) {
     console.error("Site settings POST error:", error);

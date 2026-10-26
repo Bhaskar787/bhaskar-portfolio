@@ -5,6 +5,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import FloatingButtons from "./FloatingButtons";
 import CloudCursorGSAP from "./CloudCursorGSAP";
+import DynamicFavicon from "./DynamicFavicon";
 
 export default function SiteChrome({ children, initialSettings = null }) {
   const pathname = usePathname();
@@ -12,6 +13,7 @@ export default function SiteChrome({ children, initialSettings = null }) {
 
   return (
     <>
+      <DynamicFavicon initialFavicon={initialSettings?.favicon || initialSettings?.logo} />
       {!isAdminPage && <CloudCursorGSAP />}
       {!isAdminPage && <Navbar initialSettings={initialSettings} />}
       {children}
