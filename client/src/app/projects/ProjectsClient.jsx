@@ -10,12 +10,14 @@ import { MdFolder } from "react-icons/md";
 import { BiSolidBadgeCheck } from "react-icons/bi";
 
 import { fetchWithCache, getCached } from "@/utils/apiCache";
+import ProjectDetailModal from "@/app/components/ProjectDetailModal";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function ProjectsClient({ initialProjects = [] }) {
   const [projects, setProjects] = useState(initialProjects || []);
   const [loading, setLoading] = useState(!initialProjects?.length);
+  const [selectedProject, setSelectedProject] = useState(null);
   const pageRef = useRef(null);
 
   useEffect(() => {
@@ -202,7 +204,17 @@ export default function ProjectsClient({ initialProjects = [] }) {
                 }}
               >
                 {/* Image */}
-                <div style={{ height: 220, overflow: "hidden", background: "var(--surface-2)", position: "relative" }}>
+                <div
+                  style={{
+                    height: 220,
+                    overflow: "hidden",
+                    background: "var(--surface-2)",
+                    position: "relative",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setSelectedProject(project)}
+                  title="Click to view full project details"
+                >
                   <img
                     src={project.image}
                     alt={project.title}
@@ -229,6 +241,7 @@ export default function ProjectsClient({ initialProjects = [] }) {
                       href={project.githubLink}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       style={{
                         position: "absolute",
                         top: 12,
@@ -258,13 +271,19 @@ export default function ProjectsClient({ initialProjects = [] }) {
                 {/* Content */}
                 <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", flex: 1 }}>
                   <h3
+                    onClick={() => setSelectedProject(project)}
                     style={{
                       fontWeight: 800,
                       fontSize: "1.15rem",
                       color: "var(--text-primary)",
                       marginBottom: "0.5rem",
                       letterSpacing: "-0.02em",
+                      cursor: "pointer",
+                      transition: "color 0.2s ease",
                     }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+                    title="Click to view details"
                   >
                     {project.title}
                   </h3>
@@ -273,16 +292,47 @@ export default function ProjectsClient({ initialProjects = [] }) {
                       color: "var(--muted)",
                       fontSize: "0.875rem",
                       lineHeight: 1.6,
-                      marginBottom: "1.25rem",
+                      marginBottom: project.description && project.description.length > 95 ? "0.45rem" : "1.25rem",
                       display: "-webkit-box",
                       WebkitLineClamp: 3,
                       WebkitBoxOrient: "vertical",
                       overflow: "hidden",
-                      flex: 1,
                     }}
                   >
                     {project.description}
                   </p>
+
+                  {/* Read More button for popup */}
+                  {project.description && project.description.length > 95 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProject(project)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: "0 0 0.85rem 0",
+                        color: "var(--accent)",
+                        fontWeight: 700,
+                        fontSize: "0.82rem",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        alignSelf: "flex-start",
+                        transition: "gap 0.2s ease, color 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.gap = "0.5rem";
+                        e.currentTarget.style.color = "var(--accent-tint)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.gap = "0.3rem";
+                        e.currentTarget.style.color = "var(--accent)";
+                      }}
+                    >
+                      Read more <HiArrowNarrowRight size={13} />
+                    </button>
+                  )}
 
                   {/* Skills tags */}
                   {project.skills && project.skills.length > 0 && (
@@ -393,6 +443,12 @@ export default function ProjectsClient({ initialProjects = [] }) {
           </div>
         )}
       </div>
+
+      {/* Project Details Modal */}
+      <ProjectDetailModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </main>
   );
 }

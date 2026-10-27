@@ -16,6 +16,7 @@ import {
 } from "react-icons/hi";
 import { BiSolidBadgeCheck } from "react-icons/bi";
 import { RiSparklingFill } from "react-icons/ri";
+import ProjectDetailModal from "@/app/components/ProjectDetailModal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -95,7 +96,7 @@ function useMagnetic(strength = 0.35) {
 }
 
 /* ══ Dribbble-style Project Card ══ */
-function ProjectCard({ proj, index }) {
+function ProjectCard({ proj, index, onSelect }) {
   const tiltRef = useTilt(6);
   return (
     <article
@@ -105,7 +106,12 @@ function ProjectCard({ proj, index }) {
     >
       <span className="proj-card-v2__index">{String(index + 1).padStart(2, "0")}</span>
 
-      <div className="proj-card-v2__media">
+      <div
+        className="proj-card-v2__media"
+        onClick={() => onSelect?.(proj)}
+        style={{ cursor: "pointer" }}
+        title="Click to view project details"
+      >
         <img src={proj.image} alt={proj.title} />
         <div className="proj-card-v2__scrim" />
         {proj.githubLink && (
@@ -113,6 +119,7 @@ function ProjectCard({ proj, index }) {
             href={proj.githubLink}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="proj-card-v2__ghbadge"
             aria-label="View source on GitHub"
           >
@@ -122,8 +129,47 @@ function ProjectCard({ proj, index }) {
       </div>
 
       <div className="proj-card-v2__body">
-        <h3 className="line-clamp-2">{proj.title}</h3>
+        <h3
+          className="line-clamp-2"
+          onClick={() => onSelect?.(proj)}
+          style={{ cursor: "pointer", transition: "color 0.2s ease" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+          title="Click to view project details"
+        >
+          {proj.title}
+        </h3>
         <p className="line-clamp-3">{proj.description}</p>
+        {proj.description && proj.description.length > 95 && (
+          <button
+            type="button"
+            onClick={() => onSelect?.(proj)}
+            style={{
+              background: "none",
+              border: "none",
+              padding: "0 0 0.85rem 0",
+              color: "var(--accent)",
+              fontWeight: 700,
+              fontSize: "0.82rem",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.3rem",
+              alignSelf: "flex-start",
+              transition: "gap 0.2s ease, color 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.gap = "0.5rem";
+              e.currentTarget.style.color = "var(--accent-tint)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.gap = "0.3rem";
+              e.currentTarget.style.color = "var(--accent)";
+            }}
+          >
+            Read more <HiArrowNarrowRight size={13} />
+          </button>
+        )}
 
         {proj.skills?.length > 0 && (
           <div className="proj-card-v2__tags">
@@ -197,6 +243,7 @@ export default function HomeClient({ initialData = null }) {
   const [loading, setLoading] = useState(
     !(initialData?.projects?.length || initialData?.about)
   );
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const blob1Ref = useRef(null);
   const blob2Ref = useRef(null);
@@ -629,7 +676,7 @@ export default function HomeClient({ initialData = null }) {
                 <p style={{ color: "var(--muted)" }}>No projects added yet. Add them from the admin panel.</p>
               </div>
             : projects.slice(0, 6).map((proj, i) => (
-                <ProjectCard key={proj._id} proj={proj} index={i} />
+                <ProjectCard key={proj._id} proj={proj} index={i} onSelect={setSelectedProject} />
               ))
           }
         </div>
@@ -882,6 +929,12 @@ export default function HomeClient({ initialData = null }) {
           * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
       `}</style>
+
+      {/* Project Details Modal */}
+      <ProjectDetailModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </div>
   );
 }
