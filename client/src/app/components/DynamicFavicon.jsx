@@ -10,29 +10,21 @@ export function setTabFavicon(url) {
   if (typeof document === "undefined" || !url) return;
 
   const applyFavicon = (href, type) => {
-    // 1. Remove all existing icon links
-    const existing = document.querySelectorAll("link[rel*='icon'], link[rel='shortcut icon'], link[rel='apple-touch-icon']");
-    existing.forEach((el) => el.remove());
-
-    // 2. Add fresh <link rel="icon">
-    const link = document.createElement("link");
-    link.rel = "icon";
-    if (type) link.type = type;
-    link.href = href;
-    document.head.appendChild(link);
-
-    // 3. Add <link rel="shortcut icon">
-    const shortcut = document.createElement("link");
-    shortcut.rel = "shortcut icon";
-    if (type) shortcut.type = type;
-    shortcut.href = href;
-    document.head.appendChild(shortcut);
-
-    // 4. Add <link rel="apple-touch-icon">
-    const apple = document.createElement("link");
-    apple.rel = "apple-touch-icon";
-    apple.href = href;
-    document.head.appendChild(apple);
+    // Safely mutate existing icon link hrefs without detaching nodes from DOM,
+    // which prevents React "Cannot read properties of null (reading 'removeChild')" on navigation.
+    const iconLinks = document.querySelectorAll("link[rel*='icon'], link[rel='shortcut icon'], link[rel='apple-touch-icon']");
+    if (iconLinks.length > 0) {
+      iconLinks.forEach((el) => {
+        if (type) el.type = type;
+        el.href = href;
+      });
+    } else {
+      const link = document.createElement("link");
+      link.rel = "icon";
+      if (type) link.type = type;
+      link.href = href;
+      document.head.appendChild(link);
+    }
   };
 
   // Detect mime type accurately from URL extension

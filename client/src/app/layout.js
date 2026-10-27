@@ -47,8 +47,6 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href={faviconUrl} sizes="any" />
-        <link rel="apple-touch-icon" href={faviconUrl} />
         <script
           id="theme-init"
           dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
